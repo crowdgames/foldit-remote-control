@@ -5,7 +5,7 @@ import java.util.Locale;
 class Constants {
     public static boolean DISABLE_RENDER = true;
 
-	public static int CUR_IMG_WIDTH = 1184;
+	public static int CUR_IMG_WIDTH = 1184; // defaults only...
 	public static int CUR_IMG_HEIGHT = 768;
     public static int REAL_IMG_WIDTH = 1184;
     public static int REAL_IMG_HEIGHT = 768;
@@ -47,13 +47,6 @@ class Constants {
     // Set to true to turn on debug logging
     public static final boolean LOGD = true;
 
-    // Custom actions
-
-    public static final String ACTION_VIEW_IMAGE =
-            "com.example.android.threadsample.ACTION_VIEW_IMAGE";
-
-    public static final String ACTION_ZOOM_IMAGE =
-            "com.example.android.threadsample.ACTION_ZOOM_IMAGE";
 
     // Defines a custom Intent action
     public static final String BROADCAST_ACTION = "com.example.android.threadsample.BROADCAST";

@@ -12,7 +12,7 @@ import android.view.WindowManager;
  * Created by jeffpyke on 7/19/13.
  */
 public class Splash extends Activity {
-    private final int SPLASH_DISPLAY_LENGHT = 650;
+    private final int SPLASH_DISPLAY_LENGTH = 650;
 
     /** Called when the activity is first created. */
     @Override
@@ -34,6 +34,6 @@ public class Splash extends Activity {
                 overridePendingTransition(R.anim.push_down_in, R.anim.push_down_out);
                 Splash.this.finish();
             }
-        }, SPLASH_DISPLAY_LENGHT);
+        }, SPLASH_DISPLAY_LENGTH);
     }
 }

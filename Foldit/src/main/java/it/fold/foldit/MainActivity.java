@@ -137,7 +137,7 @@ public class MainActivity extends SherlockFragmentActivity {
                     mDrawerLayout.openDrawer(mDrawerList);
                     SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
                     if (!myPrefs.contains("drawerHasBeenUsed")) {
-                        myPrefs.edit().putString("drawerHasBeenUsed", "true").commit();
+                        myPrefs.edit().putString("drawerHasBeenUsed", "true").commit(); // Open the drawer on first install of app only
                     }
                 }
                 return true;
@@ -156,7 +156,6 @@ public class MainActivity extends SherlockFragmentActivity {
     }
 
 
-
     @Override
     public void setTitle(CharSequence title) {
         mTitle = title;
@@ -165,8 +164,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
     private void selectItem(int position) {
         // update the main content by replacing fragments
-        if (position == 3) {
-
+        if (position == 3) { // Wiki
             mDrawerList.setItemChecked(currentItem, true);
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://foldit.wikia.com/wiki/Foldit_Wiki"));
             startActivity(browserIntent);
@@ -174,11 +172,11 @@ public class MainActivity extends SherlockFragmentActivity {
         }
         currentItem = position;
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        if (position == 0) {
+        if (position == 0) { // Play Foldit
             ft.replace(R.id.content_frame, fragment1);
-        } else if (position == 1) {
+        } else if (position == 1) { // Help
             ft.replace(R.id.content_frame, fragment2);
-        } else if (position == 2) {
+        } else if (position == 2) { // About
             ft.replace(R.id.content_frame, fragment3);
         }
         ft.commit();
@@ -270,7 +268,6 @@ public class MainActivity extends SherlockFragmentActivity {
         }
 
 
-
         public void startFoldit(View view) {
             if (isOnline()) {
                 EditText add = (EditText) view.findViewById(R.id.editAddress);
@@ -278,8 +275,8 @@ public class MainActivity extends SherlockFragmentActivity {
                 String myPort = Constants.PORT + "";
                 String myKey = key.getText().toString();
 
-                String myAdd = add.getText().toString();
-                if (myAdd.equals("") || !(Pattern.matches("^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$", myAdd) || Pattern.matches("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$", myAdd))) {
+                String myAddress = add.getText().toString();
+                if (myAddress.equals("") || !(Pattern.matches("^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$", myAddress) || Pattern.matches("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$", myAddress))) {
                     Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Enter a valid IP address.", Toast.LENGTH_SHORT);
                     toast.show();
                     return;
@@ -293,7 +290,7 @@ public class MainActivity extends SherlockFragmentActivity {
                 // "128.95.2.85";
                 SharedPreferences.Editor e = myPrefs.edit();
 
-                e.putString("address", myAdd);
+                e.putString("address", myAddress);
                 e.putString("key", myKey);
 
                 if (!myPort.equals("1230")) {
@@ -303,8 +300,8 @@ public class MainActivity extends SherlockFragmentActivity {
                 }
                 e.commit();
 
-                Intent intent = new Intent(getActivity(), DisplayThreadActivity.class);
-                intent.putExtra("address", myAdd);
+                Intent intent = new Intent(getActivity(), GameActivity.class);
+                intent.putExtra("address", myAddress);
                 intent.putExtra("port", myPort);
                 if (!key.equals("")) {
                     intent.putExtra("key", myKey);
@@ -324,7 +321,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
     public static class HelpSectionFragment extends SherlockFragment {
         public HelpSectionFragment() {
-
+            // empty
         }
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -336,7 +333,7 @@ public class MainActivity extends SherlockFragmentActivity {
     }
     public static class AboutSectionFragment extends Fragment {
         public AboutSectionFragment() {
-
+            // empty
         }
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -347,7 +344,7 @@ public class MainActivity extends SherlockFragmentActivity {
             vers.setText(vers.getText() + getResources().getString(R.string.version));
             ImageView img = (ImageView)rootView.findViewById(R.id.logo);
             img.setOnClickListener(new View.OnClickListener(){
-                public void onClick(View v) {
+                public void onClick(View v) { // Go to the website when clicked
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_VIEW);
                     intent.addCategory(Intent.CATEGORY_BROWSABLE);

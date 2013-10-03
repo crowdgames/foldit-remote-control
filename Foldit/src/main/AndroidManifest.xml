@@ -38,7 +38,7 @@
         </activity>
 
         <activity
-                android:name=".DisplayThreadActivity"
+                android:name=".GameActivity"
                 android:label="@string/title_activity_display"
                 android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
                 android:screenOrientation="landscape"

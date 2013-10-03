@@ -3,6 +3,7 @@ package it.fold.foldit;
 /**
  * Created by jeffpyke on 7/29/13.
  */
+// Deprecated way to represent a touch action
 public class TouchEvent {
     private int x;
     private int y;

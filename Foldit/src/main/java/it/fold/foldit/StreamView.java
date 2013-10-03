@@ -22,9 +22,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.ImageView;
 
-import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.Queue;
 
 /**
  * Created by jeffpyke on 7/23/13.
@@ -147,9 +145,9 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
             } else {
                 broadcastIntent.putExtra("msg", "Lost connection.");
             }
-            broadcastIntent.setAction(DisplayThreadActivity.ResponseReceiver.ACTION_RESP);
+            broadcastIntent.setAction(GameActivity.ResponseReceiver.ACTION_RESP);
             broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-            DisplayThreadActivity.instance().sendBroadcast(broadcastIntent);
+            GameActivity.instance().sendBroadcast(broadcastIntent);
         }
         private void sendProcess(char[] send_buf, int length) {
             try {
@@ -198,10 +196,10 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
                 return;
             }
 
-            DisplayThreadActivity.instance().runOnUiThread(new Runnable() {
+            GameActivity.instance().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    DisplayThreadActivity.instance().setLoadingDone();
+                    GameActivity.instance().setLoadingDone();
                 }
             });
 
@@ -465,7 +463,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
         }
         @Override
         public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
-            if (!DisplayThreadActivity.ctrlDown) {
+            if (!GameActivity.ctrlDown) {
                 streamHandler.obtainMessage(Constants.CLEV_MODKEY_UP, 0, 0).sendToTarget();
             }
             streamHandler.obtainMessage(Constants.CLEV_MOUSE_UP, (int) scaleGestureDetector.getFocusX(), (int) scaleGestureDetector.getFocusY()).sendToTarget();

@@ -16,7 +16,7 @@
         </activity>
 
 
-        <activity android:label="@string/title_activity_display" android:name="it.fold.foldit.DisplayThreadActivity" android:screenOrientation="landscape" android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+        <activity android:label="@string/title_activity_display" android:name="it.fold.foldit.GameActivity" android:screenOrientation="landscape" android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
         </activity>
         <activity android:name="it.fold.foldit.settingsActivity">
         <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="it.fold.foldit.MainActivity"/>

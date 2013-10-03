@@ -20,11 +20,10 @@ public class SocketBuffer {
         socket = new Socket(host, port);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-        if (Build.VERSION.SDK_INT >= 14) {
+        if (Build.VERSION.SDK_INT >= 14) { // for debugging network usage
             TrafficStats.setThreadStatsTag(0xF00D);
             TrafficStats.tagSocket(socket);
         }
-
 	}
 
 	public BufferedReader getIn() {
