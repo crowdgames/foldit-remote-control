@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:background="@color/green"
+              android:gravity="center"
+               >
+
+
+    <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ctrlImage"
+            android:src="@drawable/splashlogo"
+            android:scaleType="centerInside"
+            />
+</LinearLayout><!-- From: C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\layout\activity_splash.xml -->

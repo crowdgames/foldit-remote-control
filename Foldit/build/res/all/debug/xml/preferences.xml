@@ -1,0 +1,12 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+            android:title="Connection"
+            android:key="pref_connection_settings">
+        <CheckBoxPreference
+                android:key="pref_key_auto_delete"
+                android:summary="Reduces network usage and quality, may increase performance. (Not yet implemented)"
+                android:title="Use low resolution"
+                android:defaultValue="false" />
+    </PreferenceCategory>
+
+</PreferenceScreen><!-- From: C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\xml\preferences.xml -->

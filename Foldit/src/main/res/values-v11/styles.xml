@@ -1,0 +1,14 @@
+<resources>
+
+    <!--
+        Base application theme for API 11+. This theme completely replaces
+        AppBaseTheme from res/values/styles.xml on API 11+ devices.
+    -->
+    <style name="AppBaseTheme" parent="Theme.Sherlock.Light">
+        <!-- API 11 theme customizations can go here. -->
+        <item name="homeAsUpIndicator">@drawable/ic_drawer</item>
+        <item name="android:activatedBackgroundIndicator">@drawable/activated_background</item>
+        <item name="android:listChoiceBackgroundIndicator">@drawable/activated_background</item>
+    </style>
+
+</resources>

@@ -1,0 +1,15 @@
+<resources>
+
+    <!--
+        Base application theme for API 14+. This theme completely replaces
+        AppBaseTheme from BOTH res/values/styles.xml and
+        res/values-v11/styles.xml on API 14+ devices.
+    -->
+    <style name="AppBaseTheme" parent="Theme.Sherlock.Light">
+        <!-- API 14 theme customizations can go here. -->
+        <item name="android:activatedBackgroundIndicator">@drawable/activated_background</item>
+        <item name="android:listChoiceBackgroundIndicator">@drawable/activated_background</item>
+        <item name="android:actionBarItemBackground">@drawable/dark_activated_background</item>
+    </style>
+
+</resources>

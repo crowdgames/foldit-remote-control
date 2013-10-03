@@ -1,0 +1,14 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+            android:title="Connection"
+            android:key="pref_connection_settings">
+        <CheckBoxPreference
+                android:key="reduce_bandwidth"
+                android:summary="Reduces network usage and quality, may increase performance."
+                android:title="Use low resolution"
+                android:defaultValue="false"
+                android:id="@+id/bandCheck"
+            />
+    </PreferenceCategory>
+
+</PreferenceScreen>

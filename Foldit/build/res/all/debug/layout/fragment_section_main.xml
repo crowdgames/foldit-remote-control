@@ -1,0 +1,93 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+            >
+
+
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Start Foldit on your computer and enable remote connection, then tap connect."
+                android:id="@+id/textView"
+                android:textAlignment="center"
+                android:layout_alignParentBottom="false"
+                android:layout_centerHorizontal="true"
+
+                android:background="@color/green"
+                android:textStyle="italic"
+                android:textColor="@color/white"
+                android:padding="8dp"
+                android:layout_alignParentTop="true"/>
+
+        <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/progressBar"
+                android:layout_marginBottom="27dp"
+                android:layout_alignParentBottom="true"
+                android:visibility="invisible"
+                android:layout_centerHorizontal="true"/>
+
+        <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:ems="10"
+                android:maxLength="39"
+                android:id="@+id/editAddress"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/textView"
+                android:layout_marginTop="10dp"
+                android:hint="IP Address"
+                />
+
+        <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:ems="7"
+                android:maxLength="5"
+                android:id="@+id/editPort"
+                android:layout_below="@id/editAddress"
+                android:layout_centerHorizontal="true"
+                android:hint="Port (optional)"
+
+                android:layout_marginTop="10dp"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Connect"
+            android:id="@+id/button"
+            android:onClick="gotoLogin"
+            android:layout_marginBottom="27dp"
+
+            android:layout_below="@+id/editPort"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="How to use this app ->"
+                android:id="@+id/textView2"
+                android:background="@color/green"
+                android:textStyle="italic"
+                android:textColor="@color/white"
+                android:padding="8dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"/>
+
+
+    </RelativeLayout>
+</FrameLayout><!-- From: C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\layout\fragment_section_main.xml -->

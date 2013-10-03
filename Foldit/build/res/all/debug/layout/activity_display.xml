@@ -1,0 +1,16 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+
+    tools:context=".DisplayActivity">
+
+    <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/ctrlImage"
+            android:baselineAlignBottom="true"
+            android:layout_alignParentRight="true"
+            />
+</RelativeLayout>
+<!-- From: C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\layout\activity_display.xml -->

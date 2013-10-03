@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger>
+
+    <dataSet config="main" >
+        <source path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res" >
+            <file
+                name="push_down_in"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\anim\push_down_in.xml"
+                qualifiers=""
+                type="anim" />
+            <file
+                name="push_down_out"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\anim\push_down_out.xml"
+                qualifiers=""
+                type="anim" />
+            <file
+                name="androidrain"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\drawable\androidrain.jpg"
+                qualifiers=""
+                type="drawable" />
+            <file
+                name="bitmaprosezoom"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\drawable\bitmaprosezoom.jpg"
+                qualifiers=""
+                type="drawable" />
+            <file
+                name="ctrl"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\drawable\ctrl.png"
+                qualifiers=""
+                type="drawable" />
+            <file
+                name="ctrlLit"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\drawable\ctrlLit.png"
+                qualifiers=""
+                type="drawable" />
+            <file
+                name="foldit"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\drawable\foldit.xml"
+                qualifiers=""
+                type="drawable" />
+            <file
+                name="ic_launcher"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\drawable\ic_launcher.png"
+                qualifiers=""
+                type="drawable" />
+            <file
+                name="keyboard"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\drawable\keyboard.png"
+                qualifiers=""
+                type="drawable" />
+            <file
+                name="keyboardlit"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\drawable\keyboardlit.jpg"
+                qualifiers=""
+                type="drawable" />
+            <file
+                name="shift"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\drawable\shift.png"
+                qualifiers=""
+                type="drawable" />
+            <file
+                name="shiftLit"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\drawable\shiftLit.png"
+                qualifiers=""
+                type="drawable" />
+            <file
+                name="splashlogo"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\drawable\splashlogo.png"
+                qualifiers=""
+                type="drawable" />
+            <file
+                name="splashlogoborder"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\drawable\splashlogoborder.png"
+                qualifiers=""
+                type="drawable" />
+            <file
+                name="splashlogotall"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\drawable\splashlogotall.png"
+                qualifiers=""
+                type="drawable" />
+            <file
+                name="ic_launcher"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\drawable-hdpi\ic_launcher.png"
+                qualifiers="hdpi"
+                type="drawable" />
+            <file
+                name="ic_launcher"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\drawable-mdpi\ic_launcher.png"
+                qualifiers="mdpi"
+                type="drawable" />
+            <file
+                name="ic_launcher"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\drawable-xhdpi\ic_launcher.png"
+                qualifiers="xhdpi"
+                type="drawable" />
+            <file
+                name="ic_launcher"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\drawable-xxhdpi\ic_launcher.png"
+                qualifiers="xxhdpi"
+                type="drawable" />
+            <file
+                name="activity_display"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\layout\activity_display.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="activity_displaythread"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\layout\activity_displaythread.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="activity_login"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\layout\activity_login.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="activity_main_pager"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\layout\activity_main_pager.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="activity_splash"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\layout\activity_splash.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="fragment_section_help"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\layout\fragment_section_help.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="fragment_section_main"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\layout\fragment_section_main.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="display"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\menu\display.xml"
+                qualifiers=""
+                type="menu" />
+            <file
+                name="login"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\menu\login.xml"
+                qualifiers=""
+                type="menu" />
+            <file
+                name="main"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\menu\main.xml"
+                qualifiers=""
+                type="menu" />
+            <file
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\values\dimens.xml"
+                qualifiers="" >
+                <dimen name="activity_horizontal_margin" >16dp
+                </dimen>
+                <dimen name="activity_vertical_margin" >16dp
+                </dimen>
+            </file>
+            <file
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\values\strings.xml"
+                qualifiers="" >
+                <string name="action_settings" >Settings
+                </string>
+
+                <color name="green" >#89B73F
+                </color>
+                <color name="white" >#FFFFFF
+                </color>
+
+                <string name="title_activity_display" >Game
+                </string>
+                <string name="app_name" >Foldit
+                </string>
+                <string name="hello_world" >Hello World
+                </string>
+            </file>
+            <file
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\values\strings_activity_login.xml"
+                qualifiers="" >
+                <string name="error_field_required" >This field is required
+                </string>
+                <string name="error_invalid_email" >This email address is invalid
+                </string>
+                <string name="prompt_email" >Email
+                </string>
+                <string name="action_sign_in_register" ><b>
+Sign in
+                    </b> or register
+                </string>
+                <string name="login_progress_signing_in" >Signing in…
+                </string>
+                <string name="prompt_password" >Password
+                </string>
+                <string name="action_sign_in_short" >Sign in
+                </string>
+                <string name="error_incorrect_password" >This password is incorrect
+                </string>
+                <string name="action_forgot_password" >Recover lost password
+                </string>
+                <string name="error_invalid_password" >This password is too short
+                </string>
+            </file>
+            <file
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\values\styles.xml"
+                qualifiers="" >
+
+                <style
+                    name="AppBaseTheme"
+                    parent="android:Theme.Light" >
+
+                    <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+                    -->
+                </style>
+
+                <style name="LoginFormContainer" >
+                    <item name="android:layout_width">
+match_parent
+                    </item>
+                    <item name="android:layout_height">
+wrap_content
+                    </item>
+                    <item name="android:padding">
+16dp
+                    </item>
+                </style>
+
+                <style
+                    name="AppTheme"
+                    parent="AppBaseTheme" >
+
+                    <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+                </style>
+            </file>
+            <file
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\values-large\styles.xml"
+                qualifiers="large" >
+
+                <style name="LoginFormContainer" >
+                    <item name="android:layout_width">
+400dp
+                    </item>
+                    <item name="android:layout_height">
+wrap_content
+                    </item>
+                    <item name="android:layout_gravity">
+center
+                    </item>
+                    <item name="android:padding">
+16dp
+                    </item>
+                </style>
+            </file>
+            <file
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\values-sw600dp\dimens.xml"
+                qualifiers="sw600dp" />
+            <file
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\values-sw720dp-land\dimens.xml"
+                qualifiers="sw720dp-land" >
+                <dimen name="activity_horizontal_margin" >128dp
+                </dimen>
+            </file>
+            <file
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\values-v11\styles.xml"
+                qualifiers="v11" >
+
+                <style
+                    name="AppBaseTheme"
+                    parent="android:Theme.Holo.Light" >
+
+                    <!-- API 11 theme customizations can go here. -->
+                </style>
+            </file>
+            <file
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\values-v14\styles.xml"
+                qualifiers="v14" >
+
+                <style
+                    name="AppBaseTheme"
+                    parent="android:Theme.Holo.Light.DarkActionBar" >
+
+                    <!-- API 14 theme customizations can go here. -->
+                </style>
+            </file>
+            <file
+                name="preferences"
+                path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\main\res\xml\preferences.xml"
+                qualifiers=""
+                type="xml" />
+        </source>
+        <source path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\build\res\rs\debug" />
+    </dataSet>
+    <dataSet config="debug" >
+        <source path="C:\Users\jeffpyke\AndroidStudioProjects\FolditProject\Foldit\src\debug\res" />
+    </dataSet>
+
+</merger>
