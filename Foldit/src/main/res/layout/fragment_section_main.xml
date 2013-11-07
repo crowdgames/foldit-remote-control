@@ -67,7 +67,7 @@
         android:text="@string/getfoldit"
         android:onClick="linkClick"
         android:layout_alignParentBottom="true"
-        android:layout_alignLeft="@+id/editKey" />
+        android:layout_centerHorizontal="true" />
 
 
 </RelativeLayout>
