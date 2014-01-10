@@ -123,7 +123,6 @@ public class MainActivity extends SherlockFragmentActivity {
         if (!myPrefs.contains("drawerHasBeenUsed")) {
             mDrawerLayout.openDrawer(mDrawerList);
         }
-
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -154,7 +153,6 @@ public class MainActivity extends SherlockFragmentActivity {
     protected void onResume() {
         super.onResume();
     }
-
 
     @Override
     public void setTitle(CharSequence title) {
@@ -267,7 +265,6 @@ public class MainActivity extends SherlockFragmentActivity {
             return false;
         }
 
-
         public void startFoldit(View view) {
             if (isOnline()) {
                 EditText add = (EditText) view.findViewById(R.id.editAddress);
@@ -303,11 +300,7 @@ public class MainActivity extends SherlockFragmentActivity {
                 Intent intent = new Intent(getActivity(), GameActivity.class);
                 intent.putExtra("address", myAddress);
                 intent.putExtra("port", myPort);
-                if (!key.equals("")) {
-                    intent.putExtra("key", myKey);
-                } else {
-                    intent.putExtra("key", "_____");
-                }
+                intent.putExtra("key", myKey);
                 startActivity(intent);
             } else {
                 Toast toast = Toast.makeText(getActivity().getApplicationContext(), "You are not connected to the internet.", Toast.LENGTH_SHORT);

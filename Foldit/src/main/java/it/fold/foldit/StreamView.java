@@ -26,6 +26,7 @@ import java.util.Arrays;
 
 /**
  * Created by jeffpyke on 7/23/13.
+ * The custom Surface for displaying the game
  */
 public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
     public static long touchTime;
@@ -38,12 +39,12 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
 
         private SocketBuffer s;
         private ImageView view;
-        private char recv_buf[];
+        private char recv_buf[]; // buffer for receiving data
         private int recv_buf_offset;
         private int recv_buf_msg_len;
-        private char send_buf[];
-        private char refr_buf[];
-        private int color_array[];
+        private char send_buf[]; // buffer for sending data
+        private char refr_buf[]; // buffer for sending data
+        private int color_array[]; // array of colors to display to screen
         private String address;
         private int port;
         private Rect rs;
@@ -56,10 +57,10 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
             mHandler = handler;
             mContext = context;
             address = null;
-            key = "_____";
+            key = "";
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
             lowRes = sharedPref.getBoolean("reduce_bandwidth", false);
-            Log.d("jeff", "reduce_bandwith is " + lowRes);
+            Log.d("streamdebug", "reduce_bandwith is " + lowRes);
             Resources res = context.getResources();
             rs = new Rect();
             rd = new Rect();
@@ -90,10 +91,6 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
                     send_buf[1] = (char) m.what;
                     int x = m.arg1;
                     int y = m.arg2;
-//                    if (lowRes) {
-//                        x /= 2;
-//                        y /= 2;
-//                    }
                     send_buf[2] = (char)(x / 128);
                     send_buf[3] = (char)(x % 128);
                     int inv_yy = Constants.REAL_IMG_HEIGHT - 1 - y;
@@ -109,8 +106,11 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
         public Handler getHandler() {
             return mHandler;
         }
-
+        // starts the thread
         public void doStart(String address, int port, String key) {
+            if (address == null || key == null) {
+                throw new IllegalArgumentException();
+            }
             mLastReceiveTime = System.currentTimeMillis() + 100;
             this.address = address;
             this.port = port;
@@ -120,20 +120,6 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
             return s != null;
         }
 
-        public Bitmap getResizedBitmap(Bitmap bm, int newHeight, int newWidth) {
-            int width = bm.getWidth();
-            int height = bm.getHeight();
-            float scaleWidth = ((float) newWidth) / width;
-            float scaleHeight = ((float) newHeight) / height;
-            // CREATE A MATRIX FOR THE MANIPULATION
-            Matrix matrix = new Matrix();
-            // RESIZE THE BIT MAP
-            matrix.postScale(scaleWidth, scaleHeight);
-
-            // "RECREATE" THE NEW BITMAP
-            Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
-            return resizedBitmap;
-        }
         public void lostConnection() {
             lostConnection(null);
         }
@@ -154,7 +140,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
                 s.getOut().write(send_buf, 0, length);
                 s.getOut().flush();
             } catch (Exception e) {
-                Log.d("jeff", "error sending");
+                Log.d("streamdebug", "error sending");
                 lostConnection();
                 e.printStackTrace();
             }
@@ -162,22 +148,26 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
         @Override
         public void run() {
             int tid = android.os.Process.myTid();
-            Log.d("jeff", "streamthread pid: " + tid);
-            Log.d("jeff", "priority before change = " + android.os.Process.getThreadPriority(tid));
-            Log.d("jeff", "priority before change = "+Thread.currentThread().getPriority());
+            Log.d("streamdebug", "streamthread pid: " + tid);
+            Log.d("streamdebug", "priority before change = " + android.os.Process.getThreadPriority(tid));
+            Log.d("streamdebug", "priority before change = "+Thread.currentThread().getPriority());
             android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY);
-            Log.d("jeff", "priority after change = " + android.os.Process.getThreadPriority(tid));
-            Log.d("jeff", "priority after change = " + Thread.currentThread().getPriority());
+            Log.d("streamdebug", "priority after change = " + android.os.Process.getThreadPriority(tid));
+            Log.d("streamdebug", "priority after change = " + Thread.currentThread().getPriority());
+            long time = System.currentTimeMillis();
             while (mRun && address == null) {
                 // busy wait
-                Log.d("jeff", "busy wait");
+                if (time > 3000) { // sanity check
+                    return;
+                }
+                Log.d("streamdebug", "busy wait");
             }
-            Log.d("jeff", "trying to create socket buffer");
+            Log.d("streamdebug", "trying to create socket buffer");
             Thread socketThread = new Thread() {
                 public void run() {
                     try {
                         int tid = android.os.Process.myTid();
-                        Log.d("jeff", "creating socket pid: " + tid);
+                        Log.d("streamdebug", "creating socket pid: " + tid);
                         s = new SocketBuffer(address, port);
                     } catch (Exception e) {
                         s = null;
@@ -200,6 +190,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
                 @Override
                 public void run() {
                     GameActivity.instance().setLoadingDone();
+                    // disable loading gif
                 }
             });
 
@@ -210,12 +201,11 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
             first_buf[2] = Constants.VERSION;
 
             // Key
-            if (key.length() == Constants.KEY_LENGTH) {
+            if (key != null && key.length() == Constants.KEY_LENGTH) {
                 for (int i = 0; i < Constants.KEY_LENGTH; i++) {
                     first_buf[i + 3] = key.charAt(i);
                 }
             }
-
 
             // Resolution
             first_buf[8] = (char)(Constants.REAL_IMG_WIDTH / 128);
@@ -246,7 +236,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
                         if (recv_buf_offset == Constants.SE_MSG_HDR) {
                             char magic = recv_buf[0];
                             if (magic != Constants.MAGIC) {
-                                Log.d("jeff", "Bad magic number");
+                                Log.d("streamdebug", "Bad magic number");
                                 setRunning(false);
                                 break;
                             }
@@ -262,7 +252,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
                             if (type == Constants.SEEV_FLUSH) {
                                 mLastReceiveTime = System.currentTimeMillis();
                                 //time = System.currentTimeMillis();
-                                //Log.d("jeff", "time passed to receive refresh: " + (System.currentTimeMillis() - mLastReceiveTime) + " milliseconds");
+                                //Log.d("streamdebug", "time passed to receive refresh: " + (System.currentTimeMillis() - mLastReceiveTime) + " milliseconds");
                                 if (isDiff) {
                                     Canvas canvas = mSurfaceHolder.lockCanvas();
                                     synchronized (mSurfaceHolder) {
@@ -270,7 +260,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
                                     }
                                     mSurfaceHolder.unlockCanvasAndPost(canvas);
                                     isDiff = false;
-                                    //Log.d("jeff", "render took: " + (System.currentTimeMillis() - time) + " milliseconds");
+                                    //Log.d("streamdebug", "render took: " + (System.currentTimeMillis() - time) + " milliseconds");
                                 }
                             } else if (type == Constants.SEEV_TILE || type == Constants.SEEV_SOLID_TILE || type == Constants.SEEV_RLE24_TILE || type == Constants.SEEV_RLE16_TILE || type == Constants.SEEV_RLE8_TILE) {
                                 int xx = recv_buf[4] * 128 + recv_buf[5];
@@ -351,12 +341,12 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
                                 closeSocket();
                                 return;
                             } else {
-                                Log.d("jeff", "Bad server event: " + (int)type);
+                                Log.d("streamdebug", "Bad server event: " + (int)type);
                             }
                         }
                     }
                 } catch(Exception e) {
-                    Log.d("jeff", "Exception: " + e.getMessage() + e.toString());
+                    Log.d("streamdebug", "Exception: " + e.getMessage() + e.toString());
                     lostConnection();
                 }
 
@@ -379,14 +369,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
             }
         }
         private void doDraw(Canvas canvas) {
-//            if (zoom) {
-//                canvas.save();
-//                canvas.scale(ZOOM_SCALE_FACTOR, ZOOM_SCALE_FACTOR, zoomX, zoomY);
-//                canvas.drawBitmap(image, rs, rd, null);
-//                canvas.restore();
-//            } else {
-                canvas.drawBitmap(image, rs, rd, null);
-//            }
+            canvas.drawBitmap(image, rs, rd, null);
         }
 
     }
@@ -402,13 +385,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
     private final float ZOOM_SCALE_FACTOR = 1.5f;
     private final GestureDetector.OnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
         public void onLongPress(MotionEvent e) {
-            Log.d("jeff", "Longpress detected");
-//            zoom = !zoom;
-//            if (zoom) {
-//                zoomX = e.getX();
-//                zoomY = e.getY();
-//            }
-
+            Log.d("streamdebug", "Longpress detected");
         }
     };
     private final ScaleGestureDetector.OnScaleGestureListener mScaleGestureListener
@@ -446,7 +423,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
                 translating = true;
             }
 
-            //Log.d("jeff", mScaleFactor + "");
+            //Log.d("streamdebug", mScaleFactor + "");
             if (mScaleFactor < 1.0) {
                 streamHandler.obtainMessage(Constants.CLEV_SCROLL_DOWN).sendToTarget();
             } else if (mScaleFactor > 1.0) {
@@ -487,7 +464,6 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
         });
         streamHandler = thread.getHandler();
         setFocusable(true);
-
         artificialCtrl = false;
     }
 
@@ -515,12 +491,13 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
                 invalidate();
             }
             cl_action = Constants.CLEV_MOUSE_MOVE;
-            int historySize = e.getHistorySize();
-            for (int h = 0; h < historySize; h++) {
-                int xx = (int) e.getHistoricalX(h);
-                int yy = (int) e.getHistoricalY(h);
-                streamHandler.obtainMessage(cl_action, xx, yy).sendToTarget();
-            }
+/* Uncomment to use 1-2 batched move events instead of just current */
+//            int historySize = e.getHistorySize();
+//            for (int h = 0; h < historySize; h++) {
+//                int xx = (int) e.getHistoricalX(h);
+//                int yy = (int) e.getHistoricalY(h);
+//                streamHandler.obtainMessage(cl_action, xx, yy).sendToTarget();
+//            }
         } else if (action == MotionEvent.ACTION_DOWN) {
             cl_action = Constants.CLEV_MOUSE_DOWN;
         } else if (action == MotionEvent.ACTION_UP) {
@@ -534,7 +511,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
                     }
                 }
         } else {
-            return false;
+            return true;
         }
         streamHandler.obtainMessage(cl_action, x, y).sendToTarget();
         return true;
@@ -547,7 +524,6 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
             ee.printStackTrace();
         }
     }
-
 
     public void surfaceCreated(SurfaceHolder holder) {
         // start the thread here so that we don't busy-wait in run()

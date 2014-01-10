@@ -10,6 +10,8 @@ import android.view.WindowManager;
 
 /**
  * Created by jeffpyke on 7/19/13.
+ *  Displays a foldit splash screen.
+ * CURRENTLY UNUSED
  */
 public class Splash extends Activity {
     private final int SPLASH_DISPLAY_LENGTH = 650;

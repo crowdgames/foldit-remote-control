@@ -51,7 +51,7 @@ public class GameActivity extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Constants.REAL_IMG_HEIGHT = Constants.CUR_IMG_HEIGHT;
         Constants.REAL_IMG_WIDTH = Constants.CUR_IMG_WIDTH;
-        // if low res enabled halve cur width and height
+        // if low res enabled streamview will halve cur width and height
         setContentView(R.layout.activity_displaythread);
         mStreamView = (StreamView) findViewById(R.id.stream);
 
@@ -64,7 +64,7 @@ public class GameActivity extends Activity {
         String key = intent.getStringExtra("key");
         mStreamThread.doStart(address, port, key);
         int tid = android.os.Process.myTid();
-        Log.d("jeff", "oncreate thread id: " + tid);
+        Log.d("streamdebug", "oncreate thread id: " + tid);
     }
     public void shiftClick(View view) {
         if (!shiftDown) {
