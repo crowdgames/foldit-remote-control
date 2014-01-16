@@ -45,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Connect"
-            android:id="@+id/button"
+            android:id="@+id/playbutton"
             android:onClick="startFoldit"
             android:fontFamily="sans-serif-light"
             />
@@ -65,6 +65,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-light"
         android:text="@string/getfoldit"
+        android:id="@+id/getbutton"
         android:onClick="linkClick"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />

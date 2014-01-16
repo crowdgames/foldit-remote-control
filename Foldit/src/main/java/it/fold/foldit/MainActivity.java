@@ -22,6 +22,8 @@ import java.lang.Override;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.espian.showcaseview.ShowcaseView;
+import com.espian.showcaseview.targets.ViewTarget;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +36,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,9 +53,14 @@ public class MainActivity extends SherlockFragmentActivity {
     private int currentItem;
     //AppSectionsPagerAdapter mAppSectionsPagerAdapter;
     ViewPager mViewPager;
-    Fragment fragment1 = new MainSectionFragment();
-    Fragment fragment2 = new HelpSectionFragment();
-    Fragment fragment3 = new AboutSectionFragment();
+    ShowcaseView sv;
+    MainSectionFragment fragmentMain = new MainSectionFragment();
+    Fragment fragmentHelp = new HelpSectionFragment();
+    Fragment fragmentAbout = new AboutSectionFragment();
+    private final int MAIN_FRAGMENT_ID = 0;
+    private final int HELP_FRAGMENT_ID = 1;
+    private final int ABOUT_FRAGMENT_ID = 2;
+    private final int WIKI_ID = 3;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         DisplayMetrics metrics = new DisplayMetrics();
@@ -68,7 +76,7 @@ public class MainActivity extends SherlockFragmentActivity {
         }
         Constants.REAL_IMG_HEIGHT = Constants.CUR_IMG_HEIGHT;
         Constants.REAL_IMG_WIDTH = Constants.CUR_IMG_WIDTH;
-        Log.d("jeff", "Height: "+ Constants.CUR_IMG_HEIGHT + " Width: " + Constants.CUR_IMG_WIDTH);
+        Log.d("streamdebug", "Height: "+ Constants.CUR_IMG_HEIGHT + " Width: " + Constants.CUR_IMG_WIDTH);
 
         mTitle = mDrawerTitle = getTitle();
         mPageTitles = getResources().getStringArray(R.array.pages_array);
@@ -98,9 +106,10 @@ public class MainActivity extends SherlockFragmentActivity {
                 R.string.drawer_close  /* "close drawer" description for accessibility */
         ) {
             public void onDrawerClosed(View view) {
-
+                if (currentItem == MAIN_FRAGMENT_ID) {
+                    fragmentMain.onDrawerClose();
+                }
                 getSupportActionBar().setTitle(mTitle);
-
                 //invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
@@ -114,13 +123,13 @@ public class MainActivity extends SherlockFragmentActivity {
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         if (savedInstanceState == null) {
-            selectItem(0);
+            selectItem(MAIN_FRAGMENT_ID);
         }
 
         /* Show the drawer upon startup if it has never been used before to teach the user how to use the app
-        * Once the Drawer has been opened once manually "drawerHasBeenUsed" will be added to the preferences */
+        * Once the Drawer has been opened once manually "tutorialFinished" will be added to the preferences */
         SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
-        if (!myPrefs.contains("drawerHasBeenUsed")) {
+        if (!myPrefs.contains("tutorialFinished")) {
             mDrawerLayout.openDrawer(mDrawerList);
         }
     }
@@ -135,8 +144,8 @@ public class MainActivity extends SherlockFragmentActivity {
                 } else {
                     mDrawerLayout.openDrawer(mDrawerList);
                     SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
-                    if (!myPrefs.contains("drawerHasBeenUsed")) {
-                        myPrefs.edit().putString("drawerHasBeenUsed", "true").commit(); // Open the drawer on first install of app only
+                    if (!myPrefs.contains("tutorialFinished")) {
+                        myPrefs.edit().putString("tutorialFinished", "true").commit(); // Open the drawer on first install of app only
                     }
                 }
                 return true;
@@ -162,7 +171,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
     private void selectItem(int position) {
         // update the main content by replacing fragments
-        if (position == 3) { // Wiki
+        if (position == WIKI_ID) { // Wiki
             mDrawerList.setItemChecked(currentItem, true);
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://foldit.wikia.com/wiki/Foldit_Wiki"));
             startActivity(browserIntent);
@@ -170,12 +179,12 @@ public class MainActivity extends SherlockFragmentActivity {
         }
         currentItem = position;
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        if (position == 0) { // Play Foldit
-            ft.replace(R.id.content_frame, fragment1);
-        } else if (position == 1) { // Help
-            ft.replace(R.id.content_frame, fragment2);
-        } else if (position == 2) { // About
-            ft.replace(R.id.content_frame, fragment3);
+        if (position == MAIN_FRAGMENT_ID) { // Play Foldit
+            ft.replace(R.id.content_frame, fragmentMain);
+        } else if (position == HELP_FRAGMENT_ID) { // Help
+            ft.replace(R.id.content_frame, fragmentHelp);
+        } else if (position == ABOUT_FRAGMENT_ID) { // About
+            ft.replace(R.id.content_frame, fragmentAbout);
         }
         ft.commit();
         // update selected item and title, then close the drawer
@@ -189,6 +198,7 @@ public class MainActivity extends SherlockFragmentActivity {
         super.onConfigurationChanged(newConfig);
         // Pass any configuration change to the drawer toggls
         mDrawerToggle.onConfigurationChanged(newConfig);
+
     }
     /* The click listener for ListView in the navigation drawer */
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -244,17 +254,71 @@ public class MainActivity extends SherlockFragmentActivity {
             key.setText(myPrefs.getString("key", ""));
 
             getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-            rootView.findViewById(R.id.button)
+            rootView.findViewById(R.id.playbutton)
                     .setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             startFoldit(rootView);
                         }
                     });
+            // Tutorial view highlight app important parts
 
             return rootView;
         }
+        @Override
+        public void onResume() {
+            super.onResume();
 
+        }
+        public void onDrawerClose() {
+            SharedPreferences myPrefs = getActivity().getSharedPreferences("myPrefs", MODE_PRIVATE);
+            if (!myPrefs.contains("tutorialFinished")) {
+                /* Tutorial Overlays */
+                showTutorial(1);
+            }
+        }
+        public void showTutorial(final int tutorialNumber) {
+            ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
+            co.hideOnClickOutside = true;
+            co.shotType = ShowcaseView.TYPE_ONE_SHOT;
+            // The following code will reposition the OK button to the left.
+            RelativeLayout.LayoutParams lps = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lps.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            lps.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            int margin = ((Number) (getResources().getDisplayMetrics().density * 12)).intValue();
+            lps.setMargins(margin, margin, margin, margin);
+            co.buttonLayoutParams = lps;
+            ViewTarget target;
+            String title = "Getting started";
+            String message;
+            View.OnClickListener clickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showTutorial(tutorialNumber + 1);
+                    ((ShowcaseView) view.getParent()).hide();
+                }
+            };
+            switch (tutorialNumber) {
+                case 1:
+                    target = new ViewTarget(getActivity().findViewById(R.id.getbutton));
+                    message = "First, install Foldit on your desktop computer.";
+                    break;
+                case 2:
+                    target = new ViewTarget(getActivity().findViewById(R.id.editAddress));
+                    message =  "Then, enter the IP address of your computer here. NOTICE: A Wi-Fi" +
+                            " connection is recommended.";
+                    break;
+                case 3:
+                    target = new ViewTarget(getActivity().findViewById(R.id.playbutton));
+                    message = "Hit play and begin your protein folding adventure!";
+                    break;
+                default:
+                    return; // don't show a message
+            }
+            ShowcaseView sv = ShowcaseView.insertShowcaseView(target, getActivity(), title, message, co);
+            sv.overrideButtonClick(clickListener);
+
+        }
         public boolean isOnline() {
             ConnectivityManager cm =
                     (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);

@@ -136,6 +136,9 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
             GameActivity.instance().sendBroadcast(broadcastIntent);
         }
         private void sendProcess(char[] send_buf, int length) {
+            if (s == null) {
+                return;
+            }
             try {
                 s.getOut().write(send_buf, 0, length);
                 s.getOut().flush();

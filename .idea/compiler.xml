@@ -6,6 +6,8 @@
       <directory url="file://$PROJECT_DIR$/Foldit/src/main/gen" includeSubdirectories="true" />
       <directory url="file://$PROJECT_DIR$/Foldit/build/manifests/debug/gen" includeSubdirectories="true" />
       <directory url="file://$PROJECT_DIR$/../ActionBarSherlock/gen" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/../ShowcaseView/library/gen" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/../ShowcaseView/sample/gen" includeSubdirectories="true" />
     </excludeFromCompile>
     <resourceExtensions />
     <wildcardResourcePatterns>

@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -16,6 +17,9 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.espian.showcaseview.ShowcaseView;
+import com.espian.showcaseview.targets.ViewTarget;
 
 import it.fold.foldit.StreamView.StreamThread;
 //import java.awt.*;
@@ -52,7 +56,7 @@ public class GameActivity extends Activity {
         Constants.REAL_IMG_HEIGHT = Constants.CUR_IMG_HEIGHT;
         Constants.REAL_IMG_WIDTH = Constants.CUR_IMG_WIDTH;
         // if low res enabled streamview will halve cur width and height
-        setContentView(R.layout.activity_displaythread);
+        setContentView(R.layout.activity_game);
         mStreamView = (StreamView) findViewById(R.id.stream);
 
 
@@ -132,7 +136,15 @@ public class GameActivity extends Activity {
         p.setVisibility(View.GONE);
         //toast.cancel();
         loaded = true;
-
+        SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
+        if (!myPrefs.contains("gameTutorialFinished")) {
+            ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
+            co.hideOnClickOutside = true;
+            co.shotType = ShowcaseView.TYPE_ONE_SHOT;
+            ViewTarget target = new ViewTarget(findViewById(R.id.shiftImage));
+            ShowcaseView sv = ShowcaseView.insertShowcaseView(target, this, "Modifier Keys", "These buttons toggle the Ctrl and Shift modifier keys.", co);
+            myPrefs.edit().putString("gameTutorialFinished", "true").commit();
+        }
     }
     public class ResponseReceiver extends BroadcastReceiver {
         public static final String ACTION_RESP =

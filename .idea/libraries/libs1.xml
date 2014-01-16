@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="libs1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../ShowcaseView/library/libs/android-support-v4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../ShowcaseView/library/libs/robolectric-2.2-20130909.210745-40-jar-with-dependencies.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../ShowcaseView/library/libs/mockito-all-1.9.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../ShowcaseView/library/libs/nineoldandroids-2.4.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

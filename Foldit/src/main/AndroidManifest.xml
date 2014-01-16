@@ -50,7 +50,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="it.fold.foldit.MainActivity"/>
         </activity>
-        <activity android:name=".GettingStartedActivity" />
     </application>
 
 </manifest>

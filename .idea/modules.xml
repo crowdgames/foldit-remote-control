@@ -6,7 +6,9 @@
       <module fileurl="file://$PROJECT_DIR$/FolditAndroid.iml" filepath="$PROJECT_DIR$/FolditAndroid.iml" />
       <module fileurl="file://$PROJECT_DIR$/Foldit/build/source/buildConfig/buildConfig.iml" filepath="$PROJECT_DIR$/Foldit/build/source/buildConfig/buildConfig.iml" />
       <module fileurl="file://$PROJECT_DIR$/Foldit/build/manifests/debug/debug.iml" filepath="$PROJECT_DIR$/Foldit/build/manifests/debug/debug.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../ShowcaseView/library/library.iml" filepath="$PROJECT_DIR$/../ShowcaseView/library/library.iml" />
       <module fileurl="file://$PROJECT_DIR$/Foldit/src/main/main.iml" filepath="$PROJECT_DIR$/Foldit/src/main/main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../ShowcaseView/sample/sample.iml" filepath="$PROJECT_DIR$/../ShowcaseView/sample/sample.iml" />
     </modules>
   </component>
 </project>
