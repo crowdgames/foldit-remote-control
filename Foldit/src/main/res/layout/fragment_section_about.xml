@@ -34,6 +34,7 @@
         <ImageView android:src="@drawable/cgslogo"
             android:layout_height="wrap_content"
     android:paddingBottom="16sp"
+            android:id="@+id/cgslogo"
             ></ImageView>
 
         <TextView
@@ -79,7 +80,7 @@
                 android:padding="8sp"/>
         <ImageView
         android:src="@drawable/splashlogoborder"
-        android:id="@+id/logo"
+        android:id="@+id/folditlogo"
         android:layout_height="214dip">
         </ImageView>
 

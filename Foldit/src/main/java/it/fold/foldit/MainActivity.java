@@ -238,6 +238,11 @@ public class MainActivity extends SherlockFragmentActivity {
         startActivity(intent);
     }
 
+    // Rerun tutorial ShowcaseView's
+    public void tutorialClick(View view) {
+        fragmentMain.showTutorial();
+    }
+
     public static class MainSectionFragment extends SherlockFragment {
 
         @Override
@@ -274,10 +279,17 @@ public class MainActivity extends SherlockFragmentActivity {
             SharedPreferences myPrefs = getActivity().getSharedPreferences("myPrefs", MODE_PRIVATE);
             if (!myPrefs.contains("tutorialFinished")) {
                 /* Tutorial Overlays */
-                showTutorial(1);
+                showTutorial();
             }
         }
-        public void showTutorial(final int tutorialNumber) {
+
+        // shows the overlay tutorials in order
+        public void showTutorial() {
+            showTutorial(1);
+        }
+
+        // shows an overlay tutorial based on the number you give it in the order, and all after
+        private void showTutorial(final int tutorialNumber) {
             ShowcaseView.ConfigOptions co = new ShowcaseView.ConfigOptions();
             co.hideOnClickOutside = true;
             co.shotType = ShowcaseView.TYPE_ONE_SHOT;
@@ -290,7 +302,7 @@ public class MainActivity extends SherlockFragmentActivity {
             co.buttonLayoutParams = lps;
             ViewTarget target;
             String title = "Getting started";
-            String message;
+            String message = "";
             View.OnClickListener clickListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -301,17 +313,26 @@ public class MainActivity extends SherlockFragmentActivity {
             switch (tutorialNumber) {
                 case 1:
                     target = new ViewTarget(getActivity().findViewById(R.id.getbutton));
-                    message = "First, install Foldit on your desktop computer.";
+                    title = "First, install and run Foldit on your computer.";
+                    message = "Foldit on Android doesn't work without the game running on your computer!";
                     break;
                 case 2:
-                    target = new ViewTarget(getActivity().findViewById(R.id.editAddress));
-                    message =  "Then, enter the IP address of your computer here. NOTICE: A Wi-Fi" +
-                            " connection is recommended.";
+                    target = new ViewTarget(getActivity().findViewById(R.id.getbutton));
+                    title = "On your computer, open a puzzle in Foldit. Next, navigate to the social tab and enable remote connection.";
+                    message = "Any science puzzle will do!";
                     break;
                 case 3:
-                    target = new ViewTarget(getActivity().findViewById(R.id.playbutton));
-                    message = "Hit play and begin your protein folding adventure!";
+                    target = new ViewTarget(getActivity().findViewById(R.id.editAddress));
+                    title =  "Copy the IP address of your computer here.";
+                    message = "Foldit will show your IP address in the Remote Connection popup.";
                     break;
+                case 4:
+                    target = new ViewTarget(getActivity().findViewById(R.id.playbutton));
+                    title = "Hit Connect and begin your protein folding adventure!";
+                    message = "A Wi-Fi connection is recommended.";
+                    break;
+                case 5:
+                    // add tutorial for showing drawer
                 default:
                     return; // don't show a message
             }
@@ -319,6 +340,8 @@ public class MainActivity extends SherlockFragmentActivity {
             sv.overrideButtonClick(clickListener);
 
         }
+
+        // returns true if the device has a working network connection
         public boolean isOnline() {
             ConnectivityManager cm =
                     (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -329,6 +352,7 @@ public class MainActivity extends SherlockFragmentActivity {
             return false;
         }
 
+        // starts the game and opens gameactivity
         public void startFoldit(View view) {
             if (isOnline()) {
                 EditText add = (EditText) view.findViewById(R.id.editAddress);
@@ -376,6 +400,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
     }
 
+    // fragment for the help section in the sidedrawer
     public static class HelpSectionFragment extends SherlockFragment {
         public HelpSectionFragment() {
             // empty
@@ -388,6 +413,8 @@ public class MainActivity extends SherlockFragmentActivity {
             return rootView;
         }
     }
+
+    // fragment for the about section in the sidedrawer
     public static class AboutSectionFragment extends Fragment {
         public AboutSectionFragment() {
             // empty
@@ -399,13 +426,23 @@ public class MainActivity extends SherlockFragmentActivity {
             Bundle args = getArguments();
             TextView vers = (TextView) rootView.findViewById(R.id.version);
             vers.setText(vers.getText() + getResources().getString(R.string.version));
-            ImageView img = (ImageView)rootView.findViewById(R.id.logo);
-            img.setOnClickListener(new View.OnClickListener(){
+            ImageView folditImg = (ImageView)rootView.findViewById(R.id.folditlogo);
+            folditImg.setOnClickListener(new View.OnClickListener(){
                 public void onClick(View v) { // Go to the website when clicked
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_VIEW);
                     intent.addCategory(Intent.CATEGORY_BROWSABLE);
                     intent.setData(Uri.parse("http://fold.it"));
+                    startActivity(intent);
+                }
+            });
+            ImageView cgsImg = (ImageView)rootView.findViewById(R.id.cgslogo);
+            cgsImg.setOnClickListener(new View.OnClickListener(){
+                public void onClick(View v) { // Go to the website when clicked
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_VIEW);
+                    intent.addCategory(Intent.CATEGORY_BROWSABLE);
+                    intent.setData(Uri.parse("http://centerforgamescience.org/"));
                     startActivity(intent);
                 }
             });

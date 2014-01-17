@@ -61,6 +61,14 @@
         android:hint="Key (optional)"
         android:layout_below="@+id/linearLayout"
         android:layout_alignLeft="@+id/linearLayout"/>
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="10sp"
+        android:baselineAligned="false"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentBottom="true">
     <Button android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-light"
@@ -68,7 +76,16 @@
         android:id="@+id/getbutton"
         android:onClick="linkClick"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+         />
+    <Button android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-light"
+        android:text="Tutorial"
+        android:id="@+id/getbutton"
+        android:onClick="tutorialClick"
+        android:layout_alignParentBottom="true"
+        />
+    </LinearLayout>
 
 
 </RelativeLayout>
