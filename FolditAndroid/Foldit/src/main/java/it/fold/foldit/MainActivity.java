@@ -129,7 +129,7 @@ public class MainActivity extends SherlockFragmentActivity {
         /* Show the drawer upon startup if it has never been used before to teach the user how to use the app
         * Once the Drawer has been opened once manually "tutorialFinished" will be added to the preferences */
         SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
-        if (!myPrefs.contains("tutorialFinished")) {
+        if (!myPrefs.contains("drawerFinished")) {
             mDrawerLayout.openDrawer(mDrawerList);
         }
     }
@@ -144,8 +144,8 @@ public class MainActivity extends SherlockFragmentActivity {
                 } else {
                     mDrawerLayout.openDrawer(mDrawerList);
                     SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
-                    if (!myPrefs.contains("tutorialFinished")) {
-                        myPrefs.edit().putString("tutorialFinished", "true").commit(); // Open the drawer on first install of app only
+                    if (!myPrefs.contains("drawerFinished")) {
+                        myPrefs.edit().putString("drawerFinished", "true").commit(); // Open the drawer on first install of app only
                     }
                 }
                 return true;
@@ -173,7 +173,7 @@ public class MainActivity extends SherlockFragmentActivity {
         // update the main content by replacing fragments
         if (position == WIKI_ID) { // Wiki
             mDrawerList.setItemChecked(currentItem, true);
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://foldit.wikia.com/wiki/Foldit_Wiki"));
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.foldit_wiki_link)));
             startActivity(browserIntent);
             return;
         }
@@ -234,7 +234,7 @@ public class MainActivity extends SherlockFragmentActivity {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
         intent.addCategory(Intent.CATEGORY_BROWSABLE);
-        intent.setData(Uri.parse("http://fold.it"));
+        intent.setData(Uri.parse(getString(R.string.foldit_link)));
         startActivity(intent);
     }
 
@@ -280,12 +280,14 @@ public class MainActivity extends SherlockFragmentActivity {
             SharedPreferences myPrefs = getActivity().getSharedPreferences("myPrefs", MODE_PRIVATE);
             if (!myPrefs.contains("tutorialFinished")) {
                 /* Tutorial Overlays */
-                showTutorial();
+                showTutorial(1);
             }
         }
 
         // shows the overlay tutorials in order
         public void showTutorial() {
+            SharedPreferences myPrefs = getActivity().getSharedPreferences("myPrefs", MODE_PRIVATE);
+            myPrefs.edit().remove("gameTutorialFinished");
             showTutorial(1);
         }
 
@@ -308,24 +310,43 @@ public class MainActivity extends SherlockFragmentActivity {
                     message = "Foldit on Android doesn't work without the game running on your computer!";
                     break;
                 case 2:
-                    target = new ViewTarget(getActivity().findViewById(R.id.getbutton));
-                    title = "On your computer, open a puzzle in Foldit. Next, navigate to the social tab and enable remote connection.";
-                    message = "Any science puzzle will do!";
+                    getActivity().findViewById(R.id.social).setVisibility(View.VISIBLE);
+                    target = new ViewTarget(getActivity().findViewById(R.id.social));
+                    title = "On your computer, open a puzzle in Foldit. Next, navigate open the social tab.";
+                    message = "Once you have done this, click next.";
                     break;
                 case 3:
+                    getActivity().findViewById(R.id.social).setVisibility(View.INVISIBLE);
+                    getActivity().findViewById(R.id.remote).setVisibility(View.VISIBLE);
+                    target = new ViewTarget(getActivity().findViewById(R.id.social));
+                    title =  "Click on remote connection, then click 'Turn on'.";
+                    message = "Note your local IP address as shown in the pop-up box.";
+                    break;
+                case 4:
+                    getActivity().findViewById(R.id.remote).setVisibility(View.INVISIBLE);
                     target = new ViewTarget(getActivity().findViewById(R.id.editAddress));
                     title =  "Copy the IP address of your computer here.";
                     message = "Foldit will show your IP address in the Remote Connection popup.";
                     break;
-                case 4:
+                case 5:
                     target = new ViewTarget(getActivity().findViewById(R.id.playbutton));
                     title = "Hit Connect and begin your protein folding adventure!";
                     message = "A Wi-Fi connection is recommended.";
                     break;
-                case 5:
+                case 6:
+                    target1 = new ActionViewTarget(getActivity(), ActionViewTarget.Type.OVERFLOW);
+                    title = "Visit the settings to change connection quality.";
+                    message = "This can make a big difference in performance!";
+                    if (sv != null) {
+                        sv.setText(title, message);
+                        sv.setShowcase(target1, true);
+                    }
+                    sv.overrideButtonClick(clickListener);
+                    return;
+                case 7:
                     target1 = new ActionViewTarget(getActivity(), ActionViewTarget.Type.HOME);
-                    title = "For more, visit the navigation drawer.";
-                    message = "About, Wiki, and more!";
+                    title = "For more information, visit the navigation drawer.";
+                    message = "Help, About, and Wiki!";
                     if (sv != null) {
                         clickListener = new View.OnClickListener() {
                             @Override
@@ -337,6 +358,10 @@ public class MainActivity extends SherlockFragmentActivity {
                         sv.setShowcase(target1, true);
                         sv.overrideButtonClick(clickListener);
                         sv = null;
+                        SharedPreferences myPrefs = getActivity().getSharedPreferences("myPrefs", MODE_PRIVATE);
+                        if (!myPrefs.contains("tutorialFinished")) {
+                            myPrefs.edit().putString("tutorialFinished", "true").commit(); // Open the drawer on first install of app only
+                        }
                     }
                 default:
                     return; // don't show a message
@@ -372,7 +397,6 @@ public class MainActivity extends SherlockFragmentActivity {
                 EditText key = (EditText) view.findViewById(R.id.editKey);
                 int myPort = Constants.PORT;
                 String myKey = key.getText().toString();
-
                 String myAddress = add.getText().toString();
                 if (myAddress.equals("") || !(Pattern.matches("^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$", myAddress) || Pattern.matches("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$", myAddress))) {
                     Toast toast = Toast.makeText(getActivity().getApplicationContext(), "Enter a valid IP address.", Toast.LENGTH_SHORT);
@@ -432,7 +456,6 @@ public class MainActivity extends SherlockFragmentActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_section_about, container, false);
-            Bundle args = getArguments();
             TextView vers = (TextView) rootView.findViewById(R.id.version);
             vers.setText(vers.getText() + getString(R.string.version));
             ImageView folditImg = (ImageView)rootView.findViewById(R.id.folditlogo);

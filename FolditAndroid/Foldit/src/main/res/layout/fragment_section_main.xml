@@ -68,7 +68,8 @@
         android:layout_marginTop="10sp"
         android:baselineAligned="false"
         android:layout_alignParentEnd="false"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:id="@+id/linearLayout2">
     <Button android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-light"
@@ -86,6 +87,23 @@
         android:layout_alignParentBottom="true"
         />
     </LinearLayout>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/social"
+        android:src="@drawable/social"
+        android:visibility="invisible"
+        android:layout_above="@+id/linearLayout2"
+        android:layout_centerHorizontal="true" />
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/remote"
+        android:src="@drawable/remote"
+        android:visibility="invisible"
+        android:layout_above="@+id/linearLayout2"
+        android:layout_centerHorizontal="true" />
 
 
 </RelativeLayout>

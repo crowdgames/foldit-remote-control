@@ -27,6 +27,7 @@ class Constants {
 	public static final char CLEV_CHAR          =  7;
     public static final char CLEV_SCROLL_UP     =  11;
     public static final char CLEV_SCROLL_DOWN   =  12;
+    public static final char CLEV_TRANSLATE     =  13;
     public static final char CLEV_VERSION       =  14;
     public static final char CLEV_TERMINATE     =  15;
 
@@ -39,6 +40,7 @@ class Constants {
 	public static final char SEEV_RLE8_TILE     =  6;
     public static final char SEEV_TERMINATE     =  7;
 
+    public static final int KEYCODE_BACKSPACE  = 31;
 
 
     // Set to true to turn on verbose logging

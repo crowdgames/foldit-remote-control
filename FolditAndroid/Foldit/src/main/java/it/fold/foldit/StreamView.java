@@ -16,6 +16,7 @@ import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
@@ -60,7 +61,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
             key = "";
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getContext());
             lowRes = sharedPref.getBoolean("reduce_bandwidth", false);
-            Log.d("streamdebug", "reduce_bandwith is " + lowRes);
+            Log.i("streamdebug", "reduce_bandwith is " + lowRes);
             Resources res = context.getResources();
             rs = new Rect();
             rd = new Rect();
@@ -88,17 +89,22 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
             mHandler = new Handler() {
                 @Override
                 public void handleMessage(Message m) {
-                    send_buf[1] = (char) m.what;
+                    int event = m.what;
+                    send_buf[1] = (char) event;
                     int x = m.arg1;
-                    int y = m.arg2;
-                    send_buf[2] = (char)(x / 128);
-                    send_buf[3] = (char)(x % 128);
-                    int inv_yy = Constants.REAL_IMG_HEIGHT - 1 - y;
-                    if (inv_yy < 0) {
-                        inv_yy = 0;
+                    if (event == Constants.CLEV_CHAR) { // keyboard
+                        send_buf[2] = (char) x;
+                    } else {
+                        int y = m.arg2;
+                        send_buf[2] = (char)(x / 128);
+                        send_buf[3] = (char)(x % 128);
+                        int inv_yy = Constants.REAL_IMG_HEIGHT - 1 - y;
+                        if (inv_yy < 0) {
+                            inv_yy = 0;
+                        }
+                        send_buf[4] = (char)(inv_yy / 128);
+                        send_buf[5] = (char)(inv_yy % 128);
                     }
-                    send_buf[4] = (char)(inv_yy / 128);
-                    send_buf[5] = (char)(inv_yy % 128);
                     sendProcess(send_buf, Constants.CL_MSG_SIZE);
                 }
             };
@@ -143,20 +149,20 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
                 s.getOut().write(send_buf, 0, length);
                 s.getOut().flush();
             } catch (Exception e) {
-                Log.d("streamdebug", "error sending");
+                Log.e("streamerror", "error sending");
                 lostConnection();
                 e.printStackTrace();
             }
         }
         @Override
         public void run() {
-            int tid = android.os.Process.myTid();
-            Log.d("streamdebug", "streamthread pid: " + tid);
-            Log.d("streamdebug", "priority before change = " + android.os.Process.getThreadPriority(tid));
-            Log.d("streamdebug", "priority before change = "+Thread.currentThread().getPriority());
+//            int tid = android.os.Process.myTid();
+//            Log.d("streamdebug", "streamthread pid: " + tid);
+//            Log.d("streamdebug", "priority before change = " + android.os.Process.getThreadPriority(tid));
+//            Log.d("streamdebug", "priority before change = "+Thread.currentThread().getPriority());
             android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY);
-            Log.d("streamdebug", "priority after change = " + android.os.Process.getThreadPriority(tid));
-            Log.d("streamdebug", "priority after change = " + Thread.currentThread().getPriority());
+//            Log.d("streamdebug", "priority after change = " + android.os.Process.getThreadPriority(tid));
+//            Log.d("streamdebug", "priority after change = " + Thread.currentThread().getPriority());
             long time = System.currentTimeMillis();
             while (mRun && address == null) {
                 // busy wait
@@ -239,7 +245,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
                         if (recv_buf_offset == Constants.SE_MSG_HDR) {
                             char magic = recv_buf[0];
                             if (magic != Constants.MAGIC) {
-                                Log.d("streamdebug", "Bad magic number");
+                                Log.e("streamerror", "Bad magic number");
                                 setRunning(false);
                                 break;
                             }
@@ -344,12 +350,12 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
                                 closeSocket();
                                 return;
                             } else {
-                                Log.d("streamdebug", "Bad server event: " + (int)type);
+                                Log.e("streamerror", "Bad server event: " + (int)type);
                             }
                         }
                     }
                 } catch(Exception e) {
-                    Log.d("streamdebug", "Exception: " + e.getMessage() + e.toString());
+                    Log.e("streamerror", "Exception: " + e.getMessage() + e.toString());
                     lostConnection();
                 }
 
@@ -388,7 +394,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
     private final float ZOOM_SCALE_FACTOR = 1.5f;
     private final GestureDetector.OnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
         public void onLongPress(MotionEvent e) {
-            Log.d("streamdebug", "Longpress detected");
+            //Log.d("streamdebug", "Longpress detected");
         }
     };
     private final ScaleGestureDetector.OnScaleGestureListener mScaleGestureListener
@@ -414,7 +420,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
             translating = false;
             streamHandler.obtainMessage(Constants.CLEV_MOUSE_UP, 0, 0).sendToTarget();
             streamHandler.obtainMessage(Constants.CLEV_MODKEY_DOWN, 0, 0).sendToTarget();
-            streamHandler.obtainMessage(Constants.CLEV_MOUSE_DOWN, (int) scaleGestureDetector.getFocusX(), (int) scaleGestureDetector.getFocusY()).sendToTarget();
+            streamHandler.obtainMessage(Constants.CLEV_TRANSLATE, (int) scaleGestureDetector.getFocusX(), (int) scaleGestureDetector.getFocusY()).sendToTarget();
             return true;
         }
 
@@ -474,7 +480,15 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
         return thread;
     }
 
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (event.getUnicodeChar() != 0) {
+            streamHandler.obtainMessage(Constants.CLEV_CHAR, event.getUnicodeChar(), 0).sendToTarget();
+        } else if (keyCode == KeyEvent.KEYCODE_DEL) {
+            streamHandler.obtainMessage(Constants.CLEV_CHAR, Constants.KEYCODE_BACKSPACE, 0).sendToTarget();
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Override
     public boolean onTouchEvent(MotionEvent e) {
         //mScaleDetector.onTouchEvent(e);

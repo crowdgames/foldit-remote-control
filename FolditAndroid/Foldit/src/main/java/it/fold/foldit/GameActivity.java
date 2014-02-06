@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -34,11 +35,13 @@ public class GameActivity extends Activity {
     private static GameActivity display;
     boolean loaded = false;
     public static boolean ctrlDown = false;
-    boolean shiftDown = false;
+    private boolean shiftDown = false;
+    private boolean keyboardShown = false;
     public static Toast toast;
     public static Toast outToast;
     private ScaleGestureDetector mScaleDetector;
     private float mScaleFactor = 1.f;
+    private ShowcaseView sv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +71,7 @@ public class GameActivity extends Activity {
         String key = intent.getStringExtra("key");
         mStreamThread.doStart(address, port, key);
         int tid = android.os.Process.myTid();
-        Log.d("streamdebug", "oncreate thread id: " + tid);
+        //Log.d("streamdebug", "oncreate thread id: " + tid);
     }
     public void shiftClick(View view) {
         if (!shiftDown) {
@@ -90,6 +93,16 @@ public class GameActivity extends Activity {
             ((ImageView) view).setImageResource(R.drawable.ctrl);
         }
         ctrlDown = !ctrlDown;
+    }
+    public void keyboardClick(View view) {
+        if (keyboardShown) {
+            //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+            ((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(view.getWindowToken(), 0);
+        } else {
+            //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+            ((InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE)).toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+        }
+        keyboardShown = !keyboardShown;
     }
 
     @Override
@@ -142,16 +155,36 @@ public class GameActivity extends Activity {
             co.hideOnClickOutside = true;
             co.shotType = ShowcaseView.TYPE_ONE_SHOT;
             ViewTarget target = new ViewTarget(findViewById(R.id.shiftImage));
-            ShowcaseView.insertShowcaseView(target, this, "Modifier Keys", "These buttons toggle the Ctrl and Shift modifier keys.", co);
-            myPrefs.edit().putString("gameTutorialFinished", "true").commit();
+            View.OnClickListener clickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showTutorial();
+                }
+            };
+            sv = ShowcaseView.insertShowcaseView(target, this, "Modifier Keys", "These buttons toggle the Ctrl and Shift modifier keys.", co);
+            sv.overrideButtonClick(clickListener);
         }
+    }
+    public void showTutorial() {
+        SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
+        ViewTarget target = new ViewTarget(findViewById(R.id.keyboardImage));
+        sv.setText("Keyboard Input", "Tap here to open the keyboard.");
+        sv.setShowcase(target, true);
+        View.OnClickListener clickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((ShowcaseView) view.getParent()).hide();
+            }
+        };
+        sv.overrideButtonClick(clickListener);
+        myPrefs.edit().putString("gameTutorialFinished", "true").commit();
     }
     public class ResponseReceiver extends BroadcastReceiver {
         public static final String ACTION_RESP =
                 "com.mamlambo.intent.action.MESSAGE_PROCESSED";
         @Override
         public void onReceive(Context context, Intent intent) {
-            outToast = Toast.makeText(getApplicationContext(), intent.getStringExtra("msg"), Toast.LENGTH_SHORT);
+            outToast = Toast.makeText(getApplicationContext(), intent.getStringExtra("msg"), Toast.LENGTH_LONG);
             outToast.show();
             finish();
         }
@@ -161,22 +194,22 @@ public class GameActivity extends Activity {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
-    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-            mScaleFactor = detector.getScaleFactor();
-            //synchronized (events) {
-            if (mScaleFactor < 0.99) {
-                //events.add(new TouchEvent(0, 0, Constants.CLEV_SCROLL_DOWN));
-                return true;
-            } else if (mScaleFactor > 1.01) {
-                //events.add(new TouchEvent(0, 0, Constants.CLEV_SCROLL_UP));
-                return true;
-            }
-            // }
-            return false;
-        }
-    }
+//    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+//        @Override
+//        public boolean onScale(ScaleGestureDetector detector) {
+//            mScaleFactor = detector.getScaleFactor();
+//            //synchronized (events) {
+//            if (mScaleFactor < 0.99) {
+//                //events.add(new TouchEvent(0, 0, Constants.CLEV_SCROLL_DOWN));
+//                return true;
+//            } else if (mScaleFactor > 1.01) {
+//                //events.add(new TouchEvent(0, 0, Constants.CLEV_SCROLL_UP));
+//                return true;
+//            }
+//            // }
+//            return false;
+//        }
+//    }
     @Override
     public void onPause() {
         super.onPause();
