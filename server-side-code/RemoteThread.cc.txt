@@ -1,0 +1,1134 @@
+// -*- mode:c++;tab-width:2;indent-tabs-mode:t;show-trailing-whitespace:t;rm-trailing-spaces:t -*-
+// vi: set ts=2 noet:
+//
+// (c) Copyright Rosetta Commons Member Institutions.
+// (c) This file is part of the Rosetta software suite and is made available under license.
+// (c) The Rosetta software is developed by the contributing members of the Rosetta Commons.
+// (c) For more information, see http://www.rosettacommons.org. Questions about this can be
+// (c) addressed to University of Washington UW TechTransfer, email: license@u.washington.edu.
+#include <interactive/application/remote/remote_flags.hh>
+
+#if ENABLE_REMOTE_PLAY
+#include <interactive/application/remote/RemoteThread.hh>
+#include <interactive/application/GUIWrapper.hh>
+#include <interactive/gui/Point2D.hh>
+#include <interactive/geom/Viewport.hh>
+#include <interactive/gui/TopLevel.hh>
+#include <interactive/util/assert.hh>
+#include <interactive/util/gl_util.hh>
+#include <interactive/application/GUIMutex.hh>
+#include <interactive/gui/Point2D.hh>
+
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <boost/format.hpp>
+#include <boost/bind.hpp>
+#if defined(LINUX)
+#include <interactive/application/wrapper/glut/GlutWrapper.hh>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <sys/time.h>
+#elif defined(WIN32)
+#include <interactive/application/wrapper/win32/Win32Wrapper.hh>
+#include <windows.h>
+#include <winsock.h>
+#include <time.h>
+#elif defined(MAC)
+#include <interactive/application/wrapper/cocoa/CocoaWrapper.hh>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <sys/time.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#endif
+
+// RGB -> YUV
+#define RGB2Y(R, G, B) CLIP(( (  66 * (R) + 129 * (G) +  25 * (B) + 128) >> 8) +  16)
+#define RGB2U(R, G, B) CLIP(( ( -38 * (R) -  74 * (G) + 112 * (B) + 128) >> 8) + 128)
+#define RGB2V(R, G, B) CLIP(( ( 112 * (R) -  94 * (G) -  18 * (B) + 128) >> 8) + 128)
+
+namespace interactive {
+namespace application {
+namespace remote {
+	
+static const int  TILE_SIZE          = 16;
+static const char MAGIC              ='X';
+static const char VERSION            =  2;
+
+static const int  CL_FIRST_MSG_SIZE  = 13;
+static const int  CL_MSG_SIZE        =  6;
+static const char CLEV_REFRESH       =  1;
+static const char CLEV_MOUSE_DOWN = 2;
+static const char CLEV_MOUSE_DOWN_AUX_0 = 20;
+static const char CLEV_MOUSE_DOWN_AUX_1 = 21;
+static const char CLEV_MOUSE_DOWN_AUX_2 = 22;
+static const char CLEV_MOUSE_UP      =  3;
+
+// do we need mouse down aux?
+//static const char CLEV_MOUSE_UP_AUX  = 33;
+
+static const char CLEV_MOUSE_MOVE    =  4;
+static const char CLEV_MODKEY_DOWN   =  5;
+static const char CLEV_MODKEY_UP     =  6;
+static const char CLEV_CHAR          =  7;
+static const char CLEV_SCROLL_UP     = 11;
+static const char CLEV_SCROLL_DOWN   = 12;
+static const char CLEV_TRANSLATE     = 13;
+static const char CLEV_VERSION       = 14;
+static const char CLEV_TERMINATE     = 15;
+
+static const int  SE_MSG_HDR         =  4;
+static const char SEEV_FLUSH         =  1;
+static const char SEEV_TILE          =  2;
+static const char SEEV_SOLID_TILE    =  3;
+static const char SEEV_RLE24_TILE    =  4;
+static const char SEEV_RLE16_TILE    =  5;
+static const char SEEV_RLE8_TILE     =  6;
+static const char SEEV_TERMINATE     =  7;
+
+static const char KEYCODE_BACKSPACE  = 31;
+
+
+
+RemoteThread * RemoteThread::instance_ = NULL;
+
+RemoteThread::RemoteThread(boost::function< void(int) > connect_callback) :
+    sd_current(0),
+    sd(0),
+    recv_buf_offset(0),
+    want_refresh(1),
+    last_time(0),
+    last_error(""),
+    local_address(""),
+    preprocess_done(false),
+    low_res(false),
+    prev_read_buffer(NULL),
+    read_buffer(NULL),
+    cur_width(0),
+    cur_height(0),
+    key(""),
+    require_key(false),
+    connect_callback_(connect_callback),
+    resized_read_buffer(NULL),
+    mod_ctrl_(false),
+    mod_alt_(false),
+    mod_shift_(false)
+{
+	ASSERT_ALWAYS(!instance_);
+	instance_ = this;
+}
+
+RemoteThread::~RemoteThread()
+{
+	ASSERT_ALWAYS(instance_);
+	instance_ = NULL;
+}
+
+void
+RemoteThread::operator()()
+{
+	std::cout << "remote thread started" << std::endl;
+	while (!is_cancelled()) {
+#if defined(WIN32)
+		/* WSA startup to get winsock ready */
+		WSADATA wsaData;
+		if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+			std::cout << "WSAStartup error" << std::endl;
+			return;
+		}
+#endif
+		remote_wait_for_connection(REMOTE_PLAY_PORT);
+		while (!is_cancelled() && sd_current != 0) { // if sd_current is 0 the connection has closed
+			remote_process();
+			sleep(1/60);
+		}
+		shutdown_remote();
+#if defined(WIN32)
+		WSACleanup();
+#endif
+	}
+	if (connect_callback_) {
+		connect_callback_(3); // disabled
+	}
+	std::cout << "remote thread ending" << std::endl;
+}
+
+
+RemoteThread *
+RemoteThread::instance()
+{
+	return instance_;
+}
+
+interactive::gui::TopLevelAP
+RemoteThread::get_top_level()
+{	
+	HOLD_GUI_MUTEX;
+
+	using namespace application;
+	
+	Application * app = GUIWrapper::get_static_application();
+	if (app) {
+		return app->get_top_level();
+	} else {
+		return NULL;
+	}
+}
+
+void
+RemoteThread::event_callback(char type, int param1, int param2)
+{
+	HOLD_GUI_MUTEX;
+	GUIWrapper * gui = GUIWrapper::instance();
+
+	if (type == CLEV_MOUSE_DOWN) {
+		std::cout << "mouse down" << " type: " << type << " param1: " << param1 << " param2: " << param2 << std::endl;
+		gui->enqueue_remote_event(boost::bind(&GUIWrapper::generic_mouse_button_func, gui, application::BUTTON_LEFT, true, param1, param2));
+	}
+	else if (type == CLEV_MOUSE_UP) {
+		std::cout << "mouse up" << " type: " << type << " param1: " << param1 << " param2: " << param2 << std::endl;
+		gui->enqueue_remote_event(boost::bind(&GUIWrapper::generic_mouse_button_func, gui, application::BUTTON_LEFT, false, param1, param2));
+	}
+	else if (type == CLEV_MOUSE_DOWN_AUX_0) {
+	 	std::cout << "mouse down aux 0" << " type: " << type << " param1: " << param1 << " param2: " << param2 << std::endl;
+	 	gui->enqueue_remote_event(boost::bind(&GUIWrapper::generic_mouse_button_func, gui, application::BUTTON_LEFT, true, param1, param2));
+	}
+	else if (type == CLEV_MOUSE_DOWN_AUX_1) {
+	 	std::cout << "mouse down aux 1" << " type: " << type << " param1: " << param1 << " param2: " << param2 << std::endl;
+	 	gui->enqueue_remote_event(boost::bind(&GUIWrapper::generic_mouse_button_func, gui, application::BUTTON_LEFT, true, param1, param2));
+	}
+	else if (type == CLEV_MOUSE_DOWN_AUX_2) {
+		std::cout << "mouse down aux 2" << " type: " << type << " param1: " << param1 << " param2: " << param2 << std::endl;
+		gui->enqueue_remote_event(boost::bind(&GUIWrapper::generic_mouse_button_func, gui, application::BUTTON_LEFT, true, param1, param2));
+	}
+	else if (type == CLEV_MOUSE_MOVE) {
+		std::cout << "mouse move" << " type: " << type << " param1: " << param1 << " param2: " << param2 << std::endl;
+		gui->enqueue_remote_event(boost::bind(&GUIWrapper::generic_mouse_motion_func, gui, param1, param2));
+	}
+	else if (type == CLEV_MODKEY_UP) {
+		std::cout << "modkey up" << " type: " << type << " param1: " << param1 << " param2: " << param2 << std::endl;
+		set_modifier(param1, false); 
+	}
+	else if (type == CLEV_MODKEY_DOWN) {
+		std::cout << "modkey down" << " type: " << type << " param1: " << param1 << " param2: " << param2 << std::endl;
+		set_modifier(param1, true);
+	}
+	else if (type == CLEV_SCROLL_UP) {
+		std::cout << "scroll up" << " type: " << type << " param1: " << param1 << " param2: " << param2 << std::endl;
+		gui->enqueue_remote_event(boost::bind(&GUIWrapper::generic_mouse_wheel_func, gui, -1));
+	} 
+	else if (type == CLEV_SCROLL_DOWN) {
+		gui->enqueue_remote_event(boost::bind(&GUIWrapper::generic_mouse_wheel_func, gui, 1));
+	} 
+	else if (type == CLEV_TRANSLATE) {
+		//gui->enqueue_event(boost::bind(&GUIWrapper::generic_mouse_button_func, gui, application::BUTTON_LEFT, true, param1, param2));
+	} 
+	else if (type == CLEV_CHAR) {
+		std::cout << "received keystroke: " << param1 << " " << (char) param1 << std::endl;
+		if (isalnum(param1) || ispunct(param1)) {
+			gui->enqueue_remote_event(boost::bind(&GUIWrapper::generic_text_func, gui, param1));
+		}
+#define KEY_CASE(k1, k2) case k1: key = k2; break;
+		Key key;
+		switch (param1) {
+			KEY_CASE('A',        KEY_A);
+			KEY_CASE('B',        KEY_B);
+			KEY_CASE('C',        KEY_C);
+			KEY_CASE('D',        KEY_D);
+			KEY_CASE('E',        KEY_E);
+			KEY_CASE('F',        KEY_F);
+			KEY_CASE('G',        KEY_G);
+			KEY_CASE('H',        KEY_H);
+			KEY_CASE('I',        KEY_I);
+			KEY_CASE('J',        KEY_J);
+			KEY_CASE('K',        KEY_K);
+			KEY_CASE('L',        KEY_L);
+			KEY_CASE('M',        KEY_M);
+			KEY_CASE('N',        KEY_N);
+			KEY_CASE('O',        KEY_O);
+			KEY_CASE('P',        KEY_P);
+			KEY_CASE('Q',        KEY_Q);
+			KEY_CASE('R',        KEY_R);
+			KEY_CASE('S',        KEY_S);
+			KEY_CASE('T',        KEY_T);
+			KEY_CASE('U',        KEY_U);
+			KEY_CASE('V',        KEY_V);
+			KEY_CASE('W',        KEY_W);
+			KEY_CASE('X',        KEY_X);
+			KEY_CASE('Y',        KEY_Y);
+			KEY_CASE('Z',        KEY_Z);
+			KEY_CASE('a',        KEY_A);
+			KEY_CASE('b',        KEY_B);
+			KEY_CASE('c',        KEY_C);
+			KEY_CASE('d',        KEY_D);
+			KEY_CASE('e',        KEY_E);
+			KEY_CASE('f',        KEY_F);
+			KEY_CASE('g',        KEY_G);
+			KEY_CASE('h',        KEY_H);
+			KEY_CASE('i',        KEY_I);
+			KEY_CASE('j',        KEY_J);
+			KEY_CASE('k',        KEY_K);
+			KEY_CASE('l',        KEY_L);
+			KEY_CASE('m',        KEY_M);
+			KEY_CASE('n',        KEY_N);
+			KEY_CASE('o',        KEY_O);
+			KEY_CASE('p',        KEY_P);
+			KEY_CASE('q',        KEY_Q);
+			KEY_CASE('r',        KEY_R);
+			KEY_CASE('s',        KEY_S);
+			KEY_CASE('t',        KEY_T);
+			KEY_CASE('u',        KEY_U);
+			KEY_CASE('v',        KEY_V);
+			KEY_CASE('w',        KEY_W);
+			KEY_CASE('x',        KEY_X);
+			KEY_CASE('y',        KEY_Y);
+			KEY_CASE('z',        KEY_Z);
+			KEY_CASE('0',        KEY_0);
+			KEY_CASE('1',        KEY_1);
+			KEY_CASE('2',        KEY_2);
+			KEY_CASE('3',        KEY_3);
+			KEY_CASE('4',        KEY_4);
+			KEY_CASE('5',        KEY_5);
+			KEY_CASE('6',        KEY_6);
+			KEY_CASE('7',        KEY_7);
+			KEY_CASE('8',        KEY_8);
+			KEY_CASE('9',        KEY_9);
+			KEY_CASE(31, KEY_BACKWARD_DELETE);
+			KEY_CASE(10,    KEY_RETURN);
+			KEY_CASE(32,     KEY_SPACE);
+			default:             return;
+		}
+		std::cout << "Keydown translates to: " << key << std::endl;
+		gui->enqueue_event(boost::bind(&GUIWrapper::generic_key_down_func, gui, key));
+#undef KEY_CASE
+	}
+}
+
+void
+RemoteThread::set_modifier(int key, bool down)
+{
+	if (key == 0) {
+        mod_ctrl_ = down;
+	} else if (key == 1) {
+        mod_alt_ = down;
+	} else if (key == 2) {
+        mod_shift_ = down;
+	}
+}
+
+bool
+RemoteThread::get_modifier(int key)
+{
+	if (key == MODKEY_CONTROL) {
+        return mod_ctrl_;
+	} else if (key == MODKEY_ALT) {
+        return mod_alt_;
+	} else if (key == MODKEY_SHIFT) {
+        return mod_shift_;
+	} else {
+		return false;
+	}
+}
+
+std::string
+RemoteThread::find_local_ip()
+{
+#if defined(WIN32)
+    WSADATA wsaData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        return "WSAStartup Error";
+    }
+#endif
+    
+    char ac[80];
+    if (gethostname(ac, sizeof(ac)) != 0) {
+        return "Socket Error";
+    }
+    
+    struct hostent *phe = gethostbyname(ac);
+    if (phe == 0) {
+        return "Error";
+    }
+    
+    for (int i = 0; phe->h_addr_list[i] != 0; ++i) {
+        struct in_addr addr;
+        memcpy(&addr, phe->h_addr_list[i], sizeof(struct in_addr));
+        std::cout << "Local Address " << i << ": " << inet_ntoa(addr) << std::endl;
+        std::string address = inet_ntoa(addr);
+        return address;
+        
+    }
+    return "Not Found Error";
+}
+
+std::string
+RemoteThread::get_local_ip()
+{
+	if (local_address.empty()) {
+		local_address = find_local_ip();
+	}
+	return local_address;
+}
+
+std::string
+RemoteThread::get_key() 
+{
+	return key;
+}
+
+void
+RemoteThread::set_key(std::string s) {
+	key = s;
+}
+
+void
+RemoteThread::set_require_key(bool setting)
+{
+	require_key = setting;
+}
+
+bool
+RemoteThread::is_enabled()
+{
+	return !is_cancelled();
+}
+
+// closes ports and resets member info to defaults
+void
+RemoteThread::shutdown_remote()
+{
+	
+	{
+		HOLD_GUI_MUTEX;
+		GUIWrapper * gui = GUIWrapper::instance();
+		sleep(1/12);
+		gui->set_take_screenshot(false);
+		gui->set_open_urls(true);
+		sleep(1/24);
+		if (sd_current || sd) {
+#if defined(WIN32)
+			closesocket(sd_current);
+			closesocket(sd);
+#else
+			close(sd_current);
+			close(sd);
+#endif
+		}
+		sd_current = 0;
+		sd = 0;
+		want_refresh = 1;
+		last_time = 0;
+		ip_buf[0] = 0;
+		mod_ctrl_ = mod_alt_ = mod_shift_ = false;
+		if (!last_error.empty()) {
+			std::cout << "Remote Thread Closing Message: " << last_error << std::endl;
+		}
+		last_error.clear();
+		if (preprocess_done) {
+			delete[] prev_read_buffer;
+			if (low_res) {
+				delete[] resized_read_buffer;
+				resized_read_buffer = NULL;
+			}
+			prev_read_buffer = NULL;
+			read_buffer = NULL;
+		}
+		cur_width = 0;
+		cur_height = 0;
+		preprocess_done = false;
+		low_res = false;
+	}
+}
+
+// opens a listening port and waits until a connection is made
+void
+RemoteThread::remote_wait_for_connection(int port)
+{
+	if (*remote_connected_addr() != '\0' && ip_buf[0] != 0) { // make sure not already connected
+		return;
+	}
+
+	int cc, fromlen, tolen;
+	socklen_t  addrlen;
+	struct   sockaddr_in sin;
+	struct   sockaddr_in pin;
+	if (connect_callback_) {
+		connect_callback_(2); // waiting for connection
+	}
+	
+	/* get an internet domain socket */
+	if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+        last_error = "Can't create socket.";
+		shutdown_remote();
+		return;
+	}
+
+	/* complete the socket structure */
+	memset(&sin, 0, sizeof(sin));
+	sin.sin_family = AF_INET;
+	sin.sin_addr.s_addr = INADDR_ANY;
+	sin.sin_port = htons(port);
+	
+	/* bind the socket to the port number */
+	if (bind(sd, (struct sockaddr *) &sin, sizeof(sin)) == -1) {
+        last_error = "Can't bind socket.";
+		shutdown_remote();
+		return;
+	}
+	
+	/* show that we are willing to listen */
+	if (listen(sd, 0) == -1) { // backlog of 0, change for multiple clients
+        last_error = "Can't listen on socket";
+		shutdown_remote();
+		return;
+	}
+	
+	if (is_cancelled()) {
+		shutdown_remote();
+		return;
+	}
+		
+	/* wait for a client to talk to us */
+    std::cout << std::endl;
+    std::cout << "remote waiting..." << std::endl;
+	while (!is_cancelled()) {
+		struct timeval timeout;
+		timeout.tv_sec = 0;
+		timeout.tv_usec = 50;
+		fd_set sock_set;
+		FD_ZERO(&sock_set);
+		FD_SET(sd, &sock_set);
+		int selret = select(FD_SETSIZE, &sock_set, NULL, NULL, &timeout);
+        if (selret < 0) {
+            last_error = "Can't select on socket";
+            shutdown_remote();
+            return;
+        }
+		if (selret > 0) {
+			std::cout << "Found remote client." << std::endl;
+			break;
+		}
+	}
+
+	addrlen = sizeof(pin); 
+#if defined(WIN32)
+	int* addrlenint = (int*) &addrlen;
+	if (!is_cancelled() && (sd_current = accept(sd, (struct sockaddr *)  &pin, addrlenint)) == -1) {
+		last_error = "Problem accepting on socket.";
+		shutdown_remote();
+		return;
+	}
+#else
+	if (!is_cancelled() && (sd_current = accept(sd, (struct sockaddr *)  &pin, &addrlen)) == -1) {
+        last_error = "Problem accepting on socket.";
+		shutdown_remote();
+		return;
+	}
+#endif
+
+	strcpy(ip_buf, inet_ntoa(pin.sin_addr));
+	last_time = time(NULL);
+	
+	while (!preprocess_done && !is_cancelled()) {
+		if (last_time != 0 && (time(NULL) - last_time) >= 5) {
+			last_error = "Preprocess timeout";
+			break;
+		}
+		struct timeval timeout;
+		timeout.tv_sec = 0;
+		timeout.tv_usec = 0;
+		fd_set sock_set;
+		FD_ZERO(&sock_set);
+		FD_SET(sd_current, &sock_set);
+	
+		/* Check version, key, resolution */
+		while (!preprocess_done && !is_cancelled()) {
+
+			int selret = select(sd_current + 1, &sock_set, NULL, NULL, &timeout);
+			if (selret == 0 || !FD_ISSET(sd_current, &sock_set)) {
+				break;
+			}
+			int ret = recv(sd_current, recv_buf + recv_buf_offset, CL_FIRST_MSG_SIZE - recv_buf_offset, 0);
+			if (ret < 0) {
+				last_error = "ret error";
+				break;
+			}
+		
+			recv_buf_offset += ret;
+			if (recv_buf_offset == CL_FIRST_MSG_SIZE) {
+				recv_buf_offset = 0;
+				/* Check that this is the correct message */
+				if (recv_buf[0] != MAGIC || recv_buf[1] != CLEV_VERSION) {
+					last_error = "Magic or version incorrect in preprocess.";
+					break;
+				}
+			
+				/* Version */
+				if (recv_buf[2] != VERSION) {
+					tell_client_to_terminate_connection(1);
+					last_error = "Client version doesn't match.";
+					break;
+				}
+			
+				/* Key */
+				const char* strdata = key.c_str();
+				if (require_key) {
+					bool flag = false;
+					for (int i = 0; i < key.length(); i++) {
+						if (strdata[i] != recv_buf[i+3]) {
+							tell_client_to_terminate_connection(2);
+							last_error = "Key doesn't match.";
+							flag = true;
+						}
+					}
+					if (flag) {
+						std::cout << "The key is: " << key << std::endl << "Key received: ";
+						for (int i = 0; i < 5; i++) {
+							std::cout << recv_buf[i + 3];
+						}
+						std::cout << std::endl;
+						break;
+					}
+				}
+			
+				/* Resolution */
+				cur_width = recv_buf[8] * 128 + recv_buf[9];
+				cur_height = recv_buf[10] * 128 + recv_buf[11];
+				cur_width = cur_width - cur_width % TILE_SIZE;
+				cur_height = cur_height - cur_height % TILE_SIZE;
+#if defined(WIN32)
+				low_res = recv_buf[12];
+#endif
+				std::cout << "Remote low_res: " << low_res << std::endl;
+				if (cur_width < 100 || cur_height < 100) {
+					last_error = "Invalid Resolution specified by client";
+					break;
+				}
+				resize_window(cur_width, cur_height);
+				GUIWrapper * gui = GUIWrapper::instance();
+                
+				HOLD_GUI_MUTEX;
+				prev_read_buffer = new unsigned char[cur_width * cur_height * 4];
+				traverse_width = cur_width;
+		        traverse_height = cur_height;
+                
+				std::cout << "cur_width: " << cur_width << " " << cur_height << std::endl;
+				if (low_res) {
+					traverse_width /= 2;
+					traverse_height /= 2;
+					traverse_width = traverse_width - traverse_width % TILE_SIZE;
+					traverse_height = traverse_height - traverse_height % TILE_SIZE;
+					resized_read_buffer = new unsigned char[cur_width * cur_height];
+				}
+				std::cout << "Traverse_width: " << traverse_width << " " << traverse_height << std::endl;
+				read_buffer = gui->remote_read(cur_width, cur_height);
+				gui->set_take_screenshot(true);
+				gui->set_open_urls(false);
+				preprocess_done = true;
+				send_buf[0] = MAGIC;
+			}
+			
+		}
+	}
+	if (preprocess_done) {
+		std::cout << "remote connect from " << ip_buf << std::endl;
+		if (connect_callback_) {
+			connect_callback_(1); // session active
+		}
+	} else if (!is_cancelled()) {
+		std::cout << "failed to preprocess from " << ip_buf << std::endl;
+		shutdown_remote();
+	}
+}
+
+void
+RemoteThread::tell_client_to_terminate_connection(int type)
+{
+	char send_buf[5];
+	send_buf[0] = MAGIC;
+	send_buf[1] = SEEV_TERMINATE;
+	send_buf[2] = 0;
+	send_buf[3] = 5;
+	send_buf[4] = type;
+	send(sd_current, send_buf, 5, 0);
+}
+
+// forces a new frame to be sent, currently unused
+void
+RemoteThread::remote_force_refresh()
+{
+	want_refresh = 1;
+}
+
+const char *
+RemoteThread::remote_connected_addr()
+{
+	return ip_buf;
+}
+
+const char *
+RemoteThread::remote_last_error_message()
+{
+	return last_error.c_str();
+}
+
+//resize window to client size
+void
+RemoteThread::resize_window(int width, int height)
+{
+#if defined(WIN32)
+	interactive::application::wrapper::win32::Win32Wrapper * gui = dynamic_cast< interactive::application::wrapper::win32::Win32Wrapper * >(GUIWrapper::instance());
+	gui->set_window_size(width, height);
+#elif defined(MAC)
+	interactive::application::wrapper::cocoa::CocoaWrapper * gui = dynamic_cast< interactive::application::wrapper::cocoa::CocoaWrapper * >(GUIWrapper::instance());
+	//gui->set_window_size(width, height); // TODO not tested
+#else
+	interactive::application::wrapper::glut::GLUTWrapper * gui = dynamic_cast< interactive::application::wrapper::glut::GLUTWrapper * >(GUIWrapper::instance());
+	//gui->set_window_size(width, height); // TODO not tested
+#endif
+}
+
+// sends graphics and receives mouse and key actions
+void
+RemoteThread::remote_process()
+{
+	/* RLE Tiles */
+	if (true) { // want refresh
+		
+		//want_refresh = 0;
+		
+		//read_callback(read_buffer); // deprecated; read_buffer now updates independently in GUIWrapper::on_post_render()
+
+		/* Write resized buffer to resized_read_buffer */
+		if (low_res) {
+			Resize_HQ_4ch(read_buffer, cur_width, cur_height, resized_read_buffer, cur_width / 2, cur_height / 2, NULL);
+		}
+
+		for (int xx = 0; xx < traverse_width; xx += TILE_SIZE) {
+			for (int yy = 0; yy < traverse_height; yy += TILE_SIZE) {
+				
+				/* Run length encoding choices */
+				//send_buf[1] = SEEV_TILE;
+				//send_buf[1] = SEEV_SOLID_TILE;
+				//send_buf[1] = SEEV_RLE24_TILE;
+				send_buf[1] = SEEV_RLE16_TILE;
+				//send_buf[1] = SEEV_RLE8_TILE;
+				
+				send_buf[2] = 0;
+				send_buf[3] = 0;
+				
+				/* Position on the screen */
+				send_buf[4] = xx / 128;
+				send_buf[5] = xx % 128;
+				send_buf[6] = yy / 128;
+				send_buf[7] = yy % 128;
+				
+				unsigned int index = 8;
+				/* Run length color values */
+				unsigned int rrr = 0;
+				unsigned int rgg = 0;
+				unsigned int rbb = 0;
+				unsigned int rrun = 0;
+				
+				bool is_diff = false;
+				bool is_solid = true;
+				/* for each pixel in the tile */
+				for (int ii = 0; ii < TILE_SIZE; ++ ii) {
+					for (int jj = 0; jj < TILE_SIZE; ++ jj) {
+						/* Current colors */
+						const unsigned char * ptr;
+						if (low_res) {
+							ptr = &(resized_read_buffer[4 * ((xx + ii) + (yy + jj) * (cur_width / 2))]);
+						} else {
+							ptr = &(read_buffer[4 * ((xx + ii) + (yy + jj) * cur_width)]);
+						}
+						 
+						unsigned char rr = ptr[0];
+						unsigned char gg = ptr[1];
+						unsigned char bb = ptr[2];
+						
+						/* Previous values */
+						unsigned char * pptr;
+						if (low_res) {
+							pptr = &(prev_read_buffer[4 * ((xx + ii) + (yy + jj) * (cur_width / 2))]);
+						} else {
+							pptr = &(prev_read_buffer[4 * ((xx + ii) + (yy + jj) * cur_width)]);
+						}
+						
+						unsigned char prr = pptr[0];
+						unsigned char pgg = pptr[1];
+						unsigned char pbb = pptr[2];
+						
+						/* Check if there is a difference */
+						if (prr != rr || pgg != gg || pbb != bb) {
+							is_diff = true;
+							pptr[0] = rr;
+							pptr[1] = gg;
+							pptr[2] = bb;
+						}
+						
+						/* Beginning of compression */
+						if (send_buf[1] == SEEV_RLE8_TILE) {
+							rr /= 64;
+							gg /= 64;
+							bb /= 32;
+							
+							prr /= 64;
+							pgg /= 64;
+							pbb /= 32;
+						} else if (send_buf[1] == SEEV_RLE16_TILE) {
+							rr /= 8;
+							gg /= 8;
+							bb /= 16;
+							
+					/*		prr /= 8;
+							pgg /= 8;
+							pbb /= 16;*/
+						} else {
+							rr /= 2;
+							gg /= 2;
+							bb /= 2;
+							
+							prr /= 2;
+							pgg /= 2;
+							pbb /= 2;
+						}
+						
+						/* run length encoding on current color */
+						if (send_buf[1] == SEEV_RLE24_TILE || send_buf[1] == SEEV_RLE16_TILE || send_buf[1] == SEEV_RLE8_TILE) {
+							if (rrun == 0) {
+								rrr = rr;
+								rgg = gg;
+								rbb = bb;
+								rrun = 1;
+							} else if (rrun >= 127 || rr != rrr || gg != rgg || bb != rbb) {
+								if (send_buf[1] == SEEV_RLE24_TILE) {
+									send_buf[index ++] = rrun;
+									
+									send_buf[index ++] = rrr;
+									send_buf[index ++] = rgg;
+									send_buf[index ++] = rbb;
+								} else if (send_buf[1] == SEEV_RLE16_TILE) {
+									send_buf[index ++] = rrun;
+									
+									unsigned char clr0 = ((rrr << 2) & 0x007C) | ((rgg >> 3) & 0x0003);
+									unsigned char clr1 = ((rgg << 4) & 0x0070) | ((rbb << 0) & 0x000F);
+									send_buf[index ++] = clr0;
+									send_buf[index ++] = clr1;
+									//std::cout << "CLR: " << (boost::format("%x") % int(clr0)) << " " << (boost::format("%x") % int(clr1)) << std::endl;
+								} else if (send_buf[1] == SEEV_RLE8_TILE) {
+									send_buf[index ++] = rrun;
+									
+									unsigned char clr = ((rrr << 5) & 0x0060) | ((rgg << 3) & 0x0018) | ((rbb << 0) & 0x0007);
+									send_buf[index ++] = clr;
+									//std::cout << "CLR: " << (boost::format("%x") % int(clr)) << std::endl;
+								}
+								if (rr != rrr || gg != rgg || bb != rbb) {
+									is_solid = false;
+								}
+								rrr = rr;
+								rgg = gg;
+								rbb = bb;
+								rrun = 1;
+							} else {
+								rrun += 1;
+							}
+						} else if (send_buf[1] == SEEV_TILE) {
+							send_buf[index ++] = rr;
+							send_buf[index ++] = gg;
+							send_buf[index ++] = bb;
+						} else if (send_buf[1] == SEEV_SOLID_TILE) {
+							rrr += rr;
+							rgg += gg;
+							rbb += bb;
+						}
+						
+					}
+				}
+
+				/* Take care of the last run-length color */
+				if (send_buf[1] == SEEV_RLE24_TILE) {
+					send_buf[index ++] = rrun;
+					
+					send_buf[index ++] = rrr;
+					send_buf[index ++] = rgg;
+					send_buf[index ++] = rbb;
+				} else if (send_buf[1] == SEEV_RLE16_TILE) {
+					send_buf[index ++] = rrun;
+					
+					unsigned char clr0 = ((rrr << 2) & 0x007C) | ((rgg >> 3) & 0x0003);
+					unsigned char clr1 = ((rgg << 4) & 0x0070) | ((rbb << 0) & 0x000F);
+					send_buf[index ++] = clr0;
+					send_buf[index ++] = clr1;
+				} else if (send_buf[1] == SEEV_RLE8_TILE) {
+					send_buf[index ++] = rrun;
+					
+					unsigned char clr = ((rrr << 5) & 0x0060) | ((rgg << 3) & 0x0018) | ((rbb << 0) & 0x0007);
+					send_buf[index ++] = clr;
+				} else if (send_buf[1] == SEEV_SOLID_TILE) {
+					send_buf[index ++] = rrr / (TILE_SIZE * TILE_SIZE);
+					send_buf[index ++] = rgg / (TILE_SIZE * TILE_SIZE);
+					send_buf[index ++] = rbb / (TILE_SIZE * TILE_SIZE);
+					//std::cout << "CLR: " << rrr << " " << rgg << " " << rbb << std::endl;
+				}
+				
+				if (is_diff) {
+					if (is_solid) {
+						if (send_buf[1] == SEEV_RLE8_TILE) {
+							rrr *= 32;
+							rgg *= 32;
+							rbb *= 16;
+						} else if (send_buf[1] == SEEV_RLE16_TILE) {
+							rrr *= 4;
+							rgg *= 4;
+							rbb *= 8;
+						}
+						index = 8;
+						send_buf[1] = SEEV_SOLID_TILE;
+						send_buf[index ++] = rrr;
+						send_buf[index ++] = rgg;
+						send_buf[index ++] = rbb;
+					}
+					send_buf[2] = index / 128;
+					send_buf[3] = index % 128;
+					send(sd_current, send_buf, index, 0);
+				}
+			}
+		}
+        
+		/* End of frame */
+		send_buf[1] = SEEV_FLUSH;
+		send_buf[2] = 0;
+		send_buf[3] = 4;
+		send(sd_current, send_buf, 4, 0);
+	}
+	
+	if (last_time != 0 && time(NULL) - last_time >= 8) {
+		shutdown_remote();
+		last_error = "Timeout waiting for response.";
+		return;
+	}
+	
+	/* Setting up to receive data */
+	struct timeval timeout;
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 0;
+	
+	fd_set sock_set;
+	FD_ZERO(&sock_set);
+	FD_SET(sd_current, &sock_set);
+	
+	for (int ii = 0; ii < 30; ++ ii) {
+		int selret = select(sd_current + 1, &sock_set, NULL, NULL, &timeout);
+		if (selret <= 0 || !FD_ISSET(sd_current, &sock_set)) {
+			break;
+		}
+		
+		int ret = recv(sd_current, recv_buf + recv_buf_offset, CL_MSG_SIZE - recv_buf_offset, 0);
+		if (ret < 0) {
+			break;
+		}
+		
+		recv_buf_offset += ret;
+		
+		if (recv_buf_offset == CL_MSG_SIZE) {
+			recv_buf_offset = 0;
+			
+			if (recv_buf[0] != MAGIC || is_cancelled()) {
+				if (is_cancelled()) {
+					last_error = "Thread cancelled.";
+				} else {
+					last_error = "Bad magic number.";
+					for (int i = 0; i < 6; i++) {
+						std::cout << recv_buf[i] << " ";
+						std::cout << std::endl;
+					}
+				}
+				shutdown_remote();
+				return;
+			}
+
+			/* Normal client events */
+			int type = recv_buf[1];
+            
+			if (type == CLEV_REFRESH) {
+				last_time = time(NULL);
+				want_refresh = 1;
+			} else if (type >= CLEV_MOUSE_DOWN && type <= CLEV_MOUSE_MOVE || type == CLEV_TRANSLATE) {
+				int new_mouse_xx = recv_buf[2] * 128 + recv_buf[3];
+				int new_mouse_yy = recv_buf[4] * 128 + recv_buf[5];
+				event_callback(type, new_mouse_xx, new_mouse_yy);
+			} else if (type >= CLEV_MODKEY_DOWN && type <= CLEV_MODKEY_UP) {
+				event_callback(type, recv_buf[2], 0);
+			} else if (type == CLEV_SCROLL_UP || type == CLEV_SCROLL_DOWN) {
+				event_callback(type, 0, 0);
+			} else if (type == CLEV_CHAR) {
+				event_callback(type, recv_buf[2], 0);
+			} else if (type == CLEV_TERMINATE) {
+				last_error = "Client terminated connection cleanly.";
+				shutdown_remote();
+				return;
+			}
+		}
+	}
+}
+
+
+#if defined(WIN32)
+
+// MMX resizing
+
+static bool g_bMMX = false;
+static bool g_bMMX_known = false;
+
+static
+bool
+CheckForMMX()
+{
+    DWORD bMMX = 0;
+    DWORD *pbMMX = &bMMX;
+    __try {
+        __asm {
+            mov eax, 1
+            cpuid
+            mov edi, pbMMX
+            mov DWORD ptr [edi], edx
+        }
+    }
+    __except(EXCEPTION_EXECUTE_HANDLER) {
+        bMMX = 0;
+    }
+    return ((bMMX & 0x00800000) != 0);  // check bit 23
+}
+
+// function to resize buffer to half
+void
+RemoteThread::Resize_HQ_4ch( unsigned char* src, int w1, int h1,  
+                    unsigned char* dest, int w2, int h2, 
+                    volatile bool* pQuitFlag )
+{
+    // Both buffers must be in ARGB format, and a scanline should be w*4 bytes.
+
+    // If pQuitFlag is non-NULL, then at the end of each scanline, it will check
+    //    the value at *pQuitFlag; if it's set to 'true', this function will abort.
+    // (This is handy if you're background-loading an image, and decide to cancel.)
+
+    // NOTE: THIS WILL OVERFLOW for really major downsizing (2800x2800 to 1x1 or more) 
+    // (2800 ~ sqrt(2^23)) - for a lazy fix, just call this in two passes.
+
+    assert(src);
+    assert(dest);
+    assert(w1 >= 1);
+    assert(h1 >= 1);
+    assert(w2 >= 1);
+    assert(h2 >= 1);
+
+    // check for MMX (one time only)
+    if (!g_bMMX_known) 
+    {
+        g_bMMX = CheckForMMX();
+        g_bMMX_known = true;
+    }
+
+    if (w2*2==w1 && h2*2==h1)
+    {
+        // perfect 2x2:1 case - faster code
+        // (especially important because this is common for generating low (large) mip levels!)
+        DWORD *dsrc  = (DWORD*)src;
+        DWORD *ddest = (DWORD*)dest;
+        
+        if (g_bMMX==1)
+        {
+            // MMX LOOP - about 32% faster
+            // PREFETCH: no (...tests determined it was actually SLOWER)
+            // MASS PRESERVING (~remainders): *NO*
+
+            __m64 zero;
+            zero.m64_i32[0] = 0;
+            zero.m64_i32[1] = 0;
+
+            int i = 0;
+            for (int y2=0; y2<h2; y2++)
+            {
+                int y1 = y2*2;
+                DWORD* temp_src = &dsrc[y1*w1];
+                for (int x2=0; x2<w2; x2++)
+                {
+                    __m64 a = *(__m64*)(&temp_src[ 0]);  // ABCDEFGH
+                    __m64 b = *(__m64*)(&temp_src[w1]);  // IJKLMNOP
+                    register __m64 c = _mm_unpacklo_pi8(a, zero); // 0E0F0G0H      // PUNPCKLBW
+                    register __m64 d = _mm_unpacklo_pi8(b, zero); // 0M0N0O0P      // PUNPCKLBW
+                    c = _mm_add_pi16(c, d);
+                    d = _mm_unpackhi_pi8(a, zero);
+                    c = _mm_add_pi16(c, d);
+                    d = _mm_unpackhi_pi8(b, zero);
+                    c = _mm_add_pi16(c, d);
+                    c = _mm_srli_pi16(c, 2);
+                    c = _mm_packs_pu16(c, c);
+
+                    ddest[i++] = c.m64_u32[0];
+                    temp_src += 2;
+                }
+
+                if (pQuitFlag && *pQuitFlag)
+                    break;
+            }
+            _mm_empty();    // do this always - just that __m64's existence, above, will tamper w/float stuff.
+        }
+        else 
+        {
+            // NON-MMX LOOP
+            // PREFETCH: no (...tests determined it was actually SLOWER)
+            // MASS PRESERVING (~remainders): YES
+            DWORD remainder = 0;
+            int i = 0;
+            for (int y2=0; y2<h2; y2++)
+            {
+                int y1 = y2*2;
+                DWORD* temp_src = &dsrc[y1*w1];
+                for (int x2=0; x2<w2; x2++)
+                {
+                    DWORD xUL = temp_src[0];
+                    DWORD xUR = temp_src[1];
+                    DWORD xLL = temp_src[w1];
+                    DWORD xLR = temp_src[w1 + 1];
+                    // note: DWORD packing is 0xAARRGGBB
+
+                    DWORD redblue = (xUL & 0x00FF00FF) + (xUR & 0x00FF00FF) + (xLL & 0x00FF00FF) + (xLR & 0x00FF00FF) + (remainder & 0x00FF00FF);
+                    DWORD green   = (xUL & 0x0000FF00) + (xUR & 0x0000FF00) + (xLL & 0x0000FF00) + (xLR & 0x0000FF00) + (remainder & 0x0000FF00);
+                    // redblue = 000000rr rrrrrrrr 000000bb bbbbbbbb
+                    // green   = xxxxxx00 000000gg gggggggg 00000000
+                    remainder =  (redblue & 0x00030003) | (green & 0x00000300);
+                    ddest[i++]   = ((redblue & 0x03FC03FC) | (green & 0x0003FC00)) >> 2;
+
+                    temp_src += 2;
+                }
+
+                if (pQuitFlag && *pQuitFlag)
+                    break;
+            }
+        }
+    }
+}
+
+#else
+    
+void
+RemoteThread::Resize_HQ_4ch( unsigned char* src, int w1, int h1,
+                            unsigned char* dest, int w2, int h2,
+                            volatile bool* pQuitFlag )
+{
+    ASSERT_ALWAYS("Low resolution not supported on this platform.");
+}
+    
+#endif
+
+}
+}
+}
+#endif // ENABLE_REMOTE_PLAY

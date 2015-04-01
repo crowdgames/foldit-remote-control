@@ -1,0 +1,168 @@
+// -*- mode:c++;tab-width:2;indent-tabs-mode:t;show-trailing-whitespace:t;rm-trailing-spaces:t -*-
+// vi: set ts=2 noet:
+//
+// (c) Copyright Rosetta Commons Member Institutions.
+// (c) This file is part of the Rosetta software suite and is made available under license.
+// (c) The Rosetta software is developed by the contributing members of the Rosetta Commons.
+// (c) For more information, see http://www.rosettacommons.org. Questions about this can be
+// (c) addressed to University of Washington UW TechTransfer, email: license@u.washington.edu.
+#include <interactive/application/remote/remote_flags.hh>
+#if ENABLE_REMOTE_PLAY
+#ifndef _INTERACTIVE_APPLICATION_REMOTE_REMOTE_THREAD_HH_
+#define _INTERACTIVE_APPLICATION_REMOTE_REMOTE_THREAD_HH_
+
+#include <interactive/application/remote/RemoteThread.fwd.hh>
+#include <interactive/geom/Viewport.fwd.hh>
+#include <interactive/gui/TopLevel.fwd.hh>
+#include <interactive/application/Thread.hh>
+#include <interactive/geom/Viewport.hh>
+#include <core/types.hh>
+#include <boost/function.hpp>
+
+#if defined(WIN32)
+typedef uint32_t socklen_t;
+typedef int pid_t;
+#endif
+
+
+
+namespace interactive {
+namespace application {
+namespace remote {
+
+class RemoteThread : public interactive::application::Thread {
+public:
+	RemoteThread(boost::function< void(int) > connect_callback);
+    
+	~RemoteThread();
+    
+	virtual
+	void
+	operator()();
+
+	//returns whether the thread is enabled
+	bool
+	is_enabled();
+
+	//returns remote IP address
+	const char *
+	remote_connected_addr();
+	
+	//forces send refresh - deprecated
+	void
+	remote_force_refresh();
+
+	virtual
+	interactive::gui::TopLevelAP
+	get_top_level();
+
+	//gets whether or not a modifier key is enabled
+	bool
+	get_modifier(int key);
+
+	//returns the local IP of this computer
+	std::string
+	get_local_ip();
+
+	//get keystring that client will need to connect
+	std::string
+	get_key();
+	
+	//set keystring that client will need to connect
+	void
+	set_key(std::string s);
+
+	//set whether to require a 5 char keystring upon client connect
+	void
+	set_require_key(bool setting);
+
+	//last error message
+	const char *
+	remote_last_error_message();
+
+	//singleton instance (may be better way to accomplish this)
+	static
+	RemoteThread *
+	instance();
+
+    //finds the local ip address
+    static
+    std::string
+    find_local_ip();
+    
+private:
+    
+	//sets a modifier key to a setting
+	void
+	set_modifier(int param1, bool setting);
+
+	//resizes the windows window
+	void
+	resize_window(int width, int height);
+
+	//closes ports and resets connection info
+	void
+	shutdown_remote();
+
+	//waits for a client to connect and processes version, resolution, key
+	void
+	remote_wait_for_connection(int port);
+
+	//sends a terminate event to clinet
+	void
+	tell_client_to_terminate_connection(int type);
+	
+	//sends and receives data with client
+	void
+	remote_process();
+
+	void
+	event_callback(char type, int param1, int param2);
+
+	//resizes the buffer to half it's original size
+	void
+	Resize_HQ_4ch( unsigned char* src, int w1, int h1,  
+                    unsigned char* dest, int w2, int h2, 
+                    volatile bool* pQuitFlag );
+
+
+	/// The singleton instance.
+	static RemoteThread * instance_;
+
+	unsigned char * prev_read_buffer;
+	unsigned char * read_buffer;
+	unsigned char * resized_read_buffer;
+	int sd_current;
+	int sd;
+	bool preprocess_done;
+	bool require_key;
+	bool low_res;
+	char send_buf[4096]; //send buffer
+	char recv_buf[1024];
+	int recv_buf_offset;
+	std::string local_address;
+	int want_refresh;
+	size_t last_time;
+	int cur_width;
+	int cur_height;
+	int traverse_width;
+	int traverse_height;
+
+	std::string key;
+
+	char ip_buf[32];
+	std::string last_error;
+	boost::function< void(int) > connect_callback_;
+
+    bool mod_ctrl_;
+    bool mod_alt_;
+    bool mod_shift_;
+    
+};
+
+}
+}
+}
+
+#endif /* _INTERACTIVE_APPLICATION_REMOTE_REMOTE_THREAD_HH_ */
+#endif // ENABLE_REMOTE

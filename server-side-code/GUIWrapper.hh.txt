@@ -1,0 +1,328 @@
+// -*- mode:c++;tab-width:2;indent-tabs-mode:t;show-trailing-whitespace:t;rm-trailing-spaces:t -*-
+// vi: set ts=2 noet:
+//
+// (c) Copyright Rosetta Commons Member Institutions.
+// (c) This file is part of the Rosetta software suite and is made available under license.
+// (c) The Rosetta software is developed by the contributing members of the Rosetta Commons.
+// (c) For more information, see http://www.rosettacommons.org. Questions about this can be
+// (c) addressed to University of Washington UW TechTransfer, email: license@u.washington.edu.
+
+#ifndef _INTERACTIVE_APPLICATION_GUI_WRAPPER_HH_
+#define _INTERACTIVE_APPLICATION_GUI_WRAPPER_HH_
+
+#include <interactive/application/Application.hh>
+#include <interactive/application/input_codes.hh>
+#include <interactive/sound/SoundSystem.fwd.hh>
+#include <interactive/application/remote/remote_flags.hh>
+#include <core/types.hh>
+#include <utility/vector1.hh>
+
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+#include <map>
+#include <queue>
+
+
+
+namespace interactive {
+namespace application {
+
+/// This is a sinlgeton instance that wraps an underlying graphical user
+/// interface.
+class GUIWrapper {
+public:
+	
+	typedef boost::function< void (const std::string &) > LoadOrSaveCallback;
+	typedef boost::function< void (const utility::vector1< std::string > &) > LoadOrSaveMultipleCallback;
+
+	/// Destructor
+	virtual
+	~GUIWrapper();
+	
+	/// Sets the application for this gui.
+	virtual
+	void
+	set_application(Application::Factory app_factory);
+
+	virtual
+	void
+	set_window_title_suffix(const std::string & suffix);
+	
+	/// Starts the gui thread. This function shouldn't return until the gui is done.
+	virtual
+	void
+	start() = 0;
+
+	// tell the gui to finish
+	virtual
+	void
+	stop() = 0;
+
+	/// Causes the display to be redrawn.
+	virtual
+	void
+	force_refresh();
+
+	/// Returns the singleton instance.
+	static
+	GUIWrapper *
+	instance();
+	
+	/// Returns the application of the static instnace.
+	static
+	Application *
+	get_static_application();
+
+	/// Returns the application.
+	Application *
+	get_application();
+	
+	// get the sound system
+	sound::SoundSystem &
+	sound_system();
+	
+	typedef enum {
+		CURSOR_LEFT_ARROW,
+		CURSOR_TEXT,
+		CURSOR_HAND
+	} Cursor;
+
+	// set the mouse cursor
+	virtual
+	void
+	set_cursor(Cursor cursor);
+
+	// capture or release mouse
+	virtual
+	void
+	capture_mouse(bool capture);
+
+	//set screenshot taking on post render
+	void
+	set_take_screenshot(bool setting);
+
+	// get the state of modifier keys
+	virtual
+	bool
+	get_modifier(ModifierKey key);
+
+	// set the text in the clipboard
+	// return true if text put in clipboard
+	virtual
+	bool
+	set_clipboard(const std::string & text);
+
+	// get the text from the clipboard
+	// return true if there was text
+	virtual
+	bool
+	get_clipboard(std::string & text);
+
+	virtual
+	const std::string &
+	get_image_dir() const;
+
+	virtual
+	const std::string &
+	get_desktop_dir() const;
+
+	/// Sets the image directory
+	void
+	set_image_dir(const std::string image_dir_);
+
+	/// \brief Get the directory used when saving or loading files.
+	/// \return File directory.
+	const std::string &
+	get_file_dir() const;
+
+	/// \brief Set the directory used when saving or loading files.
+	/// \param dir File directory.
+	void
+	set_file_dir(const std::string & file_dir);
+
+	/// \brief Saves a file.
+	/// \param default_desc  Default file type description
+	/// \param default_ext   Default file extension
+	/// \param save_callback Called with the filename when the user clicks the "save" button.
+	virtual
+	void
+	save_file(const std::string & default_desc, const std::string & default_ext, LoadOrSaveCallback save_callback) = 0;
+
+	/// \brief Loads a file.
+	/// \param default_desc  Default file type description
+	/// \param default_ext   Default file extension
+	/// \param load_callback Called with the filename when the user clicks the "load" button.
+	virtual
+	void
+	load_file(const std::string & default_desc, const std::string & default_ext, LoadOrSaveCallback load_callback) = 0;
+
+	/// \brief Loads multiple files.
+	/// \param default_desc  Default file type description
+	/// \param default_ext   Default file extension
+	/// \param load_callback Called with the filenames when the user clicks the "load" button.
+	virtual
+	void
+	load_file_mult(const std::string & default_desc, const std::string & default_ext, LoadOrSaveMultipleCallback load_callback);
+
+	/// Opens the URL in the user's web browser
+	virtual
+	void
+	open_url(const std::string & url);
+
+	// get rendering frames per second
+	core::Real
+	fps();
+
+	/// Clears the event queue. Do this if you've just tied up the event queue
+	/// for a long time and you don't want a bunch of expired events to suddenly
+	/// execute.		
+	void
+	clear_event_queue();
+
+	void
+	set_left_remap(int ctrl, int alt, int shift);
+
+	virtual
+	void
+	load_options(util::Dictionary & options);
+
+	/// event callback type
+	typedef boost::function< void () > EventCallback;
+    
+	/// adds an event to the queue
+	void
+	enqueue_event(EventCallback ev);
+    
+#if ENABLE_REMOTE_PLAY
+    /// adds an event to the queue
+	void
+	enqueue_remote_event(EventCallback ev);
+#endif
+    
+    // handles mouse motion
+	void
+	generic_mouse_motion_func(int x, int y);
+
+	// TODO: 
+	void
+	generic_mouse_aux_motion_func(int id, int x, int y);
+	
+	// handles processing of mouse events and modifiers
+	// returns true if any buttons are down after processing
+	void
+	generic_mouse_button_func(int button, bool down, int x, int y);
+
+	// TODO: 
+	void
+	generic_mouse_aux_button_func(int id, int button, bool down, int x, int y);
+
+	// handles mouse wheel motion
+	void
+	generic_mouse_wheel_func(int delta);
+
+	// TODO: 
+	//void
+	//generic_mouse_wheel_func_aux(int id, int button, bool down, int x, int y);
+
+	// handles text
+	void
+	generic_text_func(unsigned char text);
+
+	// handles keys
+	void
+	generic_key_down_func(Key key);
+	
+	// handles screenshotting for remote play
+	void
+	on_post_render();
+
+#if ENABLE_REMOTE_PLAY
+	// returns pointer to glreadpixels array
+	unsigned char *
+	remote_read(int width, int height);
+
+	void
+	set_open_urls(bool setting);
+#endif
+
+protected:
+	
+	static const std::string DESIRED_WND_TITLE;
+	static int DESIRED_WND_WIDTH;
+	static int DESIRED_WND_HEIGHT;
+	static int DESIRED_FPS;
+	bool open_urls_;
+	
+	/// Constructor - Assigns the static instance and can only be called once.
+	GUIWrapper();
+
+	/// Sets the application for this gui. (Cannot be called twice.)
+	void
+	set_application(Application * app);
+
+	/// Tick one frame, for computing fps.
+	void
+	tick_frame();
+
+	/// Sets the desktop directory
+	void
+	set_desktop_dir(const std::string desktop_dir_);
+
+private:
+	
+	/// This is the application which we can set
+	Application * app_;
+	unsigned char * read_buffer;
+	sound::SoundSystemOP sound_system_;
+
+	/// The singleton instance.
+	static GUIWrapper * instance_;
+
+	// fps
+	core::Real last_frame_time_;
+	core::Real fps_;
+
+	// handles mouse state
+	enum LeftWasWhat {
+		LEFT_WAS_LEFT,
+		LEFT_WAS_MIDDLE,
+		LEFT_WAS_RIGHT
+	};
+	
+#if ENABLE_REMOTE_PLAY
+    //should we take a screenshot (remotethread)
+	bool take_screenshot_;
+	int remote_width_;
+	int remote_height_;
+    
+    std::queue< EventCallback > remote_events_;
+#endif
+    
+	int buttons_down_;
+
+	LeftWasWhat left_was_what_;
+
+	// for double clicks
+	int last_click_button_;
+	core::Real last_click_time_;
+
+	// directory for save/load
+	std::string file_dir_;
+
+	//directory for images
+	std::string image_dir_;
+
+	//user desktop directory
+	std::string desktop_dir_;
+
+	// Do we remap left click as old way?
+	int ctrl_left_button_;
+	int alt_left_button_;
+	int shift_left_button_;
+};
+
+} /* application */
+} /* interactive */
+
+
+#endif /* _INTERACTIVE_APPLICATION_GUI_WRAPPER_HH_ */
