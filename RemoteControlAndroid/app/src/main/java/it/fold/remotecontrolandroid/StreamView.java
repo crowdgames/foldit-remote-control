@@ -19,6 +19,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback
     private ScaleGestureDetector mScaleGestureDetector;
     private GestureDetector mGestureDetector;
 
+
     private final GestureDetector.OnGestureListener mGestureListener
             = new GestureDetector.SimpleOnGestureListener() {
     };
@@ -46,7 +47,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback
     @Override
     public void surfaceCreated(SurfaceHolder holder)
     {
-        Log.d("StreamView", "surfaceCreated");
+        Log.d("StreamView", "creating surface");
 
         Paint paint = new Paint();
         paint.setColor(0xFFFFFFFF);
@@ -59,6 +60,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback
         mStreamThread.initialize(Constants.IP_ADDRESS_LOCAL, Constants.PORT, "");
         mStreamThread.setRunning(true);
         mStreamThread.start();
+        Log.d("StreamView", "successfully created surface");
     }
 
     @Override
@@ -78,27 +80,42 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback
     //mScaleDetector.onTouchEvent(e);
     //touchTime = e.getEventTime();
         mGestureDetector.onTouchEvent(e);
-        if (e.getPointerCount() > 1) {
-            return mScaleGestureDetector.onTouchEvent(e);
-        }
         int x = (int) e.getX();
         int y = (int) e.getY();
         int action = e.getAction();
         int cl_action = 0;
+        int historySize = e.getHistorySize();
+
+
+
+        if (e.getPointerCount() > 1) {
+            Log.d("streamdebug", "Multiple pointers registered");
+
+
+            Log.d("streamdebug", String.format("Begin iterating through pointer history size of %S (indexed started at 0)", historySize));
+            for (int h = 0; h < historySize; h++) {
+                Log.d("streamdebug", String.format("Pointer: %S", h));
+
+                if (action == MotionEvent.ACTION_MOVE) {
+                    cl_action = Constants.CLEV_MOUSE_MOVE;
+                } else if (action == MotionEvent.ACTION_DOWN) {
+                    switch (h) {
+                        case 0: cl_action = Constants.CLEV_MOUSE_DOWN_AUX_0;
+                        case 1: cl_action = Constants.CLEV_MOUSE_DOWN_AUX_1;
+                        case 2: cl_action = Constants.CLEV_MOUSE_DOWN_AUX_2;
+                    }
+                }
+
+                int xx = (int) e.getHistoricalX(h);
+                int yy = (int) e.getHistoricalY(h);
+
+                mStreamThreadHandler.obtainMessage(cl_action, xx, yy).sendToTarget();
+            }
+            return mScaleGestureDetector.onTouchEvent(e);
+        }
         if (action == MotionEvent.ACTION_MOVE) {
-//            if (zoom) {
-//                zoomX = e.getX();
-//                zoomY = e.getY();
-//                invalidate();
-//            }
+//          if (zoom) {zoomX = e.getX();zoomY = e.getY(); invalidate();}
             cl_action = Constants.CLEV_MOUSE_MOVE;
-        /* Uncomment to use 1-2 batched move events instead of just current */
-        // int historySize = e.getHistorySize();
-        // for (int h = 0; h < historySize; h++) {
-        // int xx = (int) e.getHistoricalX(h);
-        // int yy = (int) e.getHistoricalY(h);
-        // streamHandler.obtainMessage(cl_action, xx, yy).sendToTarget();
-        // }
         } else if (action == MotionEvent.ACTION_DOWN) {
             cl_action = Constants.CLEV_MOUSE_DOWN;
         } else if (action == MotionEvent.ACTION_UP) {
