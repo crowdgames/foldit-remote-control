@@ -5,6 +5,7 @@ public class Constants {
     public static int CUR_IMG_HEIGHT = 768;
     public static int REAL_IMG_WIDTH = 1184;
     public static int REAL_IMG_HEIGHT = 768;
+    public static String IP_ADDRESS_LOCAL = "192.168.0.16";
 
     public static final int  TILE_SIZE          = 16;
     public static final char MAGIC              = 'X';
@@ -16,7 +17,15 @@ public class Constants {
     public static final int  CL_MSG_SIZE        =  6;
     public static final char CLEV_REFRESH       =  1;
     public static final char CLEV_MOUSE_DOWN    =  2;
+    public static final char CLEV_MOUSE_DOWN_AUX_0 = 20;
+    public static final char CLEV_MOUSE_DOWN_AUX_1 = 21;
+    public static final char CLEV_MOUSE_DOWN_AUX_2 = 22;
     public static final char CLEV_MOUSE_UP      =  3;
+
+    // Do we need mouse up aux?
+    //public static final char CLEV_MOUSE_UP_AUX  = 33;
+
+
     public static final char CLEV_MOUSE_MOVE    =  4;
     public static final char CLEV_MODKEY_DOWN   =  5;
     public static final char CLEV_MODKEY_UP     =  6;

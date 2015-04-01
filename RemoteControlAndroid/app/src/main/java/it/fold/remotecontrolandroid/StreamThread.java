@@ -146,16 +146,24 @@ public class StreamThread extends Thread
         */
     }
 
+    /**
+     * @author Conor
+     * Send the process through the stream
+     * @param send_buf
+     * @param length
+     */
     private void sendProcess(char[] send_buf, int length)
     {
         if (mSocket == null)
         {
+            Log.e("streamdebug", "socket was null, could not send data.");
             return;
         }
-        Log.d("streamdebug", "SENDING2 " + (int)(send_buf[1]) + " " + length);
+        Log.d("streamdebug", String.format("Sending :: Send_buf: %S - Length: %S", ((int)(send_buf[1])), length));
         try {
             mSocket.getOut().write(send_buf, 0, length);
             mSocket.getOut().flush();
+            Log.d("streamdebug",  String.format("Successfully sent :: Send_buf: %S - Length: %S", ((int)(send_buf[1])), length));
         } catch (Exception e) {
             Log.e("streamerror", "error sending");
             lostConnection();
@@ -251,7 +259,10 @@ public class StreamThread extends Thread
                         mRecvBufOffset = 0;
                         mRecvBufMsgLen = Constants.SE_MSG_HDR;
                         char type = mRecvBuf[1];
-                        Log.d("stream", "GOT TYPE: " + (int)(type));
+
+                            // Commented out to prevent crazy verbose logging
+                            // Log.d("stream", "GOT TYPE: " + (int)(type));
+
                         if (type == Constants.SEEV_FLUSH) {
                             mLastReceiveTime = System.currentTimeMillis();
                             if (isDiff) {
@@ -377,7 +388,7 @@ public class StreamThread extends Thread
 
     private void doDraw(Canvas canvas)
     {
-        Log.d("streamdebug", "doDraw");
+        //Log.d("streamdebug", "doDraw");
         canvas.drawBitmap(mImage, rs, rd, null);
     }
 
