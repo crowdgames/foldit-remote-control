@@ -11,33 +11,41 @@ import android.view.SurfaceHolder;
 
 import java.util.Arrays;
 
+/**
+* Handles connection between mobile device and game by initializing stream
+*/
 public class StreamThread extends Thread
 {
-    private Bitmap mImage; // image to add incoming image data do
-    private SurfaceHolder mSurfaceHolder; // surface to draw image on
+    private Bitmap mImage; /** image to add incoming image data do */
+    private SurfaceHolder mSurfaceHolder; /** surface to draw image on */
 
-    private Handler mHandler; // input event handler
+    private Handler mHandler; /** input event handler */
 
-    private SocketBuffer mSocket; // communication socket
+    private SocketBuffer mSocket; /** communication socket */
     private String mAddress;
     private int mPort;
     private String mKey;
 
-    private char mRecvBuf[]; // buffer for receiving data
+    private char mRecvBuf[]; /** buffer for receiving data */
     private int mRecvBufOffset;
     private int mRecvBufMsgLen;
 
-    private char mSendBuf[]; // buffer for sending data
-    private char mRefrBuf[]; // buffer for sending data
-    private int mColorArray[]; // array of colors to display to screen
+    private char mSendBuf[]; /** buffer for sending data */
+    private char mRefrBuf[]; /** buffer for sending data */
+    private int mColorArray[]; /** array of colors to display to screen */
 
     private Rect rs;
     private Rect rd;
 
-    public boolean mLowRes; // using low resolution?
-    private boolean mRun; // keep running?
-    private long mLastReceiveTime; // last time
+    public boolean mLowRes; /** using low resolution? */
+    private boolean mRun; /** keep running? */
+    private long mLastReceiveTime; /** last time */
 
+    /**
+    * Constructs a new StreamThread
+    *
+    * @param SurfaceHolder surfaceHolder interface for a display surface
+    */
     public StreamThread(SurfaceHolder surfaceHolder)
     {
         mSurfaceHolder = surfaceHolder;
@@ -101,11 +109,24 @@ public class StreamThread extends Thread
         };
     }
 
+    /**
+    * abstracted method to return private field
+    *
+    * @return mHandler of object
+    */
     public Handler getHandler()
     {
         return mHandler;
     }
 
+    /**
+    * Initializes streaming connection with mobile device
+    *
+    * @param String address IP address of mobile device
+    * @param int port constant used for port
+    * @param String key unclear maybe used for passing with arguments
+    * @throws IllegalArgumentException if address or key is null or port = 0
+    */
     public void initialize(String address, int port, String key)
     {
         if (address == null || port == 0 || key == null)
@@ -117,16 +138,29 @@ public class StreamThread extends Thread
         mKey = key;
     }
 
+    /**
+    * confirms whether StreamThread is active, i.e. are we connected to device
+    *
+    * @return boolean of whether we are connected or not
+    */
     public boolean connected()
     {
         return mSocket != null;
     }
 
+    /**
+    * abstracted way to call lostConnection(String) without string
+    */
     public void lostConnection()
     {
         lostConnection(null);
     }
 
+    /**
+    * handles process of losing connection by printing to log and killing game
+    *
+    * @param String msg any additional message to be passed to user
+    */
     public void lostConnection(String msg)
     {
         Log.d("streamdebug", "LOST CONNECTION: " + msg);
@@ -172,6 +206,10 @@ public class StreamThread extends Thread
     }
 
     @Override
+    /**
+    * Begins streaming process with mobile device and monitors for errors, e.g.
+    * connection time outs
+    */
     public void run()
     {
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY);
@@ -373,11 +411,18 @@ public class StreamThread extends Thread
         }
     }
 
+    /**
+    * changes field to desired value so we can know whether we are currently
+    * running or not
+    */
     public void setRunning(boolean b)
     {
         mRun = b;
     }
 
+    /**
+    * closes connection when we are done streaming
+    */
     private void closeSocket()
     {
         if (mSocket != null)
@@ -386,6 +431,9 @@ public class StreamThread extends Thread
         }
     }
 
+    /**
+    * renders bitmap and streams
+    */
     private void doDraw(Canvas canvas)
     {
         //Log.d("streamdebug", "doDraw");

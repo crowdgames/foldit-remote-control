@@ -10,12 +10,21 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
+/**
+* Handles buffer reading
+*/
 public class SocketBuffer
 {
     private Socket mSocket;
     private BufferedReader mIn;
     private BufferedWriter mOut;
 
+    /**
+    * Constructor for SocketBuffer
+    *
+    * @param String host address of StreamThread
+    * @param int port of StreamThread
+    */
     public SocketBuffer(String host, int port) throws Exception
     {
         mSocket = new Socket(host, port);
@@ -30,16 +39,29 @@ public class SocketBuffer
         }
     }
 
+    /**
+    * Abstraction to return private field
+    *
+    * @return mIn
+    */
     public BufferedReader getIn()
     {
         return mIn;
     }
 
+    /**
+    * Abstraction to return private field
+    *
+    * @return mOut
+    */
     public BufferedWriter getOut()
     {
         return mOut;
     }
 
+    /**
+    * Closes buffer
+    */
     public void close()
     {
         try
@@ -55,4 +77,3 @@ public class SocketBuffer
     }
 
 }
-

@@ -5,10 +5,17 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-
+/**
+* Class for activities using the action bar library
+*/
 public class GameActivity extends ActionBarActivity {
 
     @Override
+    /**
+    * initializes based off of Bundle
+    *
+    * @param Bundle savedInstanceState parseable strings used for init
+    */
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
@@ -17,6 +24,12 @@ public class GameActivity extends ActionBarActivity {
 
 
     @Override
+    /**
+    * initializes the options menu
+    *
+    * @param Menu menu information for the options menu
+    * @return boolean true
+    */
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -25,6 +38,12 @@ public class GameActivity extends ActionBarActivity {
     }
 
     @Override
+    /**
+    * whenever an option is selected, handles it
+    *
+    * @param MenuItem item that has been selected
+    * @return boolean true
+    */
     public boolean onOptionsItemSelected(MenuItem item)
     {
         // Handle action bar item clicks here. The action bar will

@@ -14,10 +14,12 @@ import android.view.*;
 import android.view.ScaleGestureDetector.*;
 import android.view.GestureDetector.*;
 
-
+/**
+* Handles events and imaging
+*/
 public class StreamView extends SurfaceView implements SurfaceHolder.Callback
 {
-    private StreamThread mStreamThread;
+    private StreamThread mStreamThread; /** object to handle streaming */
     private Handler mStreamThreadHandler;
 
     private ScaleGestureDetector mScaleGestureDetector;
@@ -39,6 +41,13 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback
             = new SimpleOnScaleGestureListener() {
     };
 
+    /**
+    * constructor that inherits fields from surfaceview to give attributes
+    * and context to view
+    *
+    * @param Context context global information about application environment
+    * @param AttributeSet attrs collection of attributes
+    */
     public StreamView(Context context, AttributeSet attrs)
     {
         super(context, attrs);
@@ -56,6 +65,11 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback
     }
 
     @Override
+    /**
+    * When any changes are made to the surface this is called to update image
+    *
+    * @param SurfaceHolder holder handles surface changes to imaging
+    */
     public void surfaceCreated(SurfaceHolder holder)
     {
         Log.d("StreamView", "creating surface");
@@ -77,18 +91,37 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback
     }
 
     @Override
+    /**
+    * When surface is destroyed, logs to user
+    *
+    * @param SurfaceHolder holder unused but handles surface changing
+    */
     public void surfaceDestroyed(SurfaceHolder holder)
     {
         Log.d("StreamView", "surfaceDestroyed");
     }
 
     @Override
+    /**
+    * When surface is changed, logs to user
+    *
+    * @param SurfaceHolder holder unused but handles surface changing
+    * @param int format new pixel format
+    * @param int width width of surface
+    * @param int height height of surface
+    */
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
     {
         Log.d("StreamView", "surfaceChanged");
     }
 
     @Override
+    /**
+    * Handles touch events from the user
+    *
+    * @param MotionEvent e information about event
+    * @return boolean true
+    */
     public boolean onTouchEvent(MotionEvent e) {
     //mScaleDetector.onTouchEvent(e);
     //touchTime = e.getEventTime();
@@ -210,6 +243,9 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback
 //        return true;
     }
 
+    /**
+    * draws pointers, currently unused
+    */
     public void draw() {
 
 
