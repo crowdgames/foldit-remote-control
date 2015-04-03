@@ -2,6 +2,7 @@ package it.fold.remotecontrolandroid;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.os.Build;
@@ -24,6 +25,10 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback
 
     //
     private SparseArray<PointF> mActivePointers;
+    Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private int[] colors = { Color.BLUE, Color.GREEN, Color.MAGENTA,
+            Color.BLACK, Color.CYAN, Color.GRAY, Color.RED, Color.DKGRAY,
+            Color.LTGRAY, Color.YELLOW };
 
 
     private final GestureDetector.OnGestureListener mGestureListener
@@ -98,6 +103,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback
         int pointerIndex = e.getActionIndex();
         int pointerId = e.getPointerId(pointerIndex);
 
+
 //        Log.d("debug", "historySize: " + historySize);
 //        Log.d("debug", "maskedAction: " + maskedAction);
 //        Log.d("debug", "pointerIndex: " + pointerIndex);
@@ -149,13 +155,20 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback
                 for (int size = e.getPointerCount(), i = 0; i < size; i++) {
                     PointF point = mActivePointers.get(e.getPointerId(i));
                     if (point != null) {
+                        int pointId = e.getPointerId(i);
                         point.x = e.getX(i);
                         point.y = e.getY(i);
-                        Log.d("debug", "point.x: " + point.x + " ::: point.y: " + point.y);
-//                        mStreamThreadHandler.obtainMessage(cl_action, point.x, point.y);
+                        Log.d("debug", "POINT ID:: " + pointId + " point.x: " + point.x + " ::: point.y: " + point.y);
+                        switch (pointId) {
+                            case 0: cl_action = Constants.CLEV_MOUSE_DOWN_AUX_0;
+                            case 1: cl_action = Constants.CLEV_MOUSE_DOWN_AUX_1;
+                            case 2: cl_action = Constants.CLEV_MOUSE_DOWN_AUX_2;
+                        }
+                      mStreamThreadHandler.obtainMessage(cl_action, ((int) point.x), ((int) point.y)).sendToTarget();
                     }
                 }
-                break;
+//                break;
+                return mScaleGestureDetector.onTouchEvent(e);
             }
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
@@ -167,6 +180,10 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback
         }
         invalidate();
         Log.d("debug", "--");
+
+        draw();
+
+
         return true;
 
 //
@@ -192,5 +209,20 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback
 //        mStreamThreadHandler.obtainMessage(cl_action, x, y).sendToTarget();
 //        return true;
     }
+
+    public void draw() {
+
+
+        // draw all pointers
+//        for (int size = mActivePointers.size(), i = 0; i < size; i++) {
+//            PointF point = mActivePointers.valueAt(i);
+//            if (point != null)
+//                mPaint.setColor(colors[i % 9]);
+//            canvas.drawCircle(point.x, point.y, SIZE, mPaint);
+//        }
+//        canvas.drawText("Total pointers: " + mActivePointers.size(), 10, 40 , textPaint);
+
+    }
+
 
 }
