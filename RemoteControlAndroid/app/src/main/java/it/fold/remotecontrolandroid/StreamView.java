@@ -28,7 +28,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback
             = new SimpleOnScaleGestureListener() {
     };
 
-        public StreamView(Context context, AttributeSet attrs)
+    public StreamView(Context context, AttributeSet attrs)
     {
         super(context, attrs);
 
