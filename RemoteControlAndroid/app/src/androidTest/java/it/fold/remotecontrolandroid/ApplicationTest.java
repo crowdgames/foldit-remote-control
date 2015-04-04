@@ -18,21 +18,13 @@ import static org.mockito.Mockito.*;
  */
 public class ApplicationTest extends ApplicationTestCase<Application> {
 
-    // to be used for testing our application
-    @Mock
-    public StreamView _streamView;
+    @Mock public StreamView _streamView;
 
-    // to be used for testing our application
-    @Mock
-    public GameActivity _gameActivity;
+    @Mock public GameActivity _gameActivity;
 
-    // to be used for testing our application
-    @Mock
-    public SocketBuffer _socketBuffer;
+    @Mock public SocketBuffer _socketBuffer;
 
-    // to be used for testing our application
-    @Mock
-    public StreamThread _streamThread;
+    @Mock public StreamThread _streamThread;
 
     /**
      * @Author Conor Ebbs
@@ -42,30 +34,14 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
     }
 
-
-    /**
-     * Init the mocks that we will use to test our application
-     *
-     * @Author Conor Ebbs
-     */
-    @Before
-    public void initMocks() {
-
-        MockitoAnnotations.initMocks(this);
-//          Not necessary, all being done by the annotations
-//        _streamView = mock(StreamView.class);
-//        _gameActivity = mock(GameActivity.class);
-//        _socketBuffer = mock(SocketBuffer.class);
-//        _streamThread = mock(StreamThread.class);
-    }
-
-    @Before
-    public void applicationSetUp() {
+    @Override
+    public void setUp() {
         System.setProperty("dexmaker.dexcache", "/sdcard");
         System.setProperty("dexmaker.dexcache", getContext().getCacheDir().getPath());
+
+        MockitoAnnotations.initMocks(this);
     }
 
-    @Test
     public void testStatesAfterInit() {
         _streamView.hashCode();
         _streamThread.hashCode();
