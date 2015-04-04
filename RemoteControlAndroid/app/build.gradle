@@ -4,6 +4,9 @@ android {
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
 
+    packagingOptions {
+        exclude 'LICENSE.txt'
+    }
     defaultConfig {
         applicationId "it.fold.remotecontrolandroid"
         minSdkVersion 15
