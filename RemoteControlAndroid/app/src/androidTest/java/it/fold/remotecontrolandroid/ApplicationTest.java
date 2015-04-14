@@ -1,6 +1,7 @@
 package it.fold.remotecontrolandroid;
 
 import android.app.Application;
+import android.os.SystemClock;
 import android.test.ApplicationTestCase;
 import android.view.MotionEvent;
 
@@ -20,11 +21,9 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
     @Mock public StreamView _streamView;
 
-    @Mock public GameActivity _gameActivity;
-
-    @Mock public SocketBuffer _socketBuffer;
-
-    @Mock public StreamThread _streamThread;
+    public MotionEvent _motionEventDownOne;
+    public MotionEvent _motionEventUpOne;
+    public MotionEvent _motionEventMoveOne;
 
     /**
      * @Author Conor Ebbs
@@ -42,13 +41,22 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         MockitoAnnotations.initMocks(this);
     }
 
+    public void setUpMotionEventDown() {
+        _motionEventDownOne.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, 100, 100, _motionEventDownOne.getMetaState());
+        _motionEventUpOne.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, 100, 100, _motionEventUpOne.getMetaState());
+        _motionEventMoveOne.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_MOVE, 100, 100, _motionEventMoveOne.getMetaState());
+    }
+
     public void testStatesAfterInit() {
         _streamView.hashCode();
-        _streamThread.hashCode();
-        _gameActivity.hashCode();
-        _socketBuffer.hashCode();
 
 //        System.out.println("test");
+    }
+
+    public void testOnTouchEventSingle() {
+        assertTrue(_streamView.onTouchEvent(_motionEventDownOne));
+        assertTrue(_streamView.onTouchEvent(_motionEventUpOne));
+
     }
 
 }
