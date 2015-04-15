@@ -12,42 +12,70 @@ import android.view.SurfaceHolder;
 import java.util.Arrays;
 
 /**
-* Handles connection between mobile device and game by initializing stream
-*/
-public class StreamThread extends Thread
-{
-    private Bitmap mImage; /** image to add incoming image data do */
-    private SurfaceHolder mSurfaceHolder; /** surface to draw image on */
+ * Handles connection between mobile device and game by initializing stream
+ */
+public class StreamThread extends Thread {
+    private Bitmap mImage;
+    /**
+     * image to add incoming image data do
+     */
+    private SurfaceHolder mSurfaceHolder;
+    /**
+     * surface to draw image on
+     */
 
-    private Handler mHandler; /** input event handler */
+    private Handler mHandler;
+    /**
+     * input event handler
+     */
 
-    private SocketBuffer mSocket; /** communication socket */
+    private SocketBuffer mSocket;
+    /**
+     * communication socket
+     */
     private String mAddress;
     private int mPort;
     private String mKey;
 
-    private char mRecvBuf[]; /** buffer for receiving data */
+    private char mRecvBuf[];
+    /**
+     * buffer for receiving data
+     */
     private int mRecvBufOffset;
     private int mRecvBufMsgLen;
 
-    private char mSendBuf[]; /** buffer for sending data */
-    private char mRefrBuf[]; /** buffer for sending data */
-    private int mColorArray[]; /** array of colors to display to screen */
+    private char mSendBuf[];
+    /**
+     * buffer for sending data
+     */
+    private char mRefrBuf[];
+    /**
+     * buffer for sending data
+     */
+    private int mColorArray[];
+    /**
+     * array of colors to display to screen
+     */
 
     private Rect rs;
     private Rect rd;
 
-    public boolean mLowRes; /** using low resolution? */
-    private boolean mRun; /** keep running? */
+    public boolean mLowRes;
+    /**
+     * using low resolution?
+     */
+    private boolean mRun;
+    /**
+     * keep running?
+     */
     private long mLastReceiveTime; /** last time */
 
     /**
-    * Constructs a new StreamThread
-    *
-    * @param SurfaceHolder surfaceHolder interface for a display surface
-    */
-    public StreamThread(SurfaceHolder surfaceHolder)
-    {
+     * Constructs a new StreamThread
+     *
+     * @param surfaceHolder surfaceHolder interface for a display surface
+     */
+    public StreamThread(SurfaceHolder surfaceHolder) {
         mSurfaceHolder = surfaceHolder;
 
         mRun = false;
@@ -79,30 +107,24 @@ public class StreamThread extends Thread
 
         mColorArray = new int[Constants.TILE_SIZE * Constants.TILE_SIZE];
 
-        mHandler = new Handler()
-        {
+        mHandler = new Handler() {
             @Override
-            public void handleMessage(Message m)
-            {
+            public void handleMessage(Message m) {
                 int event = m.what;
                 mSendBuf[1] = (char) event;
                 int x = m.arg1;
-                if (event == Constants.CLEV_CHAR)
-                { // keyboard
+                if (event == Constants.CLEV_CHAR) { // keyboard
                     mSendBuf[2] = (char) x;
-                }
-                else
-                {
+                } else {
                     int y = m.arg2;
-                    mSendBuf[2] = (char)(x / 128);
-                    mSendBuf[3] = (char)(x % 128);
+                    mSendBuf[2] = (char) (x / 128);
+                    mSendBuf[3] = (char) (x % 128);
                     int inv_yy = Constants.REAL_IMG_HEIGHT - 1 - y;
-                    if (inv_yy < 0)
-                    {
+                    if (inv_yy < 0) {
                         inv_yy = 0;
                     }
-                    mSendBuf[4] = (char)(inv_yy / 128);
-                    mSendBuf[5] = (char)(inv_yy % 128);
+                    mSendBuf[4] = (char) (inv_yy / 128);
+                    mSendBuf[5] = (char) (inv_yy % 128);
                 }
                 sendProcess(mSendBuf, Constants.CL_MSG_SIZE);
             }
@@ -110,27 +132,24 @@ public class StreamThread extends Thread
     }
 
     /**
-    * abstracted method to return private field
-    *
-    * @return mHandler of object
-    */
-    public Handler getHandler()
-    {
+     * abstracted method to return private field
+     *
+     * @return mHandler of object
+     */
+    public Handler getHandler() {
         return mHandler;
     }
 
     /**
-    * Initializes streaming connection with mobile device
-    *
-    * @param String address IP address of mobile device
-    * @param int port constant used for port
-    * @param String key unclear maybe used for passing with arguments
-    * @throws IllegalArgumentException if address or key is null or port = 0
-    */
-    public void initialize(String address, int port, String key)
-    {
-        if (address == null || port == 0 || key == null)
-        {
+     * Initializes streaming connection with mobile device
+     *
+     * @param address address IP address of mobile device
+     * @param port    port constant used for port
+     * @param key key unclear maybe used for passing with arguments
+     * @throws IllegalArgumentException if address or key is null or port = 0
+     */
+    public void initialize(String address, int port, String key) {
+        if (address == null || port == 0 || key == null) {
             throw new IllegalArgumentException();
         }
         mAddress = address;
@@ -139,30 +158,27 @@ public class StreamThread extends Thread
     }
 
     /**
-    * confirms whether StreamThread is active, i.e. are we connected to device
-    *
-    * @return boolean of whether we are connected or not
-    */
-    public boolean connected()
-    {
+     * confirms whether StreamThread is active, i.e. are we connected to device
+     *
+     * @return boolean of whether we are connected or not
+     */
+    public boolean connected() {
         return mSocket != null;
     }
 
     /**
-    * abstracted way to call lostConnection(String) without string
-    */
-    public void lostConnection()
-    {
+     * abstracted way to call lostConnection(String) without string
+     */
+    public void lostConnection() {
         lostConnection(null);
     }
 
     /**
-    * handles process of losing connection by printing to log and killing game
-    *
-    * @param String msg any additional message to be passed to user
-    */
-    public void lostConnection(String msg)
-    {
+     * handles process of losing connection by printing to log and killing game
+     *
+     * @param msg any additional message to be passed to user
+     */
+    public void lostConnection(String msg) {
         Log.d("streamdebug", "LOST CONNECTION: " + msg);
 
         setRunning(false);
@@ -181,23 +197,22 @@ public class StreamThread extends Thread
     }
 
     /**
-     * @author Conor
-     * Send the process through the stream
      * @param send_buf
      * @param length
+     * @author Conor
+     * Send the process through the stream
      */
-    private void sendProcess(char[] send_buf, int length)
-    {
-        if (mSocket == null)
-        {
+    private void sendProcess(char[] send_buf, int length) {
+        if (mSocket == null) {
             Log.e("streamdebug", "socket was null, could not send data.");
             return;
         }
-        Log.d("streamdebug", String.format("Sending :: Send_buf: %S - Length: %S", ((int)(send_buf[1])), length));
+        Log.d("streamdebug", String.format("Sending :: Send_buf: %S - Length: %S", ((int) (send_buf[1])), length));
+        // uncomment
         try {
             mSocket.getOut().write(send_buf, 0, length);
             mSocket.getOut().flush();
-            Log.d("streamdebug",  String.format("Successfully sent :: Send_buf: %S - Length: %S", ((int)(send_buf[1])), length));
+//            Log.d("streamdebug", String.format("Successfully sent :: Send_buf: %S - Length: %S", ((int) (send_buf[1])), length));
         } catch (Exception e) {
             Log.e("streamerror", "error sending");
             lostConnection();
@@ -207,11 +222,10 @@ public class StreamThread extends Thread
 
     @Override
     /**
-    * Begins streaming process with mobile device and monitors for errors, e.g.
-    * connection time outs
-    */
-    public void run()
-    {
+     * Begins streaming process with mobile device and monitors for errors, e.g.
+     * connection time outs
+     */
+    public void run() {
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY);
 
         Log.d("streamdebug", "trying to create socket buffer");
@@ -256,10 +270,10 @@ public class StreamThread extends Thread
         }
 
         // Resolution
-        first_buf[8] = (char)(Constants.REAL_IMG_WIDTH / 128);
-        first_buf[9] = (char)(Constants.REAL_IMG_WIDTH % 128);
-        first_buf[10] = (char)(Constants.REAL_IMG_HEIGHT / 128);
-        first_buf[11] = (char)(Constants.REAL_IMG_HEIGHT % 128);
+        first_buf[8] = (char) (Constants.REAL_IMG_WIDTH / 128);
+        first_buf[9] = (char) (Constants.REAL_IMG_WIDTH % 128);
+        first_buf[10] = (char) (Constants.REAL_IMG_HEIGHT / 128);
+        first_buf[11] = (char) (Constants.REAL_IMG_HEIGHT % 128);
         if (mLowRes) {
             first_buf[12] = 1;
         } else {
@@ -298,8 +312,8 @@ public class StreamThread extends Thread
                         mRecvBufMsgLen = Constants.SE_MSG_HDR;
                         char type = mRecvBuf[1];
 
-                            // Commented out to prevent crazy verbose logging
-                            // Log.d("stream", "GOT TYPE: " + (int)(type));
+                        // Commented out to prevent crazy verbose logging
+                        // Log.d("stream", "GOT TYPE: " + (int)(type));
 
                         if (type == Constants.SEEV_FLUSH) {
                             mLastReceiveTime = System.currentTimeMillis();
@@ -319,8 +333,8 @@ public class StreamThread extends Thread
                             if (0 <= xx && xx + sz <= Constants.CUR_IMG_WIDTH &&
                                     0 <= yy && yy + sz <= Constants.CUR_IMG_HEIGHT) {
                                 if (type == Constants.SEEV_TILE) {
-                                    for (int ii = 0; ii < sz; ++ ii) {
-                                        for (int jj = 0; jj < sz; ++ jj) {
+                                    for (int ii = 0; ii < sz; ++ii) {
+                                        for (int jj = 0; jj < sz; ++jj) {
                                             mColorArray[ii + jj * sz] = Color.rgb(mRecvBuf[8 + 3 * (sz - jj - 1 + ii * sz) + 0] * 2,
                                                     mRecvBuf[8 + 3 * (sz - jj - 1 + ii * sz) + 1] * 2,
                                                     mRecvBuf[8 + 3 * (sz - jj - 1 + ii * sz) + 2] * 2);
@@ -347,23 +361,23 @@ public class StreamThread extends Thread
                                         int gg;
                                         int bb;
                                         if (type == Constants.SEEV_RLE24_TILE) {
-                                            rr  = mRecvBuf[ii + 1] * 2;
-                                            gg  = mRecvBuf[ii + 2] * 2;
-                                            bb  = mRecvBuf[ii + 3] * 2;
+                                            rr = mRecvBuf[ii + 1] * 2;
+                                            gg = mRecvBuf[ii + 2] * 2;
+                                            bb = mRecvBuf[ii + 3] * 2;
                                         } else if (type == Constants.SEEV_RLE16_TILE) {
                                             int clr0 = mRecvBuf[ii + 1];
                                             int clr1 = mRecvBuf[ii + 2];
-                                            rr  = ((clr0 & 0x007C) >> 2) * 8;
-                                            gg  = (((clr0 & 0x0003) << 3) | ((clr1 & 0x0070) >> 4)) * 8;
-                                            bb  = ((clr1 & 0x000F) >> 0) * 16;
+                                            rr = ((clr0 & 0x007C) >> 2) * 8;
+                                            gg = (((clr0 & 0x0003) << 3) | ((clr1 & 0x0070) >> 4)) * 8;
+                                            bb = ((clr1 & 0x000F) >> 0) * 16;
                                         } else {
                                             int clr = mRecvBuf[ii + 1];
-                                            rr  = ((clr & 0x0060) >> 5) * 64;
-                                            gg  = ((clr & 0x0018) >> 3) * 64;
-                                            bb  = ((clr & 0x0007) >> 0) * 32;
+                                            rr = ((clr & 0x0060) >> 5) * 64;
+                                            gg = ((clr & 0x0018) >> 3) * 64;
+                                            bb = ((clr & 0x0007) >> 0) * 32;
                                         }
 
-                                        for (int jj = 0; jj < run; ++ jj) {
+                                        for (int jj = 0; jj < run; ++jj) {
                                             mColorArray[rxx + ryy * sz] = Color.rgb(rr, gg, bb);
                                             ryy -= 1;
                                             if (ryy < 0) {
@@ -377,7 +391,7 @@ public class StreamThread extends Thread
                                 mImage.setPixels(mColorArray, 0, sz, xx, inv_yy, sz, sz);
                                 isDiff = true; // bitmap has been changed
                             }
-                        } else if(type == Constants.SEEV_TERMINATE) {
+                        } else if (type == Constants.SEEV_TERMINATE) {
                             int terminateType = mRecvBuf[4];
                             if (terminateType == 1) {
                                 lostConnection("Client and server versions don't match.");
@@ -390,11 +404,11 @@ public class StreamThread extends Thread
                             closeSocket();
                             return;
                         } else {
-                            Log.e("streamerror", "Bad server event: " + (int)type);
+                            Log.e("streamerror", "Bad server event: " + (int) type);
                         }
                     }
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 Log.e("streamerror", "Exception: " + e.getMessage() + e.toString());
                 lostConnection();
             }
@@ -412,30 +426,26 @@ public class StreamThread extends Thread
     }
 
     /**
-    * changes field to desired value so we can know whether we are currently
-    * running or not
-    */
-    public void setRunning(boolean b)
-    {
+     * changes field to desired value so we can know whether we are currently
+     * running or not
+     */
+    public void setRunning(boolean b) {
         mRun = b;
     }
 
     /**
-    * closes connection when we are done streaming
-    */
-    private void closeSocket()
-    {
-        if (mSocket != null)
-        {
+     * closes connection when we are done streaming
+     */
+    private void closeSocket() {
+        if (mSocket != null) {
             mSocket.close();
         }
     }
 
     /**
-    * renders bitmap and streams
-    */
-    private void doDraw(Canvas canvas)
-    {
+     * renders bitmap and streams
+     */
+    private void doDraw(Canvas canvas) {
         //Log.d("streamdebug", "doDraw");
         canvas.drawBitmap(mImage, rs, rd, null);
     }
