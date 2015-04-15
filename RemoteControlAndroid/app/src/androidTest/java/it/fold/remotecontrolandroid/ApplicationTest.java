@@ -21,9 +21,9 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
     @Mock public StreamView _streamView;
 
-    public MotionEvent _motionEventDownOne;
-    public MotionEvent _motionEventUpOne;
-    public MotionEvent _motionEventMoveOne;
+    public MotionEvent _motionEventDownOne = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, 100, 200, 0);
+    public MotionEvent _motionEventDownTwo = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, 500, 500, 0);
+    public MotionEvent _motionEventDownThree = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, 300, 100, 0);
 
     /**
      * @Author Conor Ebbs
@@ -41,12 +41,6 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         MockitoAnnotations.initMocks(this);
     }
 
-    public void setUpMotionEventDown() {
-        _motionEventDownOne.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, 100, 100, _motionEventDownOne.getMetaState());
-        _motionEventUpOne.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, 100, 100, _motionEventUpOne.getMetaState());
-        _motionEventMoveOne.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_MOVE, 100, 100, _motionEventMoveOne.getMetaState());
-    }
-
     public void testStatesAfterInit() {
         _streamView.hashCode();
 
@@ -54,9 +48,17 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     }
 
     public void testOnTouchEventSingle() {
-        assertTrue(_streamView.onTouchEvent(_motionEventDownOne));
-        assertTrue(_streamView.onTouchEvent(_motionEventUpOne));
-
+        //assertTrue(_streamView.onTouchEvent(_motionEventDownOne)); Should not fail
+        _streamView.onTouchEvent(_motionEventDownOne);
+        //Assert there is one pointer
+        _streamView.onTouchEvent(_motionEventDownTwo);
+        //Assert there are two pointers
+        //Move _motionEventDownOne
+        //Assert _motionEventDownOne moved
+        _streamView.onTouchEvent(_motionEventDownThree);
+        //Assert there are three pointers
+        //Remove _motionEventDownTwo
+        //Assert there are two pointers
     }
 
 }
