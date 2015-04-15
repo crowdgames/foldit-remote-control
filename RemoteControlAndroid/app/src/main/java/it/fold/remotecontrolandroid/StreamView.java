@@ -7,7 +7,6 @@ import android.graphics.PointF;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -15,6 +14,9 @@ import android.view.ScaleGestureDetector.OnScaleGestureListener;
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Handles events and imaging
@@ -29,6 +31,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
     private ScaleGestureDetector mScaleGestureDetector;
     private GestureDetector mGestureDetector;
 
+    Map<Integer, PointF> _pointers;
 
     private final GestureDetector.OnGestureListener mGestureListener
             = new GestureDetector.SimpleOnGestureListener() {
@@ -56,6 +59,8 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
 
         mStreamThread = new StreamThread(surfaceHolder);
         mStreamThreadHandler = mStreamThread.getHandler();
+
+        _pointers = new HashMap<Integer, PointF>();
 
         setFocusable(true);
     }
@@ -106,11 +111,10 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
         Log.d("StreamView", "surfaceChanged");
     }
 
-    @Override
     /**
      * Handles touch events from the user
      *
-     * @param MotionEvent e information about event
+     * @param e information about event
      * @return boolean true
      */
 //        public boolean onTouchEvent(MotionEvent e) {
@@ -194,7 +198,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
 //
 //            return true;
 //        }
-
+    @Override
     public boolean onTouchEvent(MotionEvent e) {
         //mScaleDetector.onTouchEvent(e);
         //touchTime = e.getEventTime();
@@ -219,6 +223,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
                     int pointId = e.getPointerId(i);
                     x = (int) e.getX(i);
                     y = (int) e.getY(i);
+                    addPointer(pointId, x, y);
 //                    Log.d("debug", "POINT ID:: " + pointId + " point.x: " + x + " ::: point.y: " + y);
                     switch (pointId) {
                         case 0:
@@ -235,40 +240,42 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
             } else if (maskedAction == MotionEvent.ACTION_POINTER_UP) {
                 Log.d("debug", "action pointer up");
                 for (int size = pointerCount, i = 0; i < size; i++) {
-                        int pointId = e.getPointerId(i);
-                        x = (int) e.getX(i);
-                        y = (int) e.getY(i);
+                    int pointId = e.getPointerId(i);
+                    x = (int) e.getX(i);
+                    y = (int) e.getY(i);
+                    removePointer(pointId);
 //                        Log.d("debug", "POINT ID:: " + pointId + " point.x: " + point.x + " ::: point.y: " + point.y);
-                        switch (pointId) {
-                            case 0:
-                                cl_action = Constants.CLEV_MOUSE_UP_AUX_0;
-                            case 1:
-                                cl_action = Constants.CLEV_MOUSE_UP_AUX_1;
-                            case 2:
-                                cl_action = Constants.CLEV_MOUSE_UP_AUX_2;
-                        }
-                        Log.d("debug", "Sending :: POINTER UP :: " + cl_action + " through the stream...");
-                        mStreamThreadHandler.obtainMessage(cl_action, ((int) x), ((int) y)).sendToTarget();
+                    switch (pointId) {
+                        case 0:
+                            cl_action = Constants.CLEV_MOUSE_UP_AUX_0;
+                        case 1:
+                            cl_action = Constants.CLEV_MOUSE_UP_AUX_1;
+                        case 2:
+                            cl_action = Constants.CLEV_MOUSE_UP_AUX_2;
+                    }
+                    Log.d("debug", "Sending :: POINTER UP :: " + cl_action + " through the stream...");
+                    mStreamThreadHandler.obtainMessage(cl_action, ((int) x), ((int) y)).sendToTarget();
 
                 }
 //                Log.d("debug", "ACTION POINTER UP :::::::::::::::::::::::::::::::: UP");
             } else if (maskedAction == MotionEvent.ACTION_MOVE) {
                 Log.d("debug", "action move");
                 for (int size = pointerCount, i = 0; i < size; i++) {
-                        int pointId = e.getPointerId(i);
-                        x = (int) e.getX(i);
-                        y = (int) e.getY(i);
+                    int pointId = e.getPointerId(i);
+                    x = (int) e.getX(i);
+                    y = (int) e.getY(i);
+                    addPointer(pointId, x, y);
 //                        Log.d("debug", "POINT ID:: " + pointId + " point.x: " + point.x + " ::: point.y: " + point.y);
-                        switch (pointId) {
-                            case 0:
-                                cl_action = Constants.CLEV_MOUSE_MOVE_AUX_0;
-                            case 1:
-                                cl_action = Constants.CLEV_MOUSE_MOVE_AUX_1;
-                            case 2:
-                                cl_action = Constants.CLEV_MOUSE_MOVE_AUX_2;
-                        }
-                        Log.d("debug", "Sending :: MOVE :: " + cl_action + " through the stream...");
-                        mStreamThreadHandler.obtainMessage(cl_action, ((int) x), ((int) y)).sendToTarget();
+                    switch (pointId) {
+                        case 0:
+                            cl_action = Constants.CLEV_MOUSE_MOVE_AUX_0;
+                        case 1:
+                            cl_action = Constants.CLEV_MOUSE_MOVE_AUX_1;
+                        case 2:
+                            cl_action = Constants.CLEV_MOUSE_MOVE_AUX_2;
+                    }
+                    Log.d("debug", "Sending :: MOVE :: " + cl_action + " through the stream...");
+                    mStreamThreadHandler.obtainMessage(cl_action, ((int) x), ((int) y)).sendToTarget();
 
                 }
             } else {
@@ -296,5 +303,35 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
         }
         mStreamThreadHandler.obtainMessage(cl_action, x, y).sendToTarget();
         return true;
+    }
+
+    /**
+     * Add a a pointer to our list of pointers
+     * @param pointId_
+     * @param x_
+     * @param y_
+     */
+    public void addPointer(int pointId_, int x_, int y_) {
+        if (_pointers != null) {
+            _pointers.put(pointId_, new PointF(x_, y_));
+        } else {
+            Log.d("error", "List of pointers was never initialized. Cannot add pointer.");
+        }
+    }
+
+    /**
+     * Remove the pointer from our list of pointers
+     * @param pointId_
+     */
+    public void removePointer(int pointId_) {
+        if (_pointers != null) {
+            if(_pointers.containsKey(pointId_)) {
+                _pointers.remove(pointId_);
+            } else {
+                Log.d("error", "There has been an attempt to remove a pointer that didn't exist.");
+            }
+        } else {
+            Log.d("error", "List of pointers was never initialized. Cannot remove pointer.");
+        }
     }
 }

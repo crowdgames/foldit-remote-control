@@ -48,7 +48,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     }
 
     public void testOnTouchEventSingle() {
-        //assertTrue(_streamView.onTouchEvent(_motionEventDownOne)); Should not fail
+        assertTrue(_streamView.onTouchEvent(_motionEventDownOne)); // Should not fail
         _streamView.onTouchEvent(_motionEventDownOne);
         //Assert there is one pointer
         _streamView.onTouchEvent(_motionEventDownTwo);
