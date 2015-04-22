@@ -175,11 +175,14 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
 
         if (maskedAction == MotionEvent.ACTION_POINTER_DOWN) {
             Log.d("debug", "action pointer down");
-            for (int size = pointerCount, i = 0; i < size; i++) {
+            for (int i = 0; i < pointerCount; i++) {
                 int pointId = e.getPointerId(i);
                 x = (int) e.getX(i);
                 y = (int) e.getY(i);
                 addPointer(pointId, x, y); // FOR TESTING
+
+                Log.d("DEBUG", "pointer count: " + pointerCount);
+                Log.d("DEBUG", "i: " + i);
 
                 if (pointId == 0) {
                     cl_action = Constants.CLEV_MOUSE_DOWN_AUX_0;
@@ -193,7 +196,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
             }
         } else if (maskedAction == MotionEvent.ACTION_POINTER_UP) {
             Log.d("debug", "action pointer up");
-            for (int size = pointerCount, i = 0; i < size; i++) {
+            for (int i = 0; i < pointerCount; i++) {
                 int pointId = e.getPointerId(i);
                 x = (int) e.getX(i);
                 y = (int) e.getY(i);
@@ -211,7 +214,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
             }
         } else if (maskedAction == MotionEvent.ACTION_MOVE) {
             Log.d("debug", "action move");
-            for (int size = pointerCount, i = 0; i < size; i++) {
+            for (int i = 0; i < pointerCount; i++) {
                 int pointId = e.getPointerId(i);
                 x = (int) e.getX(i);
                 y = (int) e.getY(i);
