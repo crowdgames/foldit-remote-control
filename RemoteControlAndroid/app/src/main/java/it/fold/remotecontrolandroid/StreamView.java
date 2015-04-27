@@ -173,16 +173,17 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
         int pointerCount = e.getPointerCount();
         int cl_action = 0;
 
+
+        int pointIndex = e.getActionIndex();
+        int pointId = e.getPointerId(pointIndex);
+
         if (maskedAction == MotionEvent.ACTION_POINTER_DOWN) {
-            Log.d("debug", "action pointer down");
-            for (int i = 0; i < pointerCount; i++) {
-                int pointId = e.getPointerId(i);
-                x = (int) e.getX(i);
-                y = (int) e.getY(i);
-                addPointer(pointId, x, y); // FOR TESTING
+                x = (int) e.getX(pointId);
+                y = (int) e.getY(pointId);
+//                addPointer(pointId, x, y); // FOR TESTING
 
                 Log.d("DEBUG", "pointer count: " + pointerCount);
-                Log.d("DEBUG", "i: " + i);
+                Log.d("DEBUG", "i: " + pointId);
 
                 if (pointId == 0) {
                     cl_action = Constants.CLEV_MOUSE_DOWN_AUX_0;
@@ -193,13 +194,8 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
                 }
                 Log.d("debug", "Sending :: POINTER DOWN :: " + cl_action + " through the stream...");
                 mStreamThreadHandler.obtainMessage(cl_action, x, y).sendToTarget();
-            }
         } else if (maskedAction == MotionEvent.ACTION_POINTER_UP) {
-            Log.d("debug", "action pointer up");
-            for (int i = 0; i < pointerCount; i++) {
-                int pointId = e.getPointerId(i);
-                x = (int) e.getX(i);
-                y = (int) e.getY(i);
+                Log.d("streamdebug", "pointId action index : " + pointId);
                 removePointer(pointId); // FOR TESTING
 
                 if (pointId == 0) {
@@ -211,13 +207,9 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
                 }
                 Log.d("debug", "Sending :: POINTER UP :: " + cl_action + " through the stream...");
                 mStreamThreadHandler.obtainMessage(cl_action, x, y).sendToTarget();
-            }
         } else if (maskedAction == MotionEvent.ACTION_MOVE) {
-            Log.d("debug", "action move");
-            for (int i = 0; i < pointerCount; i++) {
-                int pointId = e.getPointerId(i);
-                x = (int) e.getX(i);
-                y = (int) e.getY(i);
+                x = (int) e.getX(pointId);
+                y = (int) e.getY(pointId);
                 addPointer(pointId, x, y);
 
                 if (pointId == 0) {
@@ -229,13 +221,11 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
                 }
                 Log.d("debug", "Sending :: MOVE :: " + cl_action + " through the stream...");
                 mStreamThreadHandler.obtainMessage(cl_action, x, y).sendToTarget();
-            }
         } else {
             Log.d("debug", "no case triggered for multitouch");
             return true;
         }
 
-        mStreamThreadHandler.obtainMessage(cl_action, x, y).sendToTarget();
         return true;
     }
 
@@ -253,8 +243,10 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
         int cl_action = 0;
 
         if (action == MotionEvent.ACTION_DOWN) {
+            Log.d("streamdebug", "single touch down ");
             cl_action = Constants.CLEV_MOUSE_DOWN;
         } else if (action == MotionEvent.ACTION_UP) {
+            Log.d("streamdebug", "single touch up ");
             cl_action = Constants.CLEV_MOUSE_UP;
         } else if (action == MotionEvent.ACTION_MOVE) {
             cl_action = Constants.CLEV_MOUSE_MOVE;
