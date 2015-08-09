@@ -5,13 +5,14 @@ public class Constants {
     public static int CUR_IMG_HEIGHT = 768;
     public static int REAL_IMG_WIDTH = 1184;
     public static int REAL_IMG_HEIGHT = 768;
-    public static String IP_ADDRESS_LOCAL = "192.168.0.16";
+
+    public static String IP_ADDRESS_LOCAL = "10.0.2.2";
+    public static final int PORT = 1230;
 
     public static final int TILE_SIZE = 16;
     public static final char MAGIC = 'X';
     public static final char VERSION = 2;
     public static final int KEY_LENGTH = 5;
-    public static final int PORT = 1230;
 
     public static final int CL_FIRST_MSG_SIZE = 13;
     public static final int CL_MSG_SIZE = 6;
