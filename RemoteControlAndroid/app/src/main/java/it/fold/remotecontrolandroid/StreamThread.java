@@ -99,9 +99,11 @@ public class StreamThread extends Thread {
         mRecvBuf = new char[4096];
         mRecvBufOffset = 0;
         mRecvBufMsgLen = Constants.SE_MSG_HDR;
+
         mSendBuf = new char[Constants.CL_MSG_SIZE];
-        mRefrBuf = new char[Constants.CL_MSG_SIZE];
         mSendBuf[0] = Constants.MAGIC;
+
+        mRefrBuf = new char[Constants.CL_MSG_SIZE];
         mRefrBuf[0] = Constants.MAGIC;
         mRefrBuf[1] = Constants.CLEV_REFRESH;
 
@@ -111,20 +113,35 @@ public class StreamThread extends Thread {
             @Override
             public void handleMessage(Message m) {
                 int event = m.what;
+
                 mSendBuf[1] = (char) event;
-                int x = m.arg1;
-                if (event == Constants.CLEV_CHAR) { // keyboard
-                    mSendBuf[2] = (char) x;
-                } else {
+                mSendBuf[2] = 0;
+                mSendBuf[3] = 0;
+                mSendBuf[4] = 0;
+                mSendBuf[5] = 0;
+                mSendBuf[6] = 0;
+                if (event == Constants.CLEV_MODKEY_DOWN || event == Constants.CLEV_MODKEY_UP || event == Constants.CLEV_SCROLL_DOWN || event == Constants.CLEV_SCROLL_UP) {
+                    // nothing
+                } else if (event == Constants.CLEV_CHAR) {
+                    // character
+                    mSendBuf[2] = (char) m.obj;
+                } else if (event == Constants.CLEV_MOUSE_DOWN || event == Constants.CLEV_MOUSE_UP || event == Constants.CLEV_MOUSE_MOVE || event == Constants.CLEV_AUX_PTR_DOWN || event == Constants.CLEV_AUX_PTR_UP || event == Constants.CLEV_AUX_PTR_MOVE) {
+                    // pointer id
+                    mSendBuf[2] = (char) m.obj;
+
+                    // x coord
+                    int x = m.arg1;
+                    mSendBuf[3] = (char) (x / 128);
+                    mSendBuf[4] = (char) (x % 128);
+
+                    // y coord
                     int y = m.arg2;
-                    mSendBuf[2] = (char) (x / 128);
-                    mSendBuf[3] = (char) (x % 128);
                     int inv_yy = Constants.REAL_IMG_HEIGHT - 1 - y;
                     if (inv_yy < 0) {
                         inv_yy = 0;
                     }
-                    mSendBuf[4] = (char) (inv_yy / 128);
-                    mSendBuf[5] = (char) (inv_yy % 128);
+                    mSendBuf[5] = (char) (inv_yy / 128);
+                    mSendBuf[6] = (char) (inv_yy % 128);
                 }
                 sendProcess(mSendBuf, Constants.CL_MSG_SIZE);
             }
@@ -259,27 +276,37 @@ public class StreamThread extends Thread {
         // Send VERSION, RESIZE, KEY
         char[] first_buf = new char[Constants.CL_FIRST_MSG_SIZE];
         first_buf[0] = Constants.MAGIC;
-        first_buf[1] = Constants.CLEV_VERSION;
-        first_buf[2] = Constants.VERSION;
+        first_buf[1] = Constants.VERSION;
 
         // Key
         if (mKey != null && mKey.length() == Constants.KEY_LENGTH) {
-            for (int i = 0; i < Constants.KEY_LENGTH; i++) {
-                first_buf[i + 3] = mKey.charAt(i);
-            }
+            first_buf[2] = mKey.charAt(0);
+            first_buf[3] = mKey.charAt(1);
+            first_buf[4] = mKey.charAt(2);
+            first_buf[5] = mKey.charAt(3);
+            first_buf[6] = mKey.charAt(4);
+        } else {
+            first_buf[2] = 0;
+            first_buf[3] = 0;
+            first_buf[4] = 0;
+            first_buf[5] = 0;
+            first_buf[6] = 0;
         }
 
         // Resolution
-        first_buf[8] = (char) (Constants.REAL_IMG_WIDTH / 128);
-        first_buf[9] = (char) (Constants.REAL_IMG_WIDTH % 128);
-        first_buf[10] = (char) (Constants.REAL_IMG_HEIGHT / 128);
-        first_buf[11] = (char) (Constants.REAL_IMG_HEIGHT % 128);
+        first_buf[7] = (char) (Constants.REAL_IMG_WIDTH / 128);
+        first_buf[8] = (char) (Constants.REAL_IMG_WIDTH % 128);
+        first_buf[9] = (char) (Constants.REAL_IMG_HEIGHT / 128);
+        first_buf[10] = (char) (Constants.REAL_IMG_HEIGHT % 128);
         if (mLowRes) {
-            first_buf[12] = 1;
+            first_buf[11] = 1;
         } else {
-            first_buf[12] = 0;
+            first_buf[11] = 0;
         }
         sendProcess(first_buf, Constants.CL_FIRST_MSG_SIZE);
+
+
+
         mLastReceiveTime = System.currentTimeMillis(); // last time a complete frame has been received
         long lastPingTime = System.currentTimeMillis();
         boolean isDiff = false; // keeps track of whether the bitmap has changed since the last draw
@@ -287,8 +314,7 @@ public class StreamThread extends Thread {
             try {
                 /* We're still listening; notify server */
                 if (System.currentTimeMillis() - lastPingTime > 1000) {
-                    mSocket.getOut().write(mRefrBuf, 0, Constants.CL_MSG_SIZE);
-                    mSocket.getOut().flush();
+                    sendProcess(mRefrBuf, Constants.CL_MSG_SIZE);
                     lastPingTime = System.currentTimeMillis();
                 }
                 while (mSocket.getIn().ready()) {

@@ -31,8 +31,6 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
     private ScaleGestureDetector mScaleGestureDetector;
     private GestureDetector mGestureDetector;
 
-    Map<Integer, PointF> _pointers;
-
     private final GestureDetector.OnGestureListener mGestureListener
             = new GestureDetector.SimpleOnGestureListener() {
     };
@@ -59,8 +57,6 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
 
         mStreamThread = new StreamThread(surfaceHolder);
         mStreamThreadHandler = mStreamThread.getHandler();
-
-        _pointers = new HashMap<Integer, PointF>();
 
         setFocusable(true);
     }
@@ -122,148 +118,48 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
 
         mGestureDetector.onTouchEvent(e);
 
-        if (e.getPointerCount() > 1) {
-            return handleMultiplePointers(e);
-        } else {
-            return handleSinglePointer(e);
-        }
-    }
-
-    /**
-     * Add a a pointer to our list of pointers
-     * @param pointId_
-     * @param x_
-     * @param y_
-     */
-    public void addPointer(int pointId_, int x_, int y_) {
-        if (_pointers != null) {
-            _pointers.put(pointId_, new PointF(x_, y_));
-        } else {
-            Log.d("error", "List of pointers was never initialized. Cannot add pointer.");
-        }
-    }
-
-    /**
-     * Remove the pointer from our list of pointers
-     * @param pointId_
-     */
-    public void removePointer(int pointId_) {
-        if (_pointers != null) {
-            if(_pointers.containsKey(pointId_)) {
-                _pointers.remove(pointId_);
-            } else {
-                Log.d("error", "There has been an attempt to remove a pointer that didn't exist.");
-            }
-        } else {
-            Log.d("error", "List of pointers was never initialized. Cannot remove pointer.");
-        }
-    }
-
-    /**
-     * Handles multiple pointers in the form of the passed in MotionEvent
-     *
-     * @param e MotionEvent registered from android
-     * @return
-     */
-    public boolean handleMultiplePointers(MotionEvent e) {
-
-        int x = 0; // will change for each pointer
-        int y = 0; // will change for each pointer
-        int maskedAction = e.getActionMasked();
-        int pointerCount = e.getPointerCount();
-        int cl_action = 0;
-
-
-        int pointIndex = e.getActionIndex();
-        int pointId = e.getPointerId(pointIndex);
-
-        if (maskedAction == MotionEvent.ACTION_POINTER_DOWN) {
-                x = (int) e.getX(pointId);
-                y = (int) e.getY(pointId);
-//                addPointer(pointId, x, y); // FOR TESTING
-
-                Log.d("DEBUG", "pointer count: " + pointerCount);
-                Log.d("DEBUG", "i: " + pointId);
-
-                if (pointId == 0) {
-                    cl_action = Constants.CLEV_MOUSE_DOWN_AUX_0;
-                } else if (pointId == 1) {
-                    cl_action = Constants.CLEV_MOUSE_DOWN_AUX_1;
-                } else if (pointId == 2) {
-                    cl_action = Constants.CLEV_MOUSE_DOWN_AUX_2;
-                }
-                Log.d("debug", "Sending :: POINTER DOWN :: " + cl_action + " through the stream...");
-                mStreamThreadHandler.obtainMessage(cl_action, x, y).sendToTarget();
-        } else if (maskedAction == MotionEvent.ACTION_POINTER_UP) {
-                Log.d("streamdebug", "pointId action index : " + pointId);
-                removePointer(pointId); // FOR TESTING
-
-                if (pointId == 0) {
-                    cl_action = Constants.CLEV_MOUSE_UP_AUX_0;
-                } else if (pointId == 1) {
-                    cl_action = Constants.CLEV_MOUSE_UP_AUX_1;
-                } else if (pointId == 2) {
-                    cl_action = Constants.CLEV_MOUSE_UP_AUX_2;
-                }
-                Log.d("debug", "Sending :: POINTER UP :: " + cl_action + " through the stream...");
-                mStreamThreadHandler.obtainMessage(cl_action, x, y).sendToTarget();
-        } else if (maskedAction == MotionEvent.ACTION_MOVE) {
-                x = (int) e.getX(pointId);
-                y = (int) e.getY(pointId);
-                addPointer(pointId, x, y);
-
-                if (pointId == 0) {
-                    cl_action = Constants.CLEV_MOUSE_MOVE_AUX_0;
-                } else if (pointId == 1) {
-                    cl_action = Constants.CLEV_MOUSE_MOVE_AUX_1;
-                } else if (pointId == 2) {
-                    cl_action = Constants.CLEV_MOUSE_MOVE_AUX_2;
-                }
-                Log.d("debug", "Sending :: MOVE :: " + cl_action + " through the stream...");
-                mStreamThreadHandler.obtainMessage(cl_action, x, y).sendToTarget();
-        } else {
-            Log.d("debug", "no case triggered for multitouch");
-            return true;
-        }
-
-        return true;
-    }
-
-    /**
-     * Handles a single pointer in the form of a passed in MotionEvent
-     *
-     * @param e MotionEvent registered from android
-     * @return
-     */
-    public boolean handleSinglePointer(MotionEvent e) {
-
         int x = (int) e.getX();
         int y = (int) e.getY();
         int action = e.getAction();
+
         int cl_action = 0;
 
-        if (action == MotionEvent.ACTION_DOWN) {
-            Log.d("streamdebug", "single touch down ");
-            cl_action = Constants.CLEV_MOUSE_DOWN;
-        } else if (action == MotionEvent.ACTION_UP) {
-            Log.d("streamdebug", "single touch up ");
-            cl_action = Constants.CLEV_MOUSE_UP;
-        } else if (action == MotionEvent.ACTION_MOVE) {
-            cl_action = Constants.CLEV_MOUSE_MOVE;
-        } else if (action == MotionEvent.ACTION_SCROLL) {
-            if (android.os.Build.VERSION.SDK_INT >= 12) {
-                if (e.getAxisValue(MotionEvent.AXIS_VSCROLL) < 0) {
-                    cl_action = Constants.CLEV_SCROLL_DOWN;
-                } else {
-                    cl_action = Constants.CLEV_SCROLL_UP;
+        int pointerIndex = e.getActionIndex();
+        int pointerId = e.getPointerId(pointerIndex);
+
+        if (pointerId == 0) {
+            if (action == MotionEvent.ACTION_DOWN) {
+                cl_action = Constants.CLEV_MOUSE_DOWN;
+            } else if (action == MotionEvent.ACTION_UP) {
+                cl_action = Constants.CLEV_MOUSE_UP;
+            } else if (action == MotionEvent.ACTION_MOVE) {
+                cl_action = Constants.CLEV_MOUSE_MOVE;
+            } else if (action == MotionEvent.ACTION_SCROLL) {
+                if (android.os.Build.VERSION.SDK_INT >= 12) {
+                    if (e.getAxisValue(MotionEvent.AXIS_VSCROLL) < 0) {
+                        cl_action = Constants.CLEV_SCROLL_DOWN;
+                    } else {
+                        cl_action = Constants.CLEV_SCROLL_UP;
+                    }
                 }
+            } else {
+                return true;
+            }
+        } else if (pointerId <= 255) {
+            if (action == MotionEvent.ACTION_DOWN) {
+                cl_action = Constants.CLEV_AUX_PTR_DOWN;
+            } else if (action == MotionEvent.ACTION_UP) {
+                cl_action = Constants.CLEV_AUX_PTR_UP;
+            } else if (action == MotionEvent.ACTION_MOVE) {
+                cl_action = Constants.CLEV_AUX_PTR_MOVE;
+            } else {
+                return true;
             }
         } else {
             return true;
         }
 
-        mStreamThreadHandler.obtainMessage(cl_action, x, y).sendToTarget();
+        mStreamThreadHandler.obtainMessage(cl_action, x, y, new Character((char)pointerId)).sendToTarget();
         return true;
     }
-
 }
