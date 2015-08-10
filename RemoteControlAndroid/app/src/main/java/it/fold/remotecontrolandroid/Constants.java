@@ -5,7 +5,6 @@ public class Constants {
     public static       int CUR_IMG_HEIGHT       =  768;
     public static       int REAL_IMG_WIDTH       = 1184;
     public static       int REAL_IMG_HEIGHT      =  768;
-    public static final int KEY_LENGTH           =    5;
 
     public static final String IP_ADDRESS_LOCAL  = "10.0.2.2";
     public static final int PORT                 = 1230;
@@ -16,7 +15,7 @@ public class Constants {
     public static final int  TILE_SIZE           = 16;
     public static final char MAGIC               = 88;
     public static final char VERSION             =  3;
-    public static final int  KEYCODE_BACKSPACE   = 31;
+    public static final int  KEY_LENGTH          =  5;
 
     // client events
     public static final int CL_FIRST_MSG_SIZE    = 12;
