@@ -1,15 +1,11 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine.UI;
 using System.Net.Sockets;
-using System.Net;
 
 
 public class NetworkConScript : MonoBehaviour {
 	int port = 1230;
-	int host = "169.254.226.223";
+	string host = "169.254.226.223";
 
 	int screenwidth = 1120;
 	int screenheight = 630;
@@ -21,7 +17,7 @@ public class NetworkConScript : MonoBehaviour {
 		Debug.Log("Start");
 		socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 		socket.Connect(host, port);
-		byte[] buf = { 88, 3, 0, 0, 0, 0, 0, screenwidth / 128, screenwidth % 128, screenheight / 128, screenheight % 128, 0 };
+		byte[] buf = { 88, 3, 0, 0, 0, 0, 0, (byte)(screenwidth / 128), (byte)(screenwidth % 128), (byte)(screenheight / 128), (byte)(screenheight % 128), 0 };
 		Debug.Log(socket.Send(buf).ToString());
 		Debug.Log(socket.Receive(bytes).ToString());
 		dothing();
@@ -33,7 +29,7 @@ public class NetworkConScript : MonoBehaviour {
 		frame = (frame + 1) % 10;
 		if (frame == 0) {
 			Debug.Log("Sending scroll");
-			Debug.Log(socket.Send(new byte[] { 88, 3, 0, 100, 0, 100, 0 }).ToString());
+			Debug.Log(socket.Send(new byte[] { 88, 3, 0, 0, 100, 0, 100 }).ToString());
 			Debug.Log("Sent scroll");
 			Debug.Log(socket.Receive(bytes).ToString());
 			Debug.Log("Received screen");
