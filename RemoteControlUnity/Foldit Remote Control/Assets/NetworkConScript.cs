@@ -11,7 +11,7 @@ public class NetworkConScript : MonoBehaviour {
 	int screenheight = 630;
 	Socket socket;
 	byte[] bytes = new byte[10000000];
-	int frame = 0;
+	double timeWaited = 0.0;
 	// Use this for initialization
 	void Start() {
 		Debug.Log("Start");
@@ -26,15 +26,16 @@ public class NetworkConScript : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update() {
-		frame = (frame + 1) % 10;
-		if (frame == 0) {
-			Debug.Log("Sending scroll");
-			Debug.Log(socket.Send(new byte[] { 88, 3, 0, 0, 100, 0, 100 }).ToString());
-			Debug.Log("Sent scroll");
+		if (timeWaited >= 2.0f) {
+			Debug.Log("Sending refresh");
+			Debug.Log(socket.Send(new byte[] { 88, 1, 0, 0, 0, 0, 0 }).ToString());
+			Debug.Log("Sent refresh");
 			Debug.Log(socket.Receive(bytes).ToString());
 			Debug.Log("Received screen");
 			dothing();
+			timeWaited -= 2.0f;
 		}
+		timeWaited += Time.deltaTime;
 	}
 
 	void dothing() {
@@ -42,5 +43,23 @@ public class NetworkConScript : MonoBehaviour {
 		for (int q = 0; q < 256; q++)
 			s += ((int)(bytes[q])).ToString() + ", ";
 		Debug.Log(s);
+	}
+
+	public void ZoomIn() {
+		Debug.Log("Sending zoom in");
+		Debug.Log(socket.Send(new byte[] { 88, 4, 0, 1, 1, 1, 1 }).ToString());
+		Debug.Log("Sent zoom in");
+		Debug.Log(socket.Receive(bytes).ToString());
+		Debug.Log("Received screen");
+		dothing();
+	}
+
+	public void ZoomOut() {
+		Debug.Log("Sending zoom out");
+		Debug.Log(socket.Send(new byte[] { 88, 3, 0, 1, 1, 1, 1 }).ToString());
+		Debug.Log("Sent zoom out");
+		Debug.Log(socket.Receive(bytes).ToString());
+		Debug.Log("Received screen");
+		dothing();
 	}
 }
