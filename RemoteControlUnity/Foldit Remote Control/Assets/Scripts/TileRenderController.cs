@@ -7,16 +7,16 @@ public class TileRenderController : MonoBehaviour {
 
     public GameObject RenderTile;
     public RectTransform Panel;
-    public int Width;
-    public int Height;
+    private int Width;
+    private int Height;
     const int TILE_SIZE = 16;
-    public int TilesWide;
-    public int TilesTall;
-    public int TileCount;
+    private int TilesWide;
+    private int TilesTall;
+    private int TileCount;
 
-    public TileRenderer[] Tiles;
+    private TileRenderer[] Tiles;
 
-    public List<TileRenderer> ChangedTiles;
+    private List<TileRenderer> ChangedTiles;
 
 	// Use this for initialization
 	void Start () {
@@ -43,7 +43,8 @@ public class TileRenderController : MonoBehaviour {
     public void SetTile(int x, int y, Color32[] colors, bool lores)
     {
         int index = y * TilesWide + x;
-        Tiles[index].ReadyTile(colors);
+        //TODO: Does this make more sense on the server code? also efficency?
+        Tiles[index].ReadyTile(FlipArray.Flip(colors, TILE_SIZE, TILE_SIZE));
         ChangedTiles.Add(Tiles[index]);
     }
 
