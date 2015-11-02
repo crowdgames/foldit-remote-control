@@ -99,7 +99,7 @@ public class NetworkConScript : MonoBehaviour {
 						Color32 color = new Color32(
 							(byte)((byte1 >> 2 & 0x1F) << 3),
 							(byte)((((byte1 & 3) << 3) | (byte1 >> 4 & 7)) << 3),
-							(byte)((byte2 & 0xF) << 3), 255);
+							(byte)((byte2 & 0xF) << 4), 255);
 						for (int runmax = runindex + runlength; runindex < runmax; runindex++) {
 							tileColors[runindex] = color;
 						}
