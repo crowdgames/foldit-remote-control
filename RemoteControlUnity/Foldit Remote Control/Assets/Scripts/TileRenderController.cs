@@ -7,8 +7,8 @@ public class TileRenderController : MonoBehaviour {
 
     public GameObject RenderTile;
     public RectTransform Panel;
-    private int Width;
-    private int Height;
+    public int Width { get; private set; }
+    public int Height { get; private set; }
     const int TILE_SIZE = 16;
     private int TilesWide;
     private int TilesTall;
@@ -17,6 +17,8 @@ public class TileRenderController : MonoBehaviour {
     private TileRenderer[] Tiles;
 
     private List<TileRenderer> ChangedTiles;
+
+	public NetworkConScript networkConnection;
 
 	// Use this for initialization
 	void Start () {
@@ -38,7 +40,9 @@ public class TileRenderController : MonoBehaviour {
             TileRenderer rend = tile.GetComponent<TileRenderer>();
             Tiles[i] = rend;
         }
-    }
+
+		networkConnection.StartWithTileRenderController(this);
+	}
 
     public void SetTile(int x, int y, Color32[] colors, bool lores)
     {

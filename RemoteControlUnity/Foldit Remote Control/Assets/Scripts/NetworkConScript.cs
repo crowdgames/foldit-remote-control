@@ -6,14 +6,20 @@ using System.Net.Sockets;
 public class NetworkConScript : MonoBehaviour {
 	int port = 1230;
 	string host = "169.254.226.223";
+	const int BYTE_BUFFER_SIZE = 10000000;
 
-	int screenwidth = 1120;
-	int screenheight = 630;
+	//This will get passed to us after it is started up
+	private TileRenderController tileRenderController;
+
 	Socket socket;
-	byte[] bytes = new byte[10000000];
+	byte[] bytes = new byte[BYTE_BUFFER_SIZE];
 	double timeWaited = 0.0;
-	// Use this for initialization
-	void Start() {
+
+	//Pass in the render controller so that we can call it to render things and get the screen size
+	public void StartWithTileRenderController(TileRenderController trc) {
+		tileRenderController = trc;
+		int screenwidth = tileRenderController.Width;
+		int screenheight = tileRenderController.Height;
 		Debug.Log("Start");
 		socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 		socket.Connect(host, port);
@@ -28,9 +34,9 @@ public class NetworkConScript : MonoBehaviour {
 		if (timeWaited >= 2.0f) {
 			Debug.Log("Sending refresh");
 			Debug.Log("Sent " + socket.Send(new byte[] { 88, 1, 0, 0, 0, 0, 0 }).ToString() + " bytes");
-			receiveToBytes();
 			timeWaited -= 2.0f;
 		}
+		receiveToBytes();
 		timeWaited += Time.deltaTime;
 	}
 
@@ -46,16 +52,66 @@ public class NetworkConScript : MonoBehaviour {
 	}
 
 	void receiveToBytes() {
-		int bytesReceived;
-		do {
-			bytesReceived = socket.Receive(bytes);
-			Debug.Log("****Received " + bytesReceived + " bytes for the screen****");
-			string s = "";
-			int byteCount = bytesReceived < 256 ? bytesReceived : 256;
-			for (int q = 0; q < byteCount; q++)
-				s += ((int)(bytes[q])).ToString() + ", ";
-			Debug.Log(s);
-		} while (bytes[1] > 2);
+		int bytesReceived = socket.Receive(bytes);
+		Debug.Log("****Received " + bytesReceived + " bytes for the screen****");
+		string s = "";
+		int byteCount = bytesReceived < 256 ? bytesReceived : 256;
+		for (int q = 0; q < byteCount; q++)
+			s += bytes[q].ToString() + ", ";
+		Debug.Log(s);
+
+		//start parsing the bytes
+		for (int i = 0; i < bytesReceived;) {
+			if (bytes[i] != 'X')
+				throw new System.Exception("Bad network message");
+
+			int type = bytes[i + 1];
+			int len = (int)(bytes[i + 2]) * 128 + bytes[i + 3];
+			//the server is done sending us image data, render the completed image
+			if (type == 1) {
+			//the server told us to terminate the connection
+			} else if (type == 2) {
+				Debug.Log("****Server said terminate connection for reason " + bytes[i + 4] + "****");
+			//the server sent image data for a 16x16 square
+			} else {
+				int tileX = (bytes[i + 4] * 128 + bytes[i + 5]) / 16;
+				int tileY = (bytes[i + 6] * 128 + bytes[i + 7]) / 16;
+				//uncompressed tile
+				if (type == 3) {
+					throw new System.Exception("Rendering uncompressed data not yet implemented");
+				//solid color tile
+				} else if (type == 4) {
+					tileRenderController.SetTile(tileX, tileY, new Color32(
+						(byte)(bytes[i + 8] << 1),
+						(byte)(bytes[i + 9] << 1),
+						(byte)(bytes[i + 10] << 1), 255));
+				//run-length encoding with color in 3 bytes
+				} else if (type == 5) {
+					throw new System.Exception("Rendering 3-byte-run-length-encoded data not yet implemented");
+				//run-length encoding with color in 2 bytes
+				} else if (type == 6) {
+					Color32[] tileColors = new Color32[256];
+					int max = i + len;
+					int runindex = 0;
+					for (int j = i + 8; j < max; j += 3) {
+						int runlength = bytes[j];
+						int byte1 = bytes[j + 1], byte2 = bytes[j + 2];
+						Color32 color = new Color32(
+							(byte)((byte1 >> 2 & 0x1F) << 3),
+							(byte)((((byte1 & 3) << 3) | (byte1 >> 4 & 7)) << 3),
+							(byte)((byte2 & 0xF) << 3), 255);
+						for (int runmax = runindex + runlength; runindex < runmax; runindex++) {
+							tileColors[runindex] = color;
+						}
+					}
+					tileRenderController.SetTile(tileX, tileY, tileColors, false);
+				//run-length encoding with color in 2 bytes
+				} else if (type == 7) {
+					throw new System.Exception("Rendering 1-byte-run-length-encoded data not yet implemented");
+				}
+			}
+			i += len;
+		}
 	}
 
 	public void ZoomIn() {
