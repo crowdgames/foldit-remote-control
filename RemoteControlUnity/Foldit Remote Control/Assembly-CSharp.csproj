@@ -50,6 +50,7 @@
      <Compile Include="Assets\Scripts\TestRendering.cs" />
      <Compile Include="Assets\Scripts\TileRenderController.cs" />
      <Compile Include="Assets\Scripts\TileRenderer.cs" />
+     <Compile Include="Assets\Scripts\ToggleUI.cs" />
      <None Include="Assets\TouchScript\Shaders\DebugDepthTest.shader" />
      <None Include="Assets\TouchScript\license.txt" />
      <None Include="Assets\TouchScript\Shaders\DebugMultiplyDepthTest.shader" />
