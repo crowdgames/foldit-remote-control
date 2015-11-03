@@ -7,13 +7,15 @@ public class ToggleUI : MonoBehaviour {
 	private bool isShowing = false;
 
 	public void toggleUI() {
-		if (isShowing) {
-			this.gameObject.GetComponentInChildren<Text> ().text = "Show Options";
-		} else {
-			this.gameObject.GetComponentInChildren<Text> ().text = "Hide Options";
+		if (this.gameObject.tag == "UIOptions") {
+			if (isShowing) {
+				this.gameObject.GetComponentInChildren<Text> ().text = "Show Options";
+			} else {
+				this.gameObject.GetComponentInChildren<Text> ().text = "Hide Options";
+			}
 		}
 		isShowing = !isShowing;
-		uiContainer.SetActive(isShowing);
+		uiContainer.SetActive (isShowing);
 	}
 }
 
