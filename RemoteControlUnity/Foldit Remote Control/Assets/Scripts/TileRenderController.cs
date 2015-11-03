@@ -9,7 +9,8 @@ public class TileRenderController : MonoBehaviour {
     public RectTransform Panel;
     public int Width { get; private set; }
     public int Height { get; private set; }
-    const int TILE_SIZE = 16;
+	public const int TILE_SIZE = 16;
+	public const int TILE_SIZE_SQUARED = TILE_SIZE * TILE_SIZE;
     private int TilesWide;
     private int TilesTall;
     private int TileCount;
@@ -38,7 +39,8 @@ public class TileRenderController : MonoBehaviour {
             tile.name = "Tile (" + i % TilesWide + ", " + i / TilesWide + ")";
             tile.transform.SetParent(Panel);
             TileRenderer rend = tile.GetComponent<TileRenderer>();
-            Tiles[i] = rend;
+			//We actually need the tiles on the top to be at the end of the array
+			Tiles[i % TilesWide + (TilesTall - 1 - (i / TilesWide)) * TilesWide] = rend;
         }
 
 		networkConnection.StartWithTileRenderController(this);
@@ -48,7 +50,7 @@ public class TileRenderController : MonoBehaviour {
     {
         int index = y * TilesWide + x;
         //TODO: Does this make more sense on the server code? also efficency?
-        Tiles[index].ReadyTile(FlipArray.Flip(colors, TILE_SIZE, TILE_SIZE));
+        Tiles[index].ReadyTile(colors);
         ChangedTiles.Add(Tiles[index]);
     }
 

@@ -69,13 +69,14 @@ public class NetworkConScript : MonoBehaviour {
 			int len = (int)(bytes[i + 2]) * 128 + bytes[i + 3];
 			//the server is done sending us image data, render the completed image
 			if (type == 1) {
+				tileRenderController.Flush();
 			//the server told us to terminate the connection
 			} else if (type == 2) {
 				Debug.Log("****Server said terminate connection for reason " + bytes[i + 4] + "****");
 			//the server sent image data for a 16x16 square
 			} else {
-				int tileX = (bytes[i + 4] * 128 + bytes[i + 5]) / 16;
-				int tileY = (bytes[i + 6] * 128 + bytes[i + 7]) / 16;
+				int tileX = (bytes[i + 4] * 128 + bytes[i + 5]) / TileRenderController.TILE_SIZE;
+				int tileY = (bytes[i + 6] * 128 + bytes[i + 7]) / TileRenderController.TILE_SIZE;
 				//uncompressed tile
 				if (type == 3) {
 					throw new System.Exception("Rendering uncompressed data not yet implemented");
@@ -90,7 +91,7 @@ public class NetworkConScript : MonoBehaviour {
 					throw new System.Exception("Rendering 3-byte-run-length-encoded data not yet implemented");
 				//run-length encoding with color in 2 bytes
 				} else if (type == 6) {
-					Color32[] tileColors = new Color32[256];
+					Color32[] tileColors = new Color32[TileRenderController.TILE_SIZE_SQUARED];
 					int max = i + len;
 					int runindex = 0;
 					for (int j = i + 8; j < max; j += 3) {
@@ -101,7 +102,9 @@ public class NetworkConScript : MonoBehaviour {
 							(byte)((((byte1 & 3) << 3) | (byte1 >> 4 & 7)) << 3),
 							(byte)((byte2 & 0xF) << 4), 255);
 						for (int runmax = runindex + runlength; runindex < runmax; runindex++) {
-							tileColors[runindex] = color;
+							//fix up the index that we get from foldit, swap x and y
+							tileColors[runindex % TileRenderController.TILE_SIZE * TileRenderController.TILE_SIZE +
+								(runindex / TileRenderController.TILE_SIZE)] = color;
 						}
 					}
 					tileRenderController.SetTile(tileX, tileY, tileColors, false);
