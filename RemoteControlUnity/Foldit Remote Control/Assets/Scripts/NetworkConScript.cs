@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Net.Sockets;
-
-
-public class NetworkConScript : MonoBehaviour {
-	int port = 1230;
-	string host = "10.102.50.48";
+public class NetworkConScript : MonoBehaviour
+{
+    public enum keys : int { Ctrl = 0, Alt = 1, Shift = 2 };
+    public enum ptr : int { Down = 11, Up = 12, Move = 13 };
+    int port = 1230;
+	string host = "169.254.226.223";
 	const int BYTE_BUFFER_SIZE = 10000000;
 
 	//This will get passed to us after it is started up
@@ -115,17 +116,57 @@ public class NetworkConScript : MonoBehaviour {
 			}
 			i += len;
 		}
-	}
+    }
+    public void PtrMoved(int x, int y, ptr val)
+    {
+        string log = "Modifier Key pressed";
+        Debug.Log(log);
+        SendPack(x, y, (int)val, 0);
+        receiveToBytes();
+    }
+    public void ModKey(int x, int y, bool down, keys key)
+    {
+        int val = (down) ? 5 : 6;
+        string log = "Modifier Key pressed";
+        Debug.Log(log);
+        SendPack(x, y, val, (int)key);
+        receiveToBytes();
+    }
+    public void CharSend(int x, int y, char snt)
+    {
+        int val = 7;
+        string log = "Char sent";
+        Debug.Log(log);
+        SendPack(x, y, val, snt);
+        receiveToBytes();
+    }
+    public void MouseMove(int x, int y)
+    {
+        int val = 10;
+        string log = "Mouse move";
+        Debug.Log(log);
+        SendPack(x, y, val, 0);
+        receiveToBytes();
+    }
+    public void Tap(bool down, int x, int y)
+    {
+        int val = (down) ? 8 : 9;
+        string log = (down) ? "Mouse down" : "Mouse up";
+        Debug.Log(log);
+        SendPack(x, y, val, 0);
+        receiveToBytes();
+    }
 
-	public void ZoomIn() {
-		Debug.Log("Sending zoom in");
-		Debug.Log("Sent " + socket.Send(new byte[] { 88, 4, 0, 1, 1, 1, 1 }).ToString() + " bytes");
-		receiveToBytes();
-	}
-
-	public void ZoomOut() {
-		Debug.Log("Sending zoom out");
-		Debug.Log("Sent " + socket.Send(new byte[] { 88, 3, 0, 1, 1, 1, 1 }).ToString() + " bytes");
-		receiveToBytes();
-	}
+    public void Zoom(bool zoomIn)
+    {
+        int val = (zoomIn) ? 4 : 3;
+        string log = (zoomIn) ? "Sending zoom in" : "Sending zoom out";
+        Debug.Log(log);
+        SendPack(129, 129, val, 0);
+        receiveToBytes();
+    }
+    public void SendPack(int x, int y, int type, int info)
+    {
+        Debug.Log("Sent " + socket.Send(new byte[] { 88, (byte)type, (byte)info, (byte)(x / 128), (byte)(x % 128), (byte)(y / 128), (byte)(y % 128) }).ToString() + " bytes");
+    }
 }

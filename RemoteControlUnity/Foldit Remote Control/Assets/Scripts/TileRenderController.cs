@@ -6,7 +6,8 @@ using System.Collections.Generic;
 public class TileRenderController : MonoBehaviour {
 
     public GameObject RenderTile;
-    public RectTransform Panel;
+    public RectTransform MyCanvas;
+    public RectTransform MyPanel;
     public int Width { get; private set; }
     public int Height { get; private set; }
 	public const int TILE_SIZE = 16;
@@ -23,7 +24,9 @@ public class TileRenderController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        Rect panelRec = Panel.rect;
+        setPanelSize();
+
+        Rect panelRec = MyPanel.rect;
         Width = (int) panelRec.width;
         Height = (int) panelRec.height;
         TilesWide = Width / TILE_SIZE;
@@ -37,10 +40,11 @@ public class TileRenderController : MonoBehaviour {
         {
             GameObject tile = Instantiate<GameObject>(RenderTile);
             tile.name = "Tile (" + i % TilesWide + ", " + i / TilesWide + ")";
-            tile.transform.SetParent(Panel);
+            tile.transform.SetParent(MyPanel);
             TileRenderer rend = tile.GetComponent<TileRenderer>();
-			//We actually need the tiles on the top to be at the end of the array
-			Tiles[i % TilesWide + (TilesTall - 1 - (i / TilesWide)) * TilesWide] = rend;
+            //We actually need the tiles on the top to be at the end of the array
+            //Tiles[i % TilesWide + (TilesTall - 1 - (i / TilesWide)) * TilesWide] = rend;
+            Tiles[i] = rend;
         }
 
 		networkConnection.StartWithTileRenderController(this);
@@ -70,5 +74,14 @@ public class TileRenderController : MonoBehaviour {
         }
 
         ChangedTiles.Clear();
+    }
+
+    public void setPanelSize()
+    {
+        float width = MyCanvas.rect.width;
+        float height = MyCanvas.rect.height;
+        int widthInt = Mathf.FloorToInt(width / 16f) * 16;
+        int heightInt = Mathf.FloorToInt(height / 16f) * 16;
+        MyPanel.sizeDelta = new Vector2(widthInt, heightInt);
     }
 }
