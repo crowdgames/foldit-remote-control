@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Net.Sockets;
 
 
-public class NetworkConScript : MonoBehaviour {
+public class NetworkConScript2 : MonoBehaviour {
     public enum keys : int { Ctrl = 0, Alt = 1, Shift = 2 };
     public enum ptr : int { Down = 11, Up = 12, Move = 13 };
     int port = 1230;

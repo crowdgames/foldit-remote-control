@@ -45,6 +45,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\NetworkConScript2.cs" />
      <Compile Include="Assets\Scripts\NetworkConScript.cs" />
      <Compile Include="Assets\Scripts\TestRendering.cs" />
      <Compile Include="Assets\Scripts\TileRenderController.cs" />
