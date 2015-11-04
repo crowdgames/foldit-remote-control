@@ -46,12 +46,11 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\NetworkConScript2.cs" />
-     <Compile Include="Assets\Scripts\ConnectToFoldit.cs" />
      <Compile Include="Assets\Scripts\NetworkConScript.cs" />
      <Compile Include="Assets\Scripts\TestRendering.cs" />
      <Compile Include="Assets\Scripts\TileRenderController.cs" />
      <Compile Include="Assets\Scripts\TileRenderer.cs" />
-     <Compile Include="Assets\Scripts\ToggleUI.cs" />
+     <Compile Include="Assets\Scripts\UIInput.cs" />
  <Reference Include="UnityEngine.Networking">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
  </Reference>

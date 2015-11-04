@@ -6,8 +6,8 @@ public class NetworkConScript : MonoBehaviour
     public enum keys : int { Ctrl = 0, Alt = 1, Shift = 2 };
     public enum ptr : int { Down = 11, Up = 12, Move = 13 };
     int port = 1230;
-	string host = "169.254.226.223";
 	const int BYTE_BUFFER_SIZE = 10000000;
+	bool isConnected = false;
 
 	//This will get passed to us after it is started up
 	private TileRenderController tileRenderController;
@@ -19,26 +19,39 @@ public class NetworkConScript : MonoBehaviour
 	//Pass in the render controller so that we can call it to render things and get the screen size
 	public void StartWithTileRenderController(TileRenderController trc) {
 		tileRenderController = trc;
+	}
+
+	public void connect(string host, string requiredKey) {
 		int screenwidth = tileRenderController.Width;
 		int screenheight = tileRenderController.Height;
 		Debug.Log("Start");
 		socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 		socket.Connect(host, port);
-		byte[] buf = { 88, 3, 0, 0, 0, 0, 0, (byte)(screenwidth / 128), (byte)(screenwidth % 128), (byte)(screenheight / 128), (byte)(screenheight % 128), 0 };
+		while (requiredKey.Length < 5) {
+			requiredKey += "\0";
+		}
+		char[] key = requiredKey.ToCharArray ();
+
+		byte[] buf = { 88, 3, (byte)key[0], (byte)key[1], (byte)key[2], (byte)key[3], (byte)key[4],
+						(byte)(screenwidth / 128), (byte)(screenwidth % 128), (byte)(screenheight / 128),
+						(byte)(screenheight % 128), 0 };
 		Debug.Log("Sent " + socket.Send(buf).ToString() + " bytes");
 		receiveToBytes();
 		Debug.Log("Connected");
+		isConnected = true;
 	}
 
 	// Update is called once per frame
 	void Update() {
-		if (timeWaited >= 2.0f) {
-			Debug.Log("Sending refresh");
-			Debug.Log("Sent " + socket.Send(new byte[] { 88, 1, 0, 0, 0, 0, 0 }).ToString() + " bytes");
-			timeWaited -= 2.0f;
+		if (isConnected) {
+			if (timeWaited >= 2.0f) {
+				Debug.Log ("Sending refresh");
+				Debug.Log ("Sent " + socket.Send (new byte[] { 88, 1, 0, 0, 0, 0, 0 }).ToString () + " bytes");
+				timeWaited -= 2.0f;
+			}
+			receiveToBytes ();
+			timeWaited += Time.deltaTime;
 		}
-		receiveToBytes();
-		timeWaited += Time.deltaTime;
 	}
 
 	void OnApplicationQuit() {
@@ -50,6 +63,7 @@ public class NetworkConScript : MonoBehaviour
 			Debug.Log("****Received " + bytesReceived + " bytes for the screen****");
 		} while (bytesReceived > 0);
 		socket.Close();
+		isConnected = false;
 	}
 
 	void receiveToBytes() {
