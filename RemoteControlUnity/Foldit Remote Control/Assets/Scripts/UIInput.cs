@@ -3,13 +3,14 @@ using UnityEngine.UI;
 using System.Collections;
 
 public class UIInput : MonoBehaviour {
-	public GameObject uiContainer;
+//	public GameObject uiContainer;
 	private bool isShowing = false;
+	private bool isFirstConnection = true;
 	public InputField ipAddressInput;
 	public InputField requiredKeyInput;
 	public NetworkConScript connection;
 
-	public void toggleUI() {
+	public void toggleUI(GameObject uiContainer) {
 		if (this.gameObject.tag == "UIOptions") {
 			if (isShowing) {
 				this.gameObject.GetComponentInChildren<Text> ().text = "Show Options";
@@ -23,6 +24,9 @@ public class UIInput : MonoBehaviour {
 
 	
 	public void connectToFoldit() {
+		if (isFirstConnection) {
+
+		}
 		string ipAddress = ipAddressInput.text;
 		string requiredKey = requiredKeyInput.text;
 		connection.connect (ipAddress, requiredKey);

@@ -33,7 +33,7 @@ public class TileRenderController : MonoBehaviour {
         NewTiles = new List<TileInfo>();
         Display.texture = Texture;
 
-        //networkConnection.StartWithTileRenderController(this);
+        networkConnection.StartWithTileRenderController(this);
     }
 
     public void SetTile(int x, int y, Color32[] colors, bool lores)
