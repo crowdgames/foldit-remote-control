@@ -45,8 +45,8 @@ public class NetworkConScript : MonoBehaviour
 	void Update() {
 		if (isConnected) {
 			if (timeWaited >= 2.0f) {
-				Debug.Log ("Sending refresh");
-				Debug.Log ("Sent " + socket.Send (new byte[] { 88, 1, 0, 0, 0, 0, 0 }).ToString () + " bytes");
+				//Debug.Log ("Sending refresh");
+				//Debug.Log ("Sent " + socket.Send (new byte[] { 88, 1, 0, 0, 0, 0, 0 }).ToString () + " bytes");
 				timeWaited -= 2.0f;
 			}
 			receiveToBytes ();
@@ -68,12 +68,12 @@ public class NetworkConScript : MonoBehaviour
 
 	void receiveToBytes() {
 		int bytesReceived = socket.Receive(bytes);
-		Debug.Log("****Received " + bytesReceived + " bytes for the screen****");
+		//Debug.Log("****Received " + bytesReceived + " bytes for the screen****");
 		string s = "";
 		int byteCount = bytesReceived < 256 ? bytesReceived : 256;
 		for (int q = 0; q < byteCount; q++)
 			s += bytes[q].ToString() + ", ";
-		Debug.Log(s);
+		//Debug.Log(s);
 
 		//start parsing the bytes
 		for (int i = 0; i < bytesReceived;) {
