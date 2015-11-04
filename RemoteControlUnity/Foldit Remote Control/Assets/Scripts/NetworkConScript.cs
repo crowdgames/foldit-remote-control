@@ -5,7 +5,7 @@ using System.Net.Sockets;
 
 public class NetworkConScript : MonoBehaviour {
 	int port = 1230;
-	string host = "169.254.226.223";
+	string host = "10.102.50.48";
 	const int BYTE_BUFFER_SIZE = 10000000;
 
 	//This will get passed to us after it is started up
