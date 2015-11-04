@@ -56,11 +56,17 @@
      <None Include="Assets\TouchScript\Shaders\DebugMultiplyDepthTest.shader" />
      <None Include="Assets\TouchScript\Shaders\DebugNoDepthTest.shader" />
      <None Include="Assets\TouchScript\Shaders\DebugMultiplyNoDepthTest.shader" />
+ <Reference Include="UnityEngine.Advertisements">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Advertisements/UnityEngine.Advertisements.dll</HintPath>
+ </Reference>
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Networking">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.Analytics">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
  </Reference>
  <Reference Include="TouchScript">
  <HintPath>/Users/rhapsodious/foldit_remote_control/RemoteControlUnity/Foldit Remote Control/Assets/TouchScript/Plugins/TouchScript.dll</HintPath>
