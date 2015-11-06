@@ -19,14 +19,14 @@ public class UIInput : MonoBehaviour {
 		uiContainer.SetActive (!uiContainer.activeSelf);
 	}
 
-	
+
 	public void connectToFoldit(GameObject uiContainer) {
 		if (isFirstConnection) {
-//			GameObject closeButton = GameObject.FindGameObjectWithTag("CloseModal");
-//			closeButton.SetActive(true);
-//			GameObject optionsButton = GameObject.FindGameObjectWithTag("UIOptions");
-//			optionsButton.SetActive(true);
-//			isFirstConnection = false;
+			GameObject closeButton = GameObject.FindGameObjectWithTag("CloseModal");
+			closeButton.GetComponentInChildren<Button> ().interactable = true;
+			GameObject optionsButton = GameObject.FindGameObjectWithTag("UIOptions");
+			optionsButton.GetComponentInChildren<Button> ().interactable = true;
+			isFirstConnection = false;
 		}
 		string ipAddress = ipAddressInput.text;
 		string requiredKey = requiredKeyInput.text;
