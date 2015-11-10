@@ -3,6 +3,7 @@ package it.fold.remotecontrolandroid;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
@@ -31,7 +32,7 @@ import java.util.List;
 
 
 /**
- * A login screen that offers login via email/password.
+ * A login screen that offers login via IP/password.
  */
 public class LoginIPActivity extends ActionBarActivity implements LoaderCallbacks<Cursor> {
 
@@ -48,7 +49,7 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
     private UserLoginTask mAuthTask = null;
 
     // UI references.
-    private AutoCompleteTextView mEmailView;
+    private AutoCompleteTextView mIPView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
@@ -58,7 +59,7 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_ip);
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.ip);
+        mIPView = (AutoCompleteTextView) findViewById(R.id.ip);
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -73,8 +74,8 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        Button mIPSignInButton = (Button) findViewById(R.id.IP_sign_in_button);
+        mIPSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
@@ -92,7 +93,7 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
 
     /**
      * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
+     * If there are form errors (invalid IP, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
@@ -101,11 +102,11 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
         }
 
         // Reset errors.
-        mEmailView.setError(null);
+        mIPView.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
+        String IP = mIPView.getText().toString();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
@@ -118,14 +119,14 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
             cancel = true;
         }
 
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
+        // Check for a valid IP address.
+        if (TextUtils.isEmpty(IP)) {
+            mIPView.setError(getString(R.string.error_field_required));
+            focusView = mIPView;
             cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
+        } else if (!isIPValid(IP)) {
+            mIPView.setError(getString(R.string.error_invalid_IP));
+            focusView = mIPView;
             cancel = true;
         }
 
@@ -137,14 +138,37 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+
+            mAuthTask = new UserLoginTask(IP, password);
             mAuthTask.execute((Void) null);
         }
     }
 
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
+    private boolean isIPValid(String IP) {
+        try {
+            if ( IP == null || IP.isEmpty() ) {
+                return false;
+            }
+
+            String[] parts = IP.split( "\\." );
+            if ( parts.length != 4 ) {
+                return false;
+            }
+
+            for ( String s : parts ) {
+                int i = Integer.parseInt( s );
+                if ( (i < 0) || (i > 255) ) {
+                    return false;
+                }
+            }
+            if ( IP.endsWith(".") ) {
+                return false;
+            }
+
+            return true;
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
     }
 
     private boolean isPasswordValid(String password) {
@@ -195,26 +219,26 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
                 Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
                         ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
 
-                // Select only email addresses.
+                // Select only IP addresses.
                 ContactsContract.Contacts.Data.MIMETYPE +
                         " = ?", new String[]{ContactsContract.CommonDataKinds.Email
                 .CONTENT_ITEM_TYPE},
 
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
+                // Show primary IP addresses first. Note that there won't be
+                // a primary IP address if the user hasn't specified one.
                 ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<>();
+        List<String> IPs = new ArrayList<>();
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
+            IPs.add(cursor.getString(ProfileQuery.ADDRESS));
             cursor.moveToNext();
         }
 
-        addEmailsToAutoComplete(emails);
+        addIPsToAutoComplete(IPs);
     }
 
     @Override
@@ -233,13 +257,13 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
     }
 
 
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
+    private void addIPsToAutoComplete(List<String> IPAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
                 new ArrayAdapter<>(LoginIPActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
+                        android.R.layout.simple_dropdown_item_1line, IPAddressCollection);
 
-        mEmailView.setAdapter(adapter);
+        mIPView.setAdapter(adapter);
     }
 
     /**
@@ -248,11 +272,11 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String mEmail;
+        private final String mIP;
         private final String mPassword;
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
+        UserLoginTask(String IP, String password) {
+            mIP = IP;
             mPassword = password;
         }
 
@@ -269,7 +293,7 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
 
             for (String credential : DUMMY_CREDENTIALS) {
                 String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
+                if (pieces[0].equals(mIP)) {
                     // Account exists, return true if the password matches.
                     return pieces[1].equals(mPassword);
                 }
@@ -285,6 +309,7 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
             showProgress(false);
 
             if (success) {
+                Constants.IP_ADDRESS = mIP;
                 finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
@@ -296,6 +321,10 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
         protected void onCancelled() {
             mAuthTask = null;
             showProgress(false);
+        }
+
+        public String getIP() {
+            return mIP;
         }
     }
 }

@@ -78,7 +78,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
         canvas.drawLine(0, 0, 100, 100, paint);
         holder.unlockCanvasAndPost(canvas);
 
-        mStreamThread.initialize(Constants.IP_ADDRESS_LOCAL, Constants.PORT, "");
+        mStreamThread.initialize(Constants.IP_ADDRESS, Constants.PORT, "");
         mStreamThread.setRunning(true);
         mStreamThread.start();
         Log.d("StreamView", "successfully created surface");
