@@ -14,7 +14,10 @@ public class NetworkConScript : MonoBehaviour
 
 	Socket socket;
 	byte[] bytes = new byte[BYTE_BUFFER_SIZE];
+	//if network messages are incomplete, save the incomplete message in the bytes array
+	int bytesSaved = 0;
 	double timeWaited = 0.0;
+	const double REFRESH_INTERVAL = 2.0;
 
 	//Pass in the render controller so that we can call it to render things and get the screen size
 	public void StartWithTileRenderController(TileRenderController trc) {
@@ -30,12 +33,13 @@ public class NetworkConScript : MonoBehaviour
 		while (requiredKey.Length < 5) {
 			requiredKey += "\0";
 		}
-		char[] key = requiredKey.ToCharArray ();
+		char[] key = requiredKey.ToCharArray();
 
 		byte[] buf = { 88, 3, (byte)key[0], (byte)key[1], (byte)key[2], (byte)key[3], (byte)key[4],
-						(byte)(screenwidth / 128), (byte)(screenwidth % 128), (byte)(screenheight / 128),
-						(byte)(screenheight % 128), 0 };
-		Debug.Log("Sent " + socket.Send(buf).ToString() + " bytes");
+						(byte)(screenwidth / 128), (byte)(screenwidth % 128),
+						(byte)(screenheight / 128), (byte)(screenheight % 128), 0 };
+		int bytesSent = socket.Send(buf);
+		Debug.Log("Sent " + bytesSent.ToString() + " bytes");
 		receiveToBytes();
 		Debug.Log("Connected");
 		isConnected = true;
@@ -44,37 +48,42 @@ public class NetworkConScript : MonoBehaviour
 	// Update is called once per frame
 	void Update() {
 		if (isConnected) {
-			if (timeWaited >= 2.0f) {
+			if (timeWaited >= REFRESH_INTERVAL) {
 				//Debug.Log ("Sending refresh");
 				int bytesSent = socket.Send(new byte[] { 88, 1, 0, 0, 0, 0, 0 });
 				//Debug.Log ("Sent " + bytesSent.ToString() + " bytes");
-				timeWaited -= 2.0f;
+				timeWaited -= REFRESH_INTERVAL;
 			}
-			receiveToBytes ();
+			receiveToBytes();
 			timeWaited += Time.deltaTime;
 		}
 	}
 
 	void OnApplicationQuit() {
-		Debug.Log("Sending terminate");
-		int bytesSent = socket.Send(new byte[] { 88, 2, 0, 0, 0, 0, 0 });
-		Debug.Log("Sent " + bytesSent.ToString() + " bytes");
-		int bytesReceived;
-		do {
-			bytesReceived = socket.Receive(bytes);
-			Debug.Log("****Received " + bytesReceived + " bytes for the screen****");
-		} while (bytesReceived > 0);
-		socket.Close();
-		isConnected = false;
+		if (isConnected) {
+			Debug.Log("Sending terminate");
+			int bytesSent = socket.Send(new byte[] { 88, 2, 0, 0, 0, 0, 0 });
+			Debug.Log("Sent " + bytesSent.ToString() + " bytes");
+			int bytesReceived;
+			do {
+				bytesReceived = socket.Receive(bytes);
+				Debug.Log("****Received " + bytesReceived + " bytes for the screen****");
+			} while (bytesReceived > 0);
+			socket.Close();
+			isConnected = false;
+		}
 	}
 
 	void receiveToBytes() {
-		int bytesReceived = socket.Receive(bytes);
+		//receive to the byte array, appending to existing bytes if there are any
+		int bytesReceived = socket.Receive(bytes, bytesSaved, BYTE_BUFFER_SIZE - bytesSaved, SocketFlags.None);
+		bytesReceived += bytesSaved;
+		bytesSaved = 0;
 		//Debug.Log("****Received " + bytesReceived + " bytes for the screen****");
-		string s = "";
-		int byteCount = bytesReceived < 256 ? bytesReceived : 256;
-		for (int q = 0; q < byteCount; q++)
-			s += bytes[q].ToString() + ", ";
+		//string s = "";
+		//int byteCount = bytesReceived < 256 ? bytesReceived : 256;
+		//for (int q = 0; q < byteCount; q++)
+		//	s += bytes[q].ToString() + ", ";
 		//Debug.Log(s);
 
 		//start parsing the bytes
@@ -84,12 +93,22 @@ public class NetworkConScript : MonoBehaviour
 
 			int type = bytes[i + 1];
 			int len = (int)(bytes[i + 2]) * 128 + bytes[i + 3];
+			//either the message got cut off before the length could be determined or
+			//the message got cut off before the whole message was received
+			if (i + 4 > bytesReceived || i + len > bytesReceived) {
+				bytesSaved = bytesReceived - i;
+				for (int j = 0; j < bytesSaved; j++)
+					bytes[j] = bytes[j + i];
+				break;
+			}
+
 			//the server is done sending us image data, render the completed image
 			if (type == 1) {
 				tileRenderController.Flush();
 			//the server told us to terminate the connection
 			} else if (type == 2) {
 				Debug.Log("****Server said terminate connection for reason " + bytes[i + 4] + "****");
+				OnApplicationQuit();
 			//the server sent image data for a 16x16 square
 			} else {
 				int tileX = (bytes[i + 4] * 128 + bytes[i + 5]) / TileRenderController.TILE_SIZE;
@@ -132,7 +151,7 @@ public class NetworkConScript : MonoBehaviour
 			}
 			i += len;
 		}
-    }
+	}
     public void PtrMoved(int x, int y, ptr val)
     {
         string log = "Modifier Key pressed";
