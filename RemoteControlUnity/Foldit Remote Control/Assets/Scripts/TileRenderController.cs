@@ -62,7 +62,7 @@ public class TileRenderController : MonoBehaviour {
         Texture.SetPixels32(tile.x * TILE_SIZE, tile.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, tile.colors);
     }
 
-    public void setPanelSize()
+    private void setPanelSize()
     {
         float width = MyCanvas.rect.width;
         float height = MyCanvas.rect.height;
