@@ -46,7 +46,8 @@ public class NetworkConScript : MonoBehaviour
 		if (isConnected) {
 			if (timeWaited >= 2.0f) {
 				//Debug.Log ("Sending refresh");
-				//Debug.Log ("Sent " + socket.Send (new byte[] { 88, 1, 0, 0, 0, 0, 0 }).ToString () + " bytes");
+				int bytesSent = socket.Send(new byte[] { 88, 1, 0, 0, 0, 0, 0 });
+				//Debug.Log ("Sent " + bytesSent.ToString() + " bytes");
 				timeWaited -= 2.0f;
 			}
 			receiveToBytes ();
@@ -56,7 +57,8 @@ public class NetworkConScript : MonoBehaviour
 
 	void OnApplicationQuit() {
 		Debug.Log("Sending terminate");
-		Debug.Log("Sent " + socket.Send(new byte[] { 88, 2, 0, 0, 0, 0, 0 }).ToString() + " bytes");
+		int bytesSent = socket.Send(new byte[] { 88, 2, 0, 0, 0, 0, 0 });
+		Debug.Log("Sent " + bytesSent.ToString() + " bytes");
 		int bytesReceived;
 		do {
 			bytesReceived = socket.Receive(bytes);
@@ -181,6 +183,7 @@ public class NetworkConScript : MonoBehaviour
     }
     public void SendPack(int x, int y, int type, int info)
     {
-        Debug.Log("Sent " + socket.Send(new byte[] { 88, (byte)type, (byte)info, (byte)(x / 128), (byte)(x % 128), (byte)(y / 128), (byte)(y % 128) }).ToString() + " bytes");
+	int bytesSent = socket.Send(new byte[] { 88, (byte)type, (byte)info, (byte)(x / 128), (byte)(x % 128), (byte)(y / 128), (byte)(y % 128) });
+        Debug.Log("Sent " + bytesSent.ToString() + " bytes");
     }
 }
