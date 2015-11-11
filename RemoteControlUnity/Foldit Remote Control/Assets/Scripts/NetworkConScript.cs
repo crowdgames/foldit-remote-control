@@ -11,102 +11,102 @@ public class NetworkConScript : MonoBehaviour
         RLE24_TILE = 5, RLE16_TILE = 6, RLE8_TILE = 7
     };
     int port = 1230;
-	const int BYTE_BUFFER_SIZE = 10000000;
-	bool isConnected = false;
+    const int BYTE_BUFFER_SIZE = 10000000;
+    bool isConnected = false;
     const byte MAGIC_CHARACTER = (byte)'X';
 
-	//This will get passed to us after it is started up
-	private TileRenderController tileRenderController;
+    //This will get passed to us after it is started up
+    private TileRenderController tileRenderController;
 
-	Socket socket;
-	byte[] bytes = new byte[BYTE_BUFFER_SIZE];
-	//if network messages are incomplete, save the incomplete message in the bytes array
-	int bytesSaved = 0;
-	double timeWaited = 0.0;
-	const double REFRESH_INTERVAL = 2.0;
+    Socket socket;
+    byte[] bytes = new byte[BYTE_BUFFER_SIZE];
+    //if network messages are incomplete, save the incomplete message in the bytes array
+    int bytesSaved = 0;
+    double timeWaited = 0.0;
+    const double REFRESH_INTERVAL = 2.0;
 
-	//Pass in the render controller so that we can call it to render things and get the screen size
-	public void StartWithTileRenderController(TileRenderController trc) {
-		tileRenderController = trc;
-	}
+    //Pass in the render controller so that we can call it to render things and get the screen size
+    public void StartWithTileRenderController(TileRenderController trc) {
+        tileRenderController = trc;
+    }
 
-	public void connect(string host, string requiredKey) {
-		int screenwidth = tileRenderController.Width;
-		int screenheight = tileRenderController.Height;
-		Debug.Log("Start");
-		socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-		socket.Connect(host, port);
-		while (requiredKey.Length < 5) {
-			requiredKey += "\0";
-		}
-		char[] key = requiredKey.ToCharArray();
+    public void connect(string host, string requiredKey) {
+        int screenwidth = tileRenderController.Width;
+        int screenheight = tileRenderController.Height;
+        Debug.Log("Start");
+        socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        socket.Connect(host, port);
+        while (requiredKey.Length < 5) {
+            requiredKey += "\0";
+        }
+        char[] key = requiredKey.ToCharArray();
 
-		byte[] buf = { MAGIC_CHARACTER, 3, (byte)key[0], (byte)key[1], (byte)key[2], (byte)key[3], (byte)key[4],
-						(byte)(screenwidth / 128), (byte)(screenwidth % 128),
-						(byte)(screenheight / 128), (byte)(screenheight % 128), 0 };
-		int bytesSent = socket.Send(buf);
-		Debug.Log("Sent " + bytesSent.ToString() + " bytes");
-		receiveToBytes();
-		Debug.Log("Connected");
-		isConnected = true;
-	}
+        byte[] buf = { MAGIC_CHARACTER, 3, (byte)key[0], (byte)key[1], (byte)key[2], (byte)key[3], (byte)key[4],
+                        (byte)(screenwidth / 128), (byte)(screenwidth % 128),
+                        (byte)(screenheight / 128), (byte)(screenheight % 128), 0 };
+        int bytesSent = socket.Send(buf);
+        Debug.Log("Sent " + bytesSent.ToString() + " bytes");
+        receiveToBytes();
+        Debug.Log("Connected");
+        isConnected = true;
+    }
 
-	// Update is called once per frame
-	void Update() {
-		if (isConnected) {
-			if (timeWaited >= REFRESH_INTERVAL) {
-				//Debug.Log ("Sending refresh");
-				int bytesSent = socket.Send(new byte[] { MAGIC_CHARACTER, 1, 0, 0, 0, 0, 0 });
-				//Debug.Log ("Sent " + bytesSent.ToString() + " bytes");
-				timeWaited -= REFRESH_INTERVAL;
-			}
-			receiveToBytes();
-			timeWaited += Time.deltaTime;
-		}
-	}
+    // Update is called once per frame
+    void Update() {
+        if (isConnected) {
+            if (timeWaited >= REFRESH_INTERVAL) {
+                //Debug.Log ("Sending refresh");
+                int bytesSent = socket.Send(new byte[] { MAGIC_CHARACTER, 1, 0, 0, 0, 0, 0 });
+                //Debug.Log ("Sent " + bytesSent.ToString() + " bytes");
+                timeWaited -= REFRESH_INTERVAL;
+            }
+            receiveToBytes();
+            timeWaited += Time.deltaTime;
+        }
+    }
 
-	void OnApplicationQuit() {
-		if (isConnected) {
-			Debug.Log("Sending terminate");
-			int bytesSent = socket.Send(new byte[] { MAGIC_CHARACTER, 2, 0, 0, 0, 0, 0 });
-			Debug.Log("Sent " + bytesSent.ToString() + " bytes");
-			int bytesReceived;
-			do {
-				bytesReceived = socket.Receive(bytes);
-				Debug.Log("****Received " + bytesReceived + " bytes for the screen****");
-			} while (bytesReceived > 0);
-			socket.Close();
-			isConnected = false;
-		}
-	}
+    void OnApplicationQuit() {
+        if (isConnected) {
+            Debug.Log("Sending terminate");
+            int bytesSent = socket.Send(new byte[] { MAGIC_CHARACTER, 2, 0, 0, 0, 0, 0 });
+            Debug.Log("Sent " + bytesSent.ToString() + " bytes");
+            int bytesReceived;
+            do {
+                bytesReceived = socket.Receive(bytes);
+                Debug.Log("****Received " + bytesReceived + " bytes for the screen****");
+            } while (bytesReceived > 0);
+            socket.Close();
+            isConnected = false;
+        }
+    }
 
-	void receiveToBytes() {
-		//receive to the byte array, appending to existing bytes if there are any
-		int bytesReceived = socket.Receive(bytes, bytesSaved, BYTE_BUFFER_SIZE - bytesSaved, SocketFlags.None);
-		bytesReceived += bytesSaved;
-		bytesSaved = 0;
-		//Debug.Log("****Received " + bytesReceived + " bytes for the screen****");
-		//string s = "";
-		//int byteCount = bytesReceived < 256 ? bytesReceived : 256;
-		//for (int q = 0; q < byteCount; q++)
-		//	s += bytes[q].ToString() + ", ";
-		//Debug.Log(s);
+    void receiveToBytes() {
+        //receive to the byte array, appending to existing bytes if there are any
+        int bytesReceived = socket.Receive(bytes, bytesSaved, BYTE_BUFFER_SIZE - bytesSaved, SocketFlags.None);
+        bytesReceived += bytesSaved;
+        bytesSaved = 0;
+        //Debug.Log("****Received " + bytesReceived + " bytes for the screen****");
+        //string s = "";
+        //int byteCount = bytesReceived < 256 ? bytesReceived : 256;
+        //for (int q = 0; q < byteCount; q++)
+        //    s += bytes[q].ToString() + ", ";
+        //Debug.Log(s);
 
-		//start parsing the bytes
-		for (int i = 0; i < bytesReceived;) {
-			if (bytes[i] != 'X')
-				throw new System.Exception("Bad network message");
+        //start parsing the bytes
+        for (int i = 0; i < bytesReceived;) {
+            if (bytes[i] != 'X')
+                throw new System.Exception("Bad network message");
 
-			ServerMessageType type = (ServerMessageType)bytes[i + 1];
-			int len = (int)(bytes[i + 2]) * 128 + bytes[i + 3];
-			//either the message got cut off before the length could be determined or
-			//the message got cut off before the whole message was received
-			if (i + 4 > bytesReceived || i + len > bytesReceived) {
-				bytesSaved = bytesReceived - i;
-				for (int j = 0; j < bytesSaved; j++)
-					bytes[j] = bytes[j + i];
-				break;
-			}
+            ServerMessageType type = (ServerMessageType)bytes[i + 1];
+            int len = (int)(bytes[i + 2]) * 128 + bytes[i + 3];
+            //either the message got cut off before the length could be determined or
+            //the message got cut off before the whole message was received
+            if (i + 4 > bytesReceived || i + len > bytesReceived) {
+                bytesSaved = bytesReceived - i;
+                for (int j = 0; j < bytesSaved; j++)
+                    bytes[j] = bytes[j + i];
+                break;
+            }
 
             switch (type) {
                 //the server is done sending us image data, render the completed image
