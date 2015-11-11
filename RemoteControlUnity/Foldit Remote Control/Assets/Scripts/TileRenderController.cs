@@ -4,6 +4,8 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System;
 
+// File authority: Martha
+
 public class TileRenderController : MonoBehaviour {
 
     public RectTransform MyCanvas;
@@ -21,13 +23,16 @@ public class TileRenderController : MonoBehaviour {
 
 	public NetworkConScript networkConnection;
 
-	// Use this for initialization
+    public bool lowres { get; private set; }
+
 	void Start () {
         setPanelSize();
 
         Rect panelRec = MyPanel.rect;
         Width = (int) panelRec.width;
         Height = (int) panelRec.height;
+
+        lowres = false;
 
         Texture = new Texture2D(Width, Height);
         NewTiles = new List<TileInfo>();
@@ -36,19 +41,55 @@ public class TileRenderController : MonoBehaviour {
         networkConnection.StartWithTileRenderController(this);
     }
 
-    public void SetTile(int x, int y, Color32[] colors, bool lores)
+    // Used to change if the program is working with lowres settings or not
+    public void LowRes(bool val)
     {
-        NewTiles.Add(new TileInfo(x, y, colors));
+        if(val != lowres)
+        {
+            lowres = val;
+
+            Texture2D oldTexture = Texture;
+
+            if(lowres)
+            {
+                Texture = new Texture2D(Width / 2, Height / 2);
+            } else
+            {
+                Texture = new Texture2D(Width, Height);
+            }
+
+            Display.texture = Texture;
+
+            Destroy(oldTexture);
+        }
     }
 
+    // Create a tile info for a tile with an array of colors
+    public void SetTile(int x, int y, Color32[] colors)
+    {
+        if (lowres)
+        {
+            NewTiles.Add(new TileInfo(x / 2, y / 2, colors));
+        } else
+        {
+            NewTiles.Add(new TileInfo(x, y, colors));
+        }
+    }
+
+    // create a tile info for a single color tile
     public void SetTile(int x, int y, Color32 color)
     {
-        NewTiles.Add(new TileInfo(x, y, color));
+        if (lowres)
+        {
+            NewTiles.Add(new TileInfo(x / 2, y / 2, color));
+        } else {
+            NewTiles.Add(new TileInfo(x, y, color));
+        }
     }
 
+    // Draw all tiles waiting in NewTiles
     public void Flush()
     {
-
         foreach(TileInfo tile in NewTiles)
         {
             drawTile(tile);
@@ -57,12 +98,14 @@ public class TileRenderController : MonoBehaviour {
         NewTiles.Clear();
     }
 
+    // Draw a TileInfo to the texture
     private void drawTile(TileInfo tile)
     {
-        Texture.SetPixels32(tile.x * TILE_SIZE, tile.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, tile.colors);
+        Texture.SetPixels32(tile.x, tile.y, TILE_SIZE, TILE_SIZE, tile.colors);
     }
 
-    public void setPanelSize()
+    // Set the panel size to a multiple of 16
+    private void setPanelSize()
     {
         float width = MyCanvas.rect.width;
         float height = MyCanvas.rect.height;
