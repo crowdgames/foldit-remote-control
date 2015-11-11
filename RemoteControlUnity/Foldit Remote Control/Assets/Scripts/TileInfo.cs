@@ -7,6 +7,7 @@ public class TileInfo {
     public int y { get; private set; }
     public Color32[] colors { get; private set; }
 
+    //Construct an array tile
     public TileInfo(int inX, int inY, Color32[] inColors)
     {
         x = inX;
@@ -14,6 +15,7 @@ public class TileInfo {
         colors = inColors;
     }
 
+    //construct a single color tile
     public TileInfo(int inX, int inY, Color32 inColor)
     {
         x = inX;
