@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
+// Developed by Elizabeth Renn
+
 public class UIInput : MonoBehaviour {
 	private bool isFirstConnection = true;
 	public InputField ipAddressInput;
@@ -9,23 +11,15 @@ public class UIInput : MonoBehaviour {
 	public NetworkConScript connection;
 
 	public void toggleUI(GameObject uiContainer) {
-		if (this.gameObject.tag == "UIOptions") {
-			if (uiContainer.activeSelf) {
-				this.gameObject.GetComponentInChildren<Text> ().text = "Show Options";
-			} else {
-				this.gameObject.GetComponentInChildren<Text> ().text = "Hide Options";
-			}
-		}
 		uiContainer.SetActive (!uiContainer.activeSelf);
 	}
-
 
 	public void connectToFoldit(GameObject uiContainer) {
 		if (isFirstConnection) {
 			GameObject closeButton = GameObject.FindGameObjectWithTag("CloseModal");
 			closeButton.GetComponentInChildren<Button> ().interactable = true;
 			GameObject optionsButton = GameObject.FindGameObjectWithTag("UIOptions");
-			optionsButton.GetComponentInChildren<Button> ().interactable = true;
+			optionsButton.GetComponentInChildren<Image> ().enabled = true;
 			isFirstConnection = false;
 		}
 		string ipAddress = ipAddressInput.text;
