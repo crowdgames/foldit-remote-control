@@ -163,7 +163,7 @@ public class NetworkConScript : MonoBehaviour
                     }
                 }
                 //Debug.Log(runindex);
-                tileRenderController.SetTile(tileX, tileY, tileColors, false);
+                tileRenderController.SetTile(tileX, tileY, tileColors);
                 break;
             //run-length encoding with color in 1 byte
             case ServerMessageType.RLE8_TILE:
@@ -220,7 +220,7 @@ public class NetworkConScript : MonoBehaviour
     }
     public void SendPack(int x, int y, int type, int info)
     {
-	int bytesSent = socket.Send(new byte[] { MAGIC_CHARACTER, (byte)type, (byte)info, (byte)(x / 128), (byte)(x % 128), (byte)(y / 128), (byte)(y % 128) });
+    int bytesSent = socket.Send(new byte[] { MAGIC_CHARACTER, (byte)type, (byte)info, (byte)(x / 128), (byte)(x % 128), (byte)(y / 128), (byte)(y % 128) });
         Debug.Log("Sent " + bytesSent.ToString() + " bytes");
     }
 }
