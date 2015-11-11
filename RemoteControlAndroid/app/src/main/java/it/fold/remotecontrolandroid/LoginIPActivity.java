@@ -266,6 +266,12 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
         mIPView.setAdapter(adapter);
     }
 
+    // Begin GameActivity
+    public void sendMessage() {
+        Intent intent = new Intent(this, GameActivity.class);
+        this.startActivity(intent);
+    }
+
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
@@ -310,7 +316,8 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
 
             if (success) {
                 Constants.IP_ADDRESS = mIP;
-                finish();
+                sendMessage();
+                //finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
