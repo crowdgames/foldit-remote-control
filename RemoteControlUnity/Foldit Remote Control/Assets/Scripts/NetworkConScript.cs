@@ -12,8 +12,8 @@ public class NetworkConScript : MonoBehaviour
     };
     int port = 1230;
     const int BYTE_BUFFER_SIZE = 10000000;
-    bool isConnected = false;
-    const byte MAGIC_CHARACTER = (byte)'X';
+    bool isConnected = false; //whether or not the connection is active
+    const byte MAGIC_CHARACTER = (byte)'X'; //this is the start of all messages
 
     //This will get passed to us after it is started up
     private TileRenderController tileRenderController;
@@ -22,7 +22,7 @@ public class NetworkConScript : MonoBehaviour
     byte[] bytes = new byte[BYTE_BUFFER_SIZE];
     //if network messages are incomplete, save the incomplete message in the bytes array
     int bytesSaved = 0;
-    double timeWaited = 0.0;
+    double timeWaited = 0.0; //send a refresh signal every REFRESH_INTERVAL seconds
     const double REFRESH_INTERVAL = 2.0;
 
     //Pass in the render controller so that we can call it to render things and get the screen size
@@ -30,17 +30,21 @@ public class NetworkConScript : MonoBehaviour
         tileRenderController = trc;
     }
 
+    //open the connection to Foldit
     public void connect(string host, string requiredKey) {
+        //get the screen width to send to Foldit
         int screenwidth = tileRenderController.Width;
         int screenheight = tileRenderController.Height;
         Debug.Log("Start");
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         socket.Connect(host, port);
+        //the key needs to be 5 characters, extend the string until it has enough
         while (requiredKey.Length < 5) {
             requiredKey += "\0";
         }
         char[] key = requiredKey.ToCharArray();
 
+        //send an opening message including the magic character, the version we're using (3), the passkey, and the screen size
         byte[] buf = { MAGIC_CHARACTER, 3, (byte)key[0], (byte)key[1], (byte)key[2], (byte)key[3], (byte)key[4],
                         (byte)(screenwidth / 128), (byte)(screenwidth % 128),
                         (byte)(screenheight / 128), (byte)(screenheight % 128), 0 };
@@ -150,12 +154,15 @@ public class NetworkConScript : MonoBehaviour
                 int max = i + len;
                 int runindex = 0;
                 for (int j = i + 8; j < max; j += 3) {
+                    //get the byte values from the array
                     int runlength = bytes[j];
                     int byte1 = bytes[j + 1], byte2 = bytes[j + 2];
+                    //build the color from the bit values
                     Color32 color = new Color32(
                         (byte)((byte1 >> 2 & 0x1F) << 3),
                         (byte)((((byte1 & 3) << 3) | (byte1 >> 4 & 7)) << 3),
                         (byte)((byte2 & 0xF) << 4), 255);
+                    //fill the colors that will be used in the texture
                     for (int runmax = runindex + runlength; runindex < runmax; runindex++) {
                         //fix up the index that we get from foldit, swap x and y
                         tileColors[runindex % TileRenderController.TILE_SIZE * TileRenderController.TILE_SIZE +
