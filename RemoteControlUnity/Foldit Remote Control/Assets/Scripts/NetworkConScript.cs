@@ -5,6 +5,7 @@ public class NetworkConScript : MonoBehaviour
 {
     public enum keys : int { Ctrl = 0, Alt = 1, Shift = 2 };
     public enum ptr : int { Down = 11, Up = 12, Move = 13 };
+    public enum events: int { ZoomOut = 3, ZoomIn = 4, ModKeyDown = 5, ModKeyUp = 6, CharSend = 7, MousePress = 8, MouseRelease = 9, MouseMove = 10, Down = 11, Up = 12, Move = 13 };
     int port = 1230;
 	const int BYTE_BUFFER_SIZE = 10000000;
 	bool isConnected = false;
@@ -133,22 +134,22 @@ public class NetworkConScript : MonoBehaviour
     }
     public void PtrMoved(int x, int y, ptr val)
     {
-        string log = "Modifier Key pressed";
+        string log = "Auxilary pointer moved";
         Debug.Log(log);
         SendPack(x, y, (int)val, 0);
         receiveToBytes();
     }
     public void ModKey(int x, int y, bool down, keys key)
     {
-        int val = (down) ? 5 : 6;
+        events val = (down) ? events.ModKeyDown : events.ModKeyUp;
         string log = "Modifier Key pressed";
         Debug.Log(log);
-        SendPack(x, y, val, (int)key);
+        SendPack(x, y, (int)val, (int)key);
         receiveToBytes();
     }
     public void CharSend(int x, int y, char snt)
     {
-        int val = 7;
+        int val = (int)(events.CharSend);
         string log = "Char sent";
         Debug.Log(log);
         SendPack(x, y, val, snt);
@@ -156,7 +157,7 @@ public class NetworkConScript : MonoBehaviour
     }
     public void MouseMove(int x, int y)
     {
-        int val = 10;
+        int val = (int)events.MouseMove;
         string log = "Mouse move";
         Debug.Log(log);
         SendPack(x, y, val, 0);
@@ -164,19 +165,19 @@ public class NetworkConScript : MonoBehaviour
     }
     public void Tap(bool down, int x, int y)
     {
-        int val = (down) ? 8 : 9;
+        events val = (down) ? events.MousePress: events.MouseRelease;
         string log = (down) ? "Mouse down" : "Mouse up";
         Debug.Log(log);
-        SendPack(x, y, val, 0);
+        SendPack(x, y, (int)val, 0);
         receiveToBytes();
     }
 
     public void Zoom(bool zoomIn)
     {
-        int val = (zoomIn) ? 4 : 3;
+        events val = (zoomIn) ? events.ZoomIn : events.ZoomOut;
         string log = (zoomIn) ? "Sending zoom in" : "Sending zoom out";
         Debug.Log(log);
-        SendPack(129, 129, val, 0);
+        SendPack(129, 129, (int)val, 0);
         receiveToBytes();
     }
     public void SendPack(int x, int y, int type, int info)
