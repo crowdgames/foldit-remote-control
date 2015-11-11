@@ -26,7 +26,6 @@
                 android:inputType="numberDecimal"
                 android:digits="0123456789."
                 android:textColor="#ffffff"
-                android:contextClickable="false"
                 android:textIsSelectable="false"
                 android:textColorHint="#efefef" />
 

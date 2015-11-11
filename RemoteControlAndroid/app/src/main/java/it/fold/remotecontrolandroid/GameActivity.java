@@ -1,5 +1,6 @@
 package it.fold.remotecontrolandroid;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -9,7 +10,7 @@ import android.view.MenuItem;
 /**
 * Class for activities using the action bar library
 */
-public class GameActivity extends ActionBarActivity {
+public class GameActivity extends Activity {
 
     @Override
     /**
@@ -59,4 +60,16 @@ public class GameActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
+
+
+
+
+
+
+
+
+    //Fragment class
+
 }
