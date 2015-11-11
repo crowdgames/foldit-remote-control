@@ -5,7 +5,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="it.fold.remotecontrolandroid.LoginIPActivity">
+    tools:context="it.fold.remotecontrolandroid.LoginIPActivity"
+    android:background="@color/background_material_dark">
 
     <!-- Login progress -->
     <ProgressBar android:id="@+id/login_progress" style="?android:attr/progressBarStyleLarge"
@@ -23,19 +24,27 @@
                 android:maxLines="1"
                 android:singleLine="true"
                 android:inputType="numberDecimal"
-                android:digits="0123456789." />
+                android:digits="0123456789."
+                android:textColor="#ffffff"
+                android:contextClickable="false"
+                android:textIsSelectable="false"
+                android:textColorHint="#efefef" />
 
             <EditText android:id="@+id/password" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="@string/prompt_password"
                 android:imeActionId="@+id/login"
                 android:imeActionLabel="@string/action_sign_in_short"
                 android:imeOptions="actionUnspecified" android:inputType="textPassword"
-                android:maxLines="1" android:singleLine="true" />
+                android:maxLines="1" android:singleLine="true"
+                android:textColor="#ffffff"
+                android:textColorHint="#efefef" />
 
             <Button android:id="@+id/IP_sign_in_button" style="?android:textAppearanceSmall"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:layout_marginTop="16dp" android:text="Connect"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="#ffffff"
+                android:background="#111111" />
 
         </LinearLayout>
     </ScrollView>
