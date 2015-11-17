@@ -11,6 +11,7 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
 
+    <!-- A button to change user input into left mouse clicks -->
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -21,6 +22,7 @@
         android:layout_toLeftOf="@+id/imageButton2"
         android:layout_toStartOf="@+id/imageButton2" />
 
+    <!-- A button to change user input into middle mouse clicks -->
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -31,6 +33,7 @@
         android:layout_toLeftOf="@+id/imageButton3"
         android:layout_toStartOf="@+id/imageButton3" />
 
+    <!-- A button to change user input into right mouse clicks -->
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -19,6 +19,7 @@
         <LinearLayout android:id="@+id/IP_login_form" android:layout_width="match_parent"
             android:layout_height="wrap_content" android:orientation="vertical">
 
+            <!-- A numberDecimal field to enter an IP address into -->
             <AutoCompleteTextView android:id="@+id/ip" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="IP Address"
                 android:maxLines="1"
@@ -29,6 +30,7 @@
                 android:textIsSelectable="false"
                 android:textColorHint="#efefef" />
 
+            <!-- A text field to enter a password into, if desired -->
             <EditText android:id="@+id/password" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="@string/prompt_password"
                 android:imeActionId="@+id/login"
@@ -38,6 +40,7 @@
                 android:textColor="#ffffff"
                 android:textColorHint="#efefef" />
 
+            <!-- A button to submit the given IP address and password, and attempt a connection -->
             <Button android:id="@+id/IP_sign_in_button" style="?android:textAppearanceSmall"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:layout_marginTop="16dp" android:text="Connect"

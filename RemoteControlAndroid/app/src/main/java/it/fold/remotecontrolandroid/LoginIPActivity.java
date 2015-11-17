@@ -55,6 +55,11 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
     private View mLoginFormView;
 
     @Override
+    /**
+     * Initializes based off of bundle
+     *
+     * @param savedInstanceState parsable strings used for init
+     */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_ip);
@@ -145,6 +150,7 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
     }
 
     /**
+     * Checks to make sure the entered IP address is a valid location
      *
      * @param IP The value input to the IP input in the login menu
      * @return If the IP string input actually contains a valid IPV4 IP String
@@ -176,8 +182,13 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
         }
     }
 
+    /**
+     * Makes sure the entered password is within desired constraints
+     *
+     * @param password
+     * @return whether the password is of valid length
+     */
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
         return password.length() > 4;
     }
 
@@ -291,6 +302,7 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
             mPassword = password;
         }
 
+
         @Override
         protected Boolean doInBackground(Void ... params) {
             // TODO: attempt authentication against a network service.
@@ -322,7 +334,7 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
             if (success) {
                 Constants.IP_ADDRESS = mIP;
                 sendMessage();
-                //finish();
+                finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
