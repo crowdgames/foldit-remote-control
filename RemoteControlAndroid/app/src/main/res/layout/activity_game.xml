@@ -14,31 +14,34 @@
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src=""
+        android:src="@drawable/LeftClick"
         android:id="@+id/imageButton"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"
-        android:onClick="leftClick" />
+        android:onClick="leftClick"
+        android:layout_above="@+id/imageButton2"
+        android:layout_alignLeft="@+id/imageButton2"
+        android:layout_alignStart="@+id/imageButton2"
+        android:rotation="90"/>
 
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src=""
+        android:src="@drawable/MiddleClick"
         android:id="@+id/imageButton2"
-        android:layout_alignParentBottom="true"
+        android:onClick="middleClick"
+        android:layout_above="@+id/imageButton3"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="100dp"
-        android:onClick="middleClick" />
+        android:rotation="90"/>
 
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src=""
+        android:src="@drawable/RightClick"
         android:id="@+id/imageButton3"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:onClick="rightClick" />
+        android:onClick="rightClick"
+        android:layout_alignParentBottom="true"
+        android:layout_alignLeft="@+id/imageButton2"
+        android:layout_alignStart="@+id/imageButton2"
+        android:rotation="90"/>
 
 
 </RelativeLayout>

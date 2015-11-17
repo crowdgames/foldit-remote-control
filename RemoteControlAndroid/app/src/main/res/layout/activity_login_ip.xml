@@ -43,7 +43,7 @@
                 android:layout_marginTop="16dp" android:text="Connect"
                 android:textStyle="bold"
                 android:textColor="#ffffff"
-                android:background="#111111" />
+                android:background="#888888" />
 
         </LinearLayout>
     </ScrollView>
