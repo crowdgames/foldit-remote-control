@@ -19,5 +19,6 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing IP
         completions."
     </string>
+    <string name="title_activity_main">MainActivity</string>
 
 </resources>
