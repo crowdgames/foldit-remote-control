@@ -144,6 +144,11 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
         }
     }
 
+    /**
+     *
+     * @param IP The value input to the IP input in the login menu
+     * @return If the IP string input actually contains a valid IPV4 IP String
+     */
     private boolean isIPValid(String IP) {
         try {
             if ( IP == null || IP.isEmpty() ) {
