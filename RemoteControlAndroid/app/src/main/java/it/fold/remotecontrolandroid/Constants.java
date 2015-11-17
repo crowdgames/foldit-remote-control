@@ -6,8 +6,8 @@ public class Constants {
     public static       int REAL_IMG_WIDTH       = 1184;
     public static       int REAL_IMG_HEIGHT      =  768;
     public static       String IP_ADDRESS        = "10.0.2.2";
+    public static       String KEY               = "";
 
-    public static final String IP_ADDRESS_LOCAL  = "10.0.2.2";
     public static final int PORT                 = 1230;
 
 

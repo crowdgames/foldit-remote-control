@@ -287,7 +287,7 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected Boolean doInBackground(Void ... params) {
             // TODO: attempt authentication against a network service.
 
             try {
