@@ -249,6 +249,8 @@ public class StreamThread extends Thread {
         Thread socketThread = new Thread() {
             public void run() {
                 try {
+                    Log.d("streamdebug", mAddress);
+                    Log.d("streamdebug", "" + mPort);
                     mSocket = new SocketBuffer(mAddress, mPort);
                 } catch (Exception e) {
                     Log.d("streamdebug", e.getMessage());
