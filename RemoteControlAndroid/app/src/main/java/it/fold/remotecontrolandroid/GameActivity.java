@@ -61,4 +61,22 @@ public class GameActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    //sends CLEV_MODKEY_UP info 0,CLEV_MODKEY_UP info 2, this sets both control and shift up
+    public void onLeftClickButton()
+    {
+
+    }
+
+    //sends CLEV_MODKEY_DOWN info 0, CLEV_MODKEY_UP info 2, this sets control down, shift up
+    public void onRightClickButton()
+    {
+
+    }
+
+    //sends CLEV_MODKEY_UP info 0, CLEV_MODKEY_DOWN info 2, this sets control up, shift down
+    public void onMiddleClickButton()
+    {
+
+    }
+
 }
