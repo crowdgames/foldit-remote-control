@@ -9,6 +9,8 @@ public class UIInput : MonoBehaviour {
 	public InputField ipAddressInput;
 	public InputField requiredKeyInput;
 	public NetworkConScript connection;
+	public Toggle lowResToggle;
+	public TileRenderController tileController;
 
 	public void toggleUI(GameObject uiContainer) {
 		uiContainer.SetActive (!uiContainer.activeSelf);
@@ -24,6 +26,7 @@ public class UIInput : MonoBehaviour {
 		}
 		string ipAddress = ipAddressInput.text;
 		string requiredKey = requiredKeyInput.text;
+
 		connection.connect (ipAddress, requiredKey);
 		uiContainer.SetActive(false);
 	}
