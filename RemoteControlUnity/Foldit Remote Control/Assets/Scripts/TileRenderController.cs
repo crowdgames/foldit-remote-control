@@ -37,12 +37,10 @@ public class TileRenderController : MonoBehaviour {
         Texture = new Texture2D(Width, Height);
         NewTiles = new List<TileInfo>();
         Display.texture = Texture;
-
-        networkConnection.StartWithTileRenderController(this);
     }
 
     // Used to change if the program is working with lowres settings or not
-    public void LowRes(bool val)
+    public void setIfLowRes(bool val)
     {
         if(val != lowres)
         {
