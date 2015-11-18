@@ -1,10 +1,10 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/UIInput.cs">
     <Files>
-      <File FileName="Assets/Scripts/UIInput.cs" Line="23" Column="27" />
+      <File FileName="Assets/Scripts/UIInput.cs" Line="13" Column="45" />
       <File FileName="Assets/Scripts/btnClick.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/NetworkConScript.cs" Line="190" Column="1" />
+      <File FileName="Assets/Scripts/NetworkConScript.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/TileRenderController.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
