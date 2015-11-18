@@ -26,7 +26,7 @@ public class UIInput : MonoBehaviour {
 		}
 		string ipAddress = ipAddressInput.text;
 		string requiredKey = requiredKeyInput.text;
-
+		tileController.setIfLowRes (lowResToggle.isOn);
 		connection.connect (ipAddress, requiredKey);
 		uiContainer.SetActive(false);
 	}
