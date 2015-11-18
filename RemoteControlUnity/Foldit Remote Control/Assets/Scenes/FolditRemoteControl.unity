@@ -3670,6 +3670,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b48a886fa7258c04dae4709b304e27fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tileRenderController: {fileID: 1253807541}
 --- !u!4 &2105590486
 Transform:
   m_ObjectHideFlags: 0
