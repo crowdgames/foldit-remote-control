@@ -42,7 +42,7 @@ public class TileRenderController : MonoBehaviour {
     }
 
     // Used to change if the program is working with lowres settings or not
-    public void LowRes(bool val)
+    public void setIfLowRes(bool val)
     {
         if(val != lowres)
         {
