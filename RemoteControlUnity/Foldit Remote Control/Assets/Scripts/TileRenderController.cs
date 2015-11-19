@@ -37,12 +37,10 @@ public class TileRenderController : MonoBehaviour {
         Texture = new Texture2D(Width, Height);
         NewTiles = new List<TileInfo>();
         Display.texture = Texture;
-
-        networkConnection.StartWithTileRenderController(this);
     }
 
     // Used to change if the program is working with lowres settings or not
-    public void LowRes(bool val)
+    public void setIfLowRes(bool val)
     {
         if(val != lowres)
         {
@@ -67,24 +65,13 @@ public class TileRenderController : MonoBehaviour {
     // Create a tile info for a tile with an array of colors
     public void SetTile(int x, int y, Color32[] colors)
     {
-        if (lowres)
-        {
-            NewTiles.Add(new TileInfo(x / 2, y / 2, colors));
-        } else
-        {
-            NewTiles.Add(new TileInfo(x, y, colors));
-        }
+        NewTiles.Add(new TileInfo(x, y, colors));
     }
 
     // create a tile info for a single color tile
     public void SetTile(int x, int y, Color32 color)
     {
-        if (lowres)
-        {
-            NewTiles.Add(new TileInfo(x / 2, y / 2, color));
-        } else {
-            NewTiles.Add(new TileInfo(x, y, color));
-        }
+        NewTiles.Add(new TileInfo(x, y, color));
     }
 
     // Draw all tiles waiting in NewTiles
@@ -104,13 +91,13 @@ public class TileRenderController : MonoBehaviour {
         Texture.SetPixels32(tile.x, tile.y, TILE_SIZE, TILE_SIZE, tile.colors);
     }
 
-    // Set the panel size to a multiple of 16
+    // Set the panel size to a multiple of 32
     private void setPanelSize()
     {
         float width = MyCanvas.rect.width;
         float height = MyCanvas.rect.height;
-        int widthInt = Mathf.FloorToInt(width / 16f) * 16;
-        int heightInt = Mathf.FloorToInt(height / 16f) * 16;
+        int widthInt = Mathf.FloorToInt(width / 32f) * 32;
+        int heightInt = Mathf.FloorToInt(height / 32f) * 32;
         MyPanel.sizeDelta = new Vector2(widthInt, heightInt);
     }
 }

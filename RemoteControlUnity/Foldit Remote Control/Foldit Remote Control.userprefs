@@ -1,12 +1,17 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace />
-  <MonoDevelop.Ide.Workbench ActiveDocument="../../../Swoop/Assets/Scripts/SpeedScript.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/UIInput.cs">
     <Files>
-      <File FileName="../../../Swoop/Assets/Scripts/SpeedScript.cs" Line="22" Column="7" />
+      <File FileName="Assets/Scripts/UIInput.cs" Line="13" Column="45" />
+      <File FileName="Assets/Scripts/btnClick.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/NetworkConScript.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/TileRenderController.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/Users/rhapsodious/foldit_remote_control/RemoteControlUnity/Foldit Remote Control/Assets/Scripts/test_btn_click.cs" line="11" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

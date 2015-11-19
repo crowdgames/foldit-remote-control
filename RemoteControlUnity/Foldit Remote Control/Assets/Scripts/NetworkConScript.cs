@@ -16,8 +16,7 @@ public class NetworkConScript : MonoBehaviour
     bool isConnected = false; //whether or not the connection is active
     const byte MAGIC_CHARACTER = (byte)'X'; //this is the start of all messages
 
-    //This will get passed to us after it is started up
-    private TileRenderController tileRenderController;
+    public TileRenderController tileRenderController;
 
     Socket socket;
     byte[] bytes = new byte[BYTE_BUFFER_SIZE];
@@ -25,11 +24,6 @@ public class NetworkConScript : MonoBehaviour
     int bytesSaved = 0;
     double timeWaited = 0.0; //send a refresh signal every REFRESH_INTERVAL seconds
     const double REFRESH_INTERVAL = 2.0;
-
-    //Pass in the render controller so that we can call it to render things and get the screen size
-    public void StartWithTileRenderController(TileRenderController trc) {
-        tileRenderController = trc;
-    }
 
     //open the connection to Foldit
     public void connect(string host, string requiredKey) {
@@ -48,7 +42,7 @@ public class NetworkConScript : MonoBehaviour
         //send an opening message including the magic character, the version we're using (3), the passkey, and the screen size
         byte[] buf = { MAGIC_CHARACTER, 3, (byte)key[0], (byte)key[1], (byte)key[2], (byte)key[3], (byte)key[4],
                         (byte)(screenwidth / 128), (byte)(screenwidth % 128),
-                        (byte)(screenheight / 128), (byte)(screenheight % 128), 0 };
+                        (byte)(screenheight / 128), (byte)(screenheight % 128), (byte)(tileRenderController.lowres ? 1 : 0) };
         int bytesSent = socket.Send(buf);
         Debug.Log("Sent " + bytesSent.ToString() + " bytes");
         receiveToBytes();
