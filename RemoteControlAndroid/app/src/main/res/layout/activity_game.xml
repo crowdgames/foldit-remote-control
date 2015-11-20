@@ -18,9 +18,18 @@
         android:src="@drawable/left_click"
         android:id="@+id/imageButton"
         android:onClick="leftClick"
+        android:background="#111111"
+        android:alpha=".8"
+        android:clickable="false"
+        android:cropToPadding="false"
+        android:adjustViewBounds="false"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
         android:layout_alignTop="@+id/imageButton2"
         android:layout_toLeftOf="@+id/imageButton2"
-        android:layout_toStartOf="@+id/imageButton2" />
+        android:layout_toStartOf="@+id/imageButton2"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp" />
 
     <!-- A button to change user input into middle mouse clicks -->
     <ImageButton
@@ -29,9 +38,15 @@
         android:src="@drawable/middle_click"
         android:id="@+id/imageButton2"
         android:onClick="middleClick"
+        android:background="#111111"
+        android:alpha=".8"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
         android:layout_alignTop="@+id/imageButton3"
         android:layout_toLeftOf="@+id/imageButton3"
-        android:layout_toStartOf="@+id/imageButton3" />
+        android:layout_toStartOf="@+id/imageButton3"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp" />
 
     <!-- A button to change user input into right mouse clicks -->
     <ImageButton
@@ -42,7 +57,13 @@
         android:onClick="rightClick"
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:background="#111111"
+        android:alpha=".8"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp" />
 
 
 </RelativeLayout>

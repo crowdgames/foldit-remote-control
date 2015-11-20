@@ -7,7 +7,9 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Display;
 import android.view.SurfaceHolder;
+import android.view.WindowManager;
 
 import java.util.Arrays;
 
@@ -296,10 +298,12 @@ public class StreamThread extends Thread {
         }
 
         // Resolution
-        first_buf[7] = (char) (Constants.REAL_IMG_WIDTH / 128);
-        first_buf[8] = (char) (Constants.REAL_IMG_WIDTH % 128);
-        first_buf[9] = (char) (Constants.REAL_IMG_HEIGHT / 128);
-        first_buf[10] = (char) (Constants.REAL_IMG_HEIGHT % 128);
+
+        //get size from surfaceFrame
+        first_buf[7] = (char) (mSurfaceHolder.getSurfaceFrame().width() / 128); //Constants.REAL_IMG_WIDTH / 128);
+        first_buf[8] = (char) (mSurfaceHolder.getSurfaceFrame().width() % 128); //Constants.REAL_IMG_WIDTH % 128);
+        first_buf[9] = (char) (mSurfaceHolder.getSurfaceFrame().height() / 128); //Constants.REAL_IMG_HEIGHT / 128);
+        first_buf[10] = (char) (mSurfaceHolder.getSurfaceFrame().height() % 128);//Constants.REAL_IMG_HEIGHT % 128);
         if (mLowRes) {
             first_buf[11] = 1;
         } else {
