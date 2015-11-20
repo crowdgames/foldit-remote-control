@@ -37,6 +37,9 @@ public class FolditView_Click : MonoBehaviour, IPointerClickHandler {
 		networkCon.GetComponent<NetworkConScript>().Tap(true, 
 		                                                Mathf.FloorToInt(localpos.x), 
 		                                                Mathf.FloorToInt(localpos.y));
+		networkCon.GetComponent<NetworkConScript>().Tap(false, 
+		                                                Mathf.FloorToInt(localpos.x), 
+		                                                Mathf.FloorToInt(localpos.y));
 	}
 
 	// Sends a click for the correct coordinates to Foldit

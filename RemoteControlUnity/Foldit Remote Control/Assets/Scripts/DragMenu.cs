@@ -25,8 +25,8 @@ public class DragMenu : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
 	public void OnDrag (PointerEventData eventData)
 	{
 		RectTransform rt = (RectTransform)dragged.transform;
-		float maxX = Screen.width * .39f;
-		float minPositionX = Screen.width * .05f;
+		float maxX = Screen.width * .3f;
+		float minPositionX = Screen.width * .04f;
 		float minDragX = Screen.width * .15f;
 		if (Input.mousePosition.x > maxX) {
 			startPosition = new Vector3 (maxX, lockYPosition, lockZPosition);
