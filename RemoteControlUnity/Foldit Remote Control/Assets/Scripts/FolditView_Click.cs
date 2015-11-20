@@ -33,12 +33,13 @@ public class FolditView_Click : MonoBehaviour, IPointerClickHandler {
 //		 
 		Vector2 localpos = Input.mousePosition;
 		Debug.Log ("Local point: " + localpos);
+
 		networkCon.GetComponent<NetworkConScript>().Tap(true, 
-		                                                Mathf.Floor(localpos.x), 
-		                                                Mathf.Floor(localpos.y));
+		                                                Mathf.FloorToInt(localpos.x), 
+		                                                Mathf.FloorToInt(localpos.y));
 		networkCon.GetComponent<NetworkConScript>().Tap(false, 
-		                                                Mathf.Floor(localpos.x), 
-		                                                Mathf.Floor(localpos.y));
+		                                                Mathf.FloorToInt(localpos.x), 
+		                                                Mathf.FloorToInt(localpos.y));
 	}
 
 	// Sends a click for the correct coordinates to Foldit
@@ -46,12 +47,13 @@ public class FolditView_Click : MonoBehaviour, IPointerClickHandler {
 	{
 		Vector2 localpos = (sender as TapGesture).ScreenPosition;
 		Debug.Log ("Local point: " + localpos);
+		
 		networkCon.GetComponent<NetworkConScript>().Tap(true, 
-		                                                Mathf.Floor(localpos.x), 
-		                                                Mathf.Floor(localpos.y));
+		                                                Mathf.FloorToInt(localpos.x), 
+		                                                Mathf.FloorToInt(localpos.y));
 		networkCon.GetComponent<NetworkConScript>().Tap(false, 
-		                                                Mathf.Floor(localpos.x), 
-		                                                Mathf.Floor(localpos.y));
+		                                                Mathf.FloorToInt(localpos.x), 
+		                                                Mathf.FloorToInt(localpos.y));
 	}
 
 }
