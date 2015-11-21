@@ -16,6 +16,10 @@ public class TileRenderController : MonoBehaviour {
     public int Width { get; private set; }
     public int Height { get; private set; }
 
+    //The fraction of the screen size that the panel covers after the black borders are applied
+    public float PanelWidthCovered { get; private set; }
+    public float PanelHeightCovered { get; private set; }
+
     public const int TILE_SIZE = 16;
     public const int TILE_SIZE_SQUARED = TILE_SIZE * TILE_SIZE;
     public const int LORES_TILE_SIZE = 32;
@@ -120,9 +124,12 @@ public class TileRenderController : MonoBehaviour {
 
         //Now we need to resize the panel.
         //We want borders around the edge to compensate for the pixels we chopped off by rounding to 32.
+        PanelWidthCovered = Width / destWidth;
+        PanelHeightCovered = Height / destHeight;
+
         //Base the panel size off of the canvas size
-        float panelWidth = MyCanvas.rect.width * Width / destWidth;
-        float panelHeight = MyCanvas.rect.height * Height / destHeight;
+        float panelWidth = MyCanvas.rect.width * PanelWidthCovered;
+        float panelHeight = MyCanvas.rect.height * PanelHeightCovered;
         MyPanel.sizeDelta = new Vector2(panelWidth, panelHeight);
     }
 }
