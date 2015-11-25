@@ -36,32 +36,12 @@ public class FolditView_Click : MonoBehaviour, IPointerClickHandler, IPointerDow
 	/// </summary>
 	public virtual void OnPointerClick(PointerEventData eventData)
 	{
-//		 
-		Vector2 localpos = Input.mousePosition;
-		Debug.Log ("Local point: " + localpos);
-
-		networkCon.GetComponent<NetworkConScript>().Tap(true, 
-		                                                Mathf.FloorToInt(localpos.x), 
-		                                                Mathf.FloorToInt(localpos.y));
-		networkCon.GetComponent<NetworkConScript>().Tap(false, 
-		                                                Mathf.FloorToInt(localpos.x), 
-		                                                Mathf.FloorToInt(localpos.y));
 	}
 
 	// Sends a click for the correct coordinates to Foldit
 	public void clickInFoldit(object sender, EventArgs e)
 	{
-		Vector2 localpos = (sender as TapGesture).ScreenPosition;
-		Debug.Log ("Local point: " + localpos);
-		
-		networkCon.GetComponent<NetworkConScript>().Tap(true, 
-		                                                Mathf.FloorToInt(localpos.x), 
-		                                                Mathf.FloorToInt(localpos.y));
-		networkCon.GetComponent<NetworkConScript>().Tap(false, 
-		                                                Mathf.FloorToInt(localpos.x), 
-		                                                Mathf.FloorToInt(localpos.y));
 	}
-
 
     private void releasedHandler(object sender, EventArgs e)
     {

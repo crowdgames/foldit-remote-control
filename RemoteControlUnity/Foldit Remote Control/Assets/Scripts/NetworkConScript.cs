@@ -226,6 +226,21 @@ public class NetworkConScript : MonoBehaviour
     }
     public void SendPack(int x, int y, int type, int info)
     {
+        //before we send the coordinates to Foldit, we need to readjust it to match the location in the Foldit window
+        //convert the coorindates to a 0-1 range
+        float xf = (float)(x) / (float)(Screen.width);
+        float yf = (float)(y) / (float)(Screen.height);
+
+        //in order to fit 32x32 multiples, we have black bars on one pair of sides
+        //when you click, 0,0 on the Foldit image is not 0,0 on the game screen
+        //scale the position based on how much of the panel covers the game window, then offset by the size of the black bars
+        xf = xf / tileRenderController.PanelWidthCovered - (1.0f - tileRenderController.PanelWidthCovered) / 2;
+        yf = yf / tileRenderController.PanelHeightCovered - (1.0f - tileRenderController.PanelHeightCovered) / 2;
+
+        //finally, restore the coordinates to the Foldit window range
+        x = (int)(xf * tileRenderController.Width);
+        y = (int)(yf * tileRenderController.Height);
+
     int bytesSent = socket.Send(new byte[] { MAGIC_CHARACTER, (byte)type, (byte)info, (byte)(x / 128), (byte)(x % 128), (byte)(y / 128), (byte)(y % 128) });
         Debug.Log("Sent " + bytesSent.ToString() + " bytes");
     }
