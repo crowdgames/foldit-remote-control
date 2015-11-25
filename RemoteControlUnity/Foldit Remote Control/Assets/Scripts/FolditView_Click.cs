@@ -7,6 +7,7 @@ using UnityEngine.EventSystems;
 using TouchScript.Gestures.Simple;
 
 // Ashley Sullivan
+// Sean Moss
 
 // Clicking in the Foldit view window behavior.
 
