@@ -70,6 +70,8 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceCreated(SurfaceHolder holder) {
         Log.d("StreamView", "creating surface");
 
+        holder.setFixedSize(Constants.CUR_IMG_WIDTH, Constants.CUR_IMG_HEIGHT);
+
         Paint paint = new Paint();
         paint.setColor(0xFFFFFFFF);
 
