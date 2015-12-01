@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Net.Sockets;
+
+// Sean Moss
+// Gregory Loden
+
 public class NetworkConScript : MonoBehaviour
 {
     public enum keys : int { Ctrl = 0, Alt = 1, Shift = 2 };
