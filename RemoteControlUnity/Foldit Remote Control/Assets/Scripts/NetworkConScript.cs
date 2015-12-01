@@ -7,6 +7,7 @@ using System.Net.Sockets;
 
 public class NetworkConScript : MonoBehaviour
 {
+    //named constants
     public enum keys : int { Ctrl = 0, Alt = 1, Shift = 2 };
     public enum ptr : int { Down = 11, Up = 12, Move = 13 };
     public enum events: int { ZoomOut = 3, ZoomIn = 4, ModKeyDown = 5, ModKeyUp = 6, CharSend = 7, MousePress = 8, MouseRelease = 9, MouseMove = 10, Down = 11, Up = 12, Move = 13 }
@@ -15,28 +16,33 @@ public class NetworkConScript : MonoBehaviour
         TILE = 3, SOLID_TILE = 4,
         RLE24_TILE = 5, RLE16_TILE = 6, RLE8_TILE = 7
     };
+
+    //network connection stuff
+    Socket socket;
     int port = 1230;
-    const int BYTE_BUFFER_SIZE = 10000000;
     bool isConnected = false; //whether or not the connection is active
     const byte MAGIC_CHARACTER = (byte)'X'; //this is the start of all messages
 
-    public TileRenderController tileRenderController;
-
-    Socket socket;
+    //receiving bytes
+    const int BYTE_BUFFER_SIZE = 10000000;
     byte[] bytes = new byte[BYTE_BUFFER_SIZE];
     //if network messages are incomplete, save the incomplete message in the bytes array
     int bytesSaved = 0;
+
     double timeWaited = 0.0; //send a refresh signal every REFRESH_INTERVAL seconds
     const double REFRESH_INTERVAL = 2.0;
 
+    public TileRenderController tileRenderController;
+
     //open the connection to Foldit
     public void connect(string host, string requiredKey) {
-        //get the screen width to send to Foldit
-        int screenwidth = tileRenderController.Width;
-        int screenheight = tileRenderController.Height;
         Debug.Log("Start");
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         socket.Connect(host, port);
+        Debug.Log("Connected");
+        //get the screen width to send to Foldit
+        int screenwidth = tileRenderController.Width;
+        int screenheight = tileRenderController.Height;
         //the key needs to be 5 characters, extend the string until it has enough
         while (requiredKey.Length < 5) {
             requiredKey += "\0";
@@ -50,7 +56,6 @@ public class NetworkConScript : MonoBehaviour
         int bytesSent = socket.Send(buf);
         Debug.Log("Sent " + bytesSent.ToString() + " bytes");
         receiveToBytes();
-        Debug.Log("Connected");
         isConnected = true;
     }
 

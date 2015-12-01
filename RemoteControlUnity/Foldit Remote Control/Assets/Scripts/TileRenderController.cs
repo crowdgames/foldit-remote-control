@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System;
 
 // File authority: Martha
+// setPanelAndTextureSize: Gregory
 
 public class TileRenderController : MonoBehaviour {
 
@@ -99,7 +100,6 @@ public class TileRenderController : MonoBehaviour {
     // Set the size of the panel and the texture
     private void setPanelAndTextureSize()
     {
-
         //When we tell Foldit what size the server window should be, we use a different pixel size
         //than that of the device. We want to maintain the device's aspect ratio while also making
         //the window as big as possible within a target resolution.
