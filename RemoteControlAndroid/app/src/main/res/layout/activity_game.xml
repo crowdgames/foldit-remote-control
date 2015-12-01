@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:src="@drawable/left_click"
         android:id="@+id/imageButton"
-        android:onClick="leftClick"
+        android:onClick="onLeftClickButton"
         android:background="#111111"
         android:alpha=".8"
         android:clickable="false"
@@ -37,7 +37,7 @@
         android:layout_height="wrap_content"
         android:src="@drawable/middle_click"
         android:id="@+id/imageButton2"
-        android:onClick="middleClick"
+        android:onClick="onMiddleClickButton"
         android:background="#111111"
         android:alpha=".8"
         android:paddingLeft="5dp"
@@ -54,7 +54,7 @@
         android:layout_height="wrap_content"
         android:src="@drawable/right_click"
         android:id="@+id/imageButton3"
-        android:onClick="rightClick"
+        android:onClick="onRightClickButton"
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
@@ -64,6 +64,30 @@
         android:paddingRight="5dp"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/right_click"
+        android:id="@+id/imageButton4"
+        android:onClick="bringUpKeyboard"
+        android:background="#111111"
+        android:alpha=".8"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignLeft="@+id/editText"
+        android:layout_alignStart="@+id/editText" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/imageButton2"
+        android:layout_alignEnd="@+id/imageButton2"
+        android:layout_marginTop="60dp"
+        android:visibility="invisible" />
 
 
 </RelativeLayout>
