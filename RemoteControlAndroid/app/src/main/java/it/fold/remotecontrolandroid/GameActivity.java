@@ -1,21 +1,32 @@
 package it.fold.remotecontrolandroid;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.InputMethod;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 /**
 * Class for activities using the action bar library
 */
-public class GameActivity extends Activity {
+public class GameActivity extends Activity implements KeyEvent.Callback{
+    //gets the invisible textbox we send keyboard activity to
+    EditText textInput = (EditText) findViewById(R.id.editText);
+    //
+    StreamView view = (StreamView) findViewById(R.id.streamView);
+
 
     @Override
     /**
     * initializes based off of Bundle
-    *
+    *B
     * @param Bundle savedInstanceState parseable strings used for init
     */
     protected void onCreate(Bundle savedInstanceState)
@@ -64,19 +75,39 @@ public class GameActivity extends Activity {
     //sends CLEV_MODKEY_UP info 0,CLEV_MODKEY_UP info 2, this sets both control and shift up
     public void onLeftClickButton()
     {
-
+        view.OnViewEvent(Constants.CLEV_MODKEY_UP, '0');
+        view.OnViewEvent(Constants.CLEV_MODKEY_UP, '2');
     }
 
     //sends CLEV_MODKEY_DOWN info 0, CLEV_MODKEY_UP info 2, this sets control down, shift up
     public void onRightClickButton()
     {
-
+        view.OnViewEvent(Constants.CLEV_MODKEY_DOWN, '0');
+        view.OnViewEvent(Constants.CLEV_MODKEY_UP, '2');
     }
 
     //sends CLEV_MODKEY_UP info 0, CLEV_MODKEY_DOWN info 2, this sets control up, shift down
     public void onMiddleClickButton()
     {
-
+        view.OnViewEvent(Constants.CLEV_MODKEY_UP, '0');
+        view.OnViewEvent(Constants.CLEV_MODKEY_DOWN, '2');
     }
+
+    //brings up the keyboard when pressed, records chars to et
+    public void bringUpKeyboard()
+    {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(textInput, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    //override the key listener to
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event){
+        view.OnViewEvent(Constants.CLEV_CHAR, (char) keyCode);
+        return true;
+    }
+
+
+
 
 }

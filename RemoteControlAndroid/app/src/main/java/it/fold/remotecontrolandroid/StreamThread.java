@@ -7,7 +7,9 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Display;
 import android.view.SurfaceHolder;
+import android.view.WindowManager;
 
 import java.util.Arrays;
 
@@ -120,7 +122,10 @@ public class StreamThread extends Thread {
                 mSendBuf[4] = 0;
                 mSendBuf[5] = 0;
                 mSendBuf[6] = 0;
-                if (event == Constants.CLEV_MODKEY_DOWN || event == Constants.CLEV_MODKEY_UP || event == Constants.CLEV_SCROLL_DOWN || event == Constants.CLEV_SCROLL_UP) {
+                if (event == Constants.CLEV_MODKEY_DOWN || event == Constants.CLEV_MODKEY_UP){
+                    mSendBuf[2] = (char) m.arg1;
+                }
+                else if(event == Constants.CLEV_SCROLL_DOWN || event == Constants.CLEV_SCROLL_UP) {
                     // nothing
                 } else if (event == Constants.CLEV_CHAR) {
                     // character
@@ -296,10 +301,12 @@ public class StreamThread extends Thread {
         }
 
         // Resolution
-        first_buf[7] = (char) (Constants.REAL_IMG_WIDTH / 128);
-        first_buf[8] = (char) (Constants.REAL_IMG_WIDTH % 128);
-        first_buf[9] = (char) (Constants.REAL_IMG_HEIGHT / 128);
-        first_buf[10] = (char) (Constants.REAL_IMG_HEIGHT % 128);
+
+        //get size from surfaceFrame
+        first_buf[7] = (char) (mSurfaceHolder.getSurfaceFrame().width() / 128); //Constants.REAL_IMG_WIDTH / 128);
+        first_buf[8] = (char) (mSurfaceHolder.getSurfaceFrame().width() % 128); //Constants.REAL_IMG_WIDTH % 128);
+        first_buf[9] = (char) (mSurfaceHolder.getSurfaceFrame().height() / 128); //Constants.REAL_IMG_HEIGHT / 128);
+        first_buf[10] = (char) (mSurfaceHolder.getSurfaceFrame().height() % 128);//Constants.REAL_IMG_HEIGHT % 128);
         if (mLowRes) {
             first_buf[11] = 1;
         } else {

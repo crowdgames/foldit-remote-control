@@ -164,4 +164,9 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
         mStreamThreadHandler.obtainMessage(cl_action, x, y, new Character((char)pointerId)).sendToTarget();
         return true;
     }
+
+    public boolean OnViewEvent(int cl_action, char character){
+        mStreamThreadHandler.obtainMessage(cl_action, character).sendToTarget();
+        return true;
+    }
 }
