@@ -18,9 +18,9 @@ public class FolditView_Click : MonoBehaviour, IPointerClickHandler, IPointerDow
 	// Use this for initialization
 	void Start () {
 		GetComponent<TapGesture>().Tapped += clickInFoldit;
-        //GetComponent<PressGesture>().Pressed += pressedHandler;
-        //GetComponent<SimplePanGesture>().Panned += panHandler;
-        //GetComponent<ReleaseGesture>().Released += releasedHandler;
+        GetComponent<PressGesture>().Pressed += pressedHandler;
+        GetComponent<SimplePanGesture>().Panned += panHandler;
+        GetComponent<ReleaseGesture>().Released += releasedHandler;
 
     }
 	
