@@ -168,7 +168,7 @@ Debug.Log("Requesting screen size " + screenwidth + "x" + screenheight);
                     //build the color from the bit values
                     Color32 color = new Color32(
                         (byte)((byte1 >> 2 & 0x1F) << 3),
-                        (byte)((((byte1 & 3) << 3) | (byte1 >> 4 & 7)) << 3),
+                        (byte)((((byte1 & 3) << 3) | (byte2 >> 4 & 7)) << 3),
                         (byte)((byte2 & 0xF) << 4), 255);
                     //fill the colors that will be used in the texture
                     for (int runmax = runindex + runlength; runindex < runmax; runindex++) {
