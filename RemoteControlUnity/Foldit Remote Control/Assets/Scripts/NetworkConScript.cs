@@ -39,11 +39,13 @@ public class NetworkConScript : MonoBehaviour
     public void connect(string host, string requiredKey) {
         Debug.Log("Start");
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        Debug.Log("Connecting to host \"" + host + "\" port " + port);
         socket.Connect(host, port);
         Debug.Log("Connected");
         //get the screen width to send to Foldit
         int screenwidth = tileRenderController.Width;
         int screenheight = tileRenderController.Height;
+Debug.Log("Requesting screen size " + screenwidth + "x" + screenheight);
         //the key needs to be 5 characters, extend the string until it has enough
         while (requiredKey.Length < 5) {
             requiredKey += "\0";

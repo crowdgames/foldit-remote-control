@@ -35,6 +35,7 @@ public class TileRenderController : MonoBehaviour {
     public bool lowres { get; private set; }
 
     void Start () {
+Debug.Log("Canvas is " + MyCanvas.rect.width + "x" + MyCanvas.rect.height);
         setPanelAndTextureSize();
 
         lowres = false;
@@ -80,6 +81,7 @@ public class TileRenderController : MonoBehaviour {
     // Set the size of the panel and the texture
     private void setPanelAndTextureSize()
     {
+Debug.Log("Screen is " + Screen.width + "x" + Screen.height);
         //When we tell Foldit what size the server window should be, we use a different pixel size
         //than that of the device. We want to maintain the device's aspect ratio while also making
         //the window as big as possible within a target resolution.
@@ -95,12 +97,14 @@ public class TileRenderController : MonoBehaviour {
         //narrower- shrink the width
         else
             destWidth *= actualAspectRatio / targetAspectRatio;
+Debug.Log("Target Foldit screen size: " + destWidth + "x" + destHeight);
 
         //Now we need to reduce that to a multiple of 32
         //This is the size we send to Foldit and the size of our texture
         Width = (int)(destWidth) / LORES_TILE_SIZE * LORES_TILE_SIZE;
         Height = (int)(destHeight) / LORES_TILE_SIZE * LORES_TILE_SIZE;
         Texture = new Texture2D(Width, Height);
+Debug.Log("Resulting texture size: " + Width + "x" + Height);
 
         //Now we need to resize the panel.
         //We want borders around the edge to compensate for the pixels we chopped off by rounding to 32.
@@ -110,6 +114,7 @@ public class TileRenderController : MonoBehaviour {
         //Base the panel size off of the canvas size
         float panelWidth = MyCanvas.rect.width * PanelWidthCovered;
         float panelHeight = MyCanvas.rect.height * PanelHeightCovered;
+Debug.Log("Panel size: " + panelWidth + "x" + panelHeight);
         MyPanel.sizeDelta = new Vector2(panelWidth, panelHeight);
     }
 }
