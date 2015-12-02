@@ -30,8 +30,6 @@ public class TileRenderController : MonoBehaviour {
     public const float TARGET_SERVER_WINDOW_WIDTH = 1024;
     public const float TARGET_SERVER_WINDOW_HEIGHT = TARGET_SERVER_WINDOW_WIDTH * 9 / 16;
 
-    private List<TileInfo> NewTiles;
-
     public NetworkConScript networkConnection;
 
     public bool lowres { get; private set; }
@@ -41,7 +39,6 @@ public class TileRenderController : MonoBehaviour {
 
         lowres = false;
 
-        NewTiles = new List<TileInfo>();
         Display.texture = Texture;
     }
 
@@ -68,33 +65,16 @@ public class TileRenderController : MonoBehaviour {
         }
     }
 
-    // Create a tile info for a tile with an array of colors
+    // Update the texture with the given TILE_SIZExTILE_SIZE block of colors
     public void SetTile(int x, int y, Color32[] colors)
     {
-        NewTiles.Add(new TileInfo(x, y, colors));
+        Texture.SetPixels32(x, y, TILE_SIZE, TILE_SIZE, colors);
     }
 
-    // create a tile info for a single color tile
-    public void SetTile(int x, int y, Color32 color)
-    {
-        NewTiles.Add(new TileInfo(x, y, color));
-    }
-
-    // Draw all tiles waiting in NewTiles
+    // Commit all changes to the texture
     public void Flush()
     {
-        foreach(TileInfo tile in NewTiles)
-        {
-            drawTile(tile);
-        }
         Texture.Apply();
-        NewTiles.Clear();
-    }
-
-    // Draw a TileInfo to the texture
-    private void drawTile(TileInfo tile)
-    {
-        Texture.SetPixels32(tile.x, tile.y, TILE_SIZE, TILE_SIZE, tile.colors);
     }
 
     // Set the size of the panel and the texture

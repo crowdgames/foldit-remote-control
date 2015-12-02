@@ -33,6 +33,7 @@ public class NetworkConScript : MonoBehaviour
     const double REFRESH_INTERVAL = 2.0;
 
     public TileRenderController tileRenderController;
+    public static Color32[] tileColors = new Color32[TileRenderController.TILE_SIZE_SQUARED];
 
     //open the connection to Foldit
     public void connect(string host, string requiredKey) {
@@ -144,17 +145,18 @@ public class NetworkConScript : MonoBehaviour
                 throw new System.Exception("Rendering uncompressed data not yet implemented");
             //solid color tile
             case ServerMessageType.SOLID_TILE:
-                tileRenderController.SetTile(tileX, tileY, new Color32(
+                Color32 solidColor = new Color32(
                     (byte)(bytes[i + 8] << 1),
                     (byte)(bytes[i + 9] << 1),
-                    (byte)(bytes[i + 10] << 1), 255));
+                    (byte)(bytes[i + 10] << 1), 255);
+                for (int j = 0; j < TileRenderController.TILE_SIZE_SQUARED; j++)
+                    tileColors[j] = solidColor;
                 break;
             //run-length encoding with color in 3 bytes
             case ServerMessageType.RLE24_TILE:
                 throw new System.Exception("Rendering 3-byte-run-length-encoded data not yet implemented");
             //run-length encoding with color in 2 bytes
             case ServerMessageType.RLE16_TILE:
-                Color32[] tileColors = new Color32[TileRenderController.TILE_SIZE_SQUARED];
                 int max = i + len;
                 int runindex = 0;
                 for (int j = i + 8; j < max; j += 3) {
@@ -174,12 +176,12 @@ public class NetworkConScript : MonoBehaviour
                     }
                 }
                 //Debug.Log(runindex);
-                tileRenderController.SetTile(tileX, tileY, tileColors);
                 break;
             //run-length encoding with color in 1 byte
             case ServerMessageType.RLE8_TILE:
                 throw new System.Exception("Rendering 1-byte-run-length-encoded data not yet implemented");
         }
+        tileRenderController.SetTile(tileX, tileY, tileColors);
     }
     public void PtrMoved(int x, int y, ptr val)
     {
