@@ -1,12 +1,15 @@
 package it.fold.remotecontrolandroid;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -14,14 +17,12 @@ import android.view.ScaleGestureDetector.OnScaleGestureListener;
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-
-import java.util.HashMap;
-import java.util.Map;
+import android.view.WindowManager;
 
 /**
  * Handles events and imaging
  */
-public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
+public class  StreamView extends SurfaceView implements SurfaceHolder.Callback {
     private StreamThread mStreamThread;
     /**
      * object to handle streaming
@@ -70,7 +71,20 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceCreated(SurfaceHolder holder) {
         Log.d("StreamView", "creating surface");
 
+        Display display = ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
+        Log.d("surface width", Integer.toString(width));
+        Log.d("surface height", Integer.toString(height));
+        //Constants.CUR_IMG_HEIGHT = height - height % Constants.TILE_SIZE;
+        //Constants.CUR_IMG_WIDTH = width - width % Constants.TILE_SIZE;
+        Constants.CUR_IMG_HEIGHT = height / Constants.SCALE;
+        Constants.CUR_IMG_WIDTH = width / Constants.SCALE;
         holder.setFixedSize(Constants.CUR_IMG_WIDTH, Constants.CUR_IMG_HEIGHT);
+        Constants.REAL_IMG_HEIGHT = Constants.CUR_IMG_HEIGHT;
+        Constants.REAL_IMG_WIDTH = Constants.CUR_IMG_WIDTH;
 
         Paint paint = new Paint();
         paint.setColor(0xFFFFFFFF);
@@ -120,8 +134,8 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
 
         mGestureDetector.onTouchEvent(e);
 
-        int x = (int) e.getX();
-        int y = (int) e.getY();
+        int x = (int) e.getX() / 2;
+        int y = (int) e.getY() / 2;
         int action = e.getAction();
 
         int cl_action = 0;

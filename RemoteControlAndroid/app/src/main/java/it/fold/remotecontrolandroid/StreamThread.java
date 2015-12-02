@@ -100,6 +100,7 @@ public class StreamThread extends Thread {
 
         mRecvBuf = new char[4096];
         mRecvBufOffset = 0;
+
         mRecvBufMsgLen = Constants.SE_MSG_HDR;
 
         mSendBuf = new char[Constants.CL_MSG_SIZE];
@@ -303,10 +304,10 @@ public class StreamThread extends Thread {
         // Resolution
 
         //get size from surfaceFrame
-        first_buf[7] = (char) (mSurfaceHolder.getSurfaceFrame().width() / 128); //Constants.REAL_IMG_WIDTH / 128);
-        first_buf[8] = (char) (mSurfaceHolder.getSurfaceFrame().width() % 128); //Constants.REAL_IMG_WIDTH % 128);
-        first_buf[9] = (char) (mSurfaceHolder.getSurfaceFrame().height() / 128); //Constants.REAL_IMG_HEIGHT / 128);
-        first_buf[10] = (char) (mSurfaceHolder.getSurfaceFrame().height() % 128);//Constants.REAL_IMG_HEIGHT % 128);
+        first_buf[7] = (char) (Constants.REAL_IMG_WIDTH / 128);
+        first_buf[8] = (char) (Constants.REAL_IMG_WIDTH % 128);
+        first_buf[9] = (char) (Constants.REAL_IMG_HEIGHT / 128);
+        first_buf[10] = (char) (Constants.REAL_IMG_HEIGHT % 128);
         if (mLowRes) {
             first_buf[11] = 1;
         } else {
