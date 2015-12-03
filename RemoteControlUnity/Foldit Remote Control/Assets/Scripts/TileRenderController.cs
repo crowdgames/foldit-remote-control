@@ -21,6 +21,11 @@ public class TileRenderController : MonoBehaviour {
     public float PanelWidthCovered { get; private set; }
     public float PanelHeightCovered { get; private set; }
 
+    private float standardWidth;
+    private float standardHeight;
+    private const float MAX_ZOOM = 3f;
+    private float currentZoomPercent = 0f;
+
     public const int TILE_SIZE = 16;
     public const int TILE_SIZE_SQUARED = TILE_SIZE * TILE_SIZE;
     public const int LORES_TILE_SIZE = 32;
@@ -81,7 +86,7 @@ Debug.Log("Canvas is " + MyCanvas.rect.width + "x" + MyCanvas.rect.height);
     // Set the size of the panel and the texture
     private void setPanelAndTextureSize()
     {
-Debug.Log("Screen is " + Screen.width + "x" + Screen.height);
+        Debug.Log("Screen is " + Screen.width + "x" + Screen.height);
         //When we tell Foldit what size the server window should be, we use a different pixel size
         //than that of the device. We want to maintain the device's aspect ratio while also making
         //the window as big as possible within a target resolution.
@@ -91,20 +96,23 @@ Debug.Log("Screen is " + Screen.width + "x" + Screen.height);
         //Compare the device's aspect ratio to the target aspect ratio (currently 16:9)
         float targetAspectRatio = TARGET_SERVER_WINDOW_WIDTH / TARGET_SERVER_WINDOW_HEIGHT;
         float actualAspectRatio = (float)(Screen.width) / (float)(Screen.height);
+
         //wider- shrink the target height to match the ratio
-        if (actualAspectRatio > targetAspectRatio)
+        if(actualAspectRatio > targetAspectRatio)
+        {
             destHeight *= targetAspectRatio / actualAspectRatio;
-        //narrower- shrink the width
-        else
+        } else {
+            //narrower- shrink the width
             destWidth *= actualAspectRatio / targetAspectRatio;
-Debug.Log("Target Foldit screen size: " + destWidth + "x" + destHeight);
+            Debug.Log("Target Foldit screen size: " + destWidth + "x" + destHeight);
+        }
 
         //Now we need to reduce that to a multiple of 32
         //This is the size we send to Foldit and the size of our texture
         Width = (int)(destWidth) / LORES_TILE_SIZE * LORES_TILE_SIZE;
         Height = (int)(destHeight) / LORES_TILE_SIZE * LORES_TILE_SIZE;
         Texture = new Texture2D(Width, Height);
-Debug.Log("Resulting texture size: " + Width + "x" + Height);
+        Debug.Log("Resulting texture size: " + Width + "x" + Height);
 
         //Now we need to resize the panel.
         //We want borders around the edge to compensate for the pixels we chopped off by rounding to 32.
@@ -114,7 +122,15 @@ Debug.Log("Resulting texture size: " + Width + "x" + Height);
         //Base the panel size off of the canvas size
         float panelWidth = MyCanvas.rect.width * PanelWidthCovered;
         float panelHeight = MyCanvas.rect.height * PanelHeightCovered;
-Debug.Log("Panel size: " + panelWidth + "x" + panelHeight);
+        Debug.Log("Panel size: " + panelWidth + "x" + panelHeight);
         MyPanel.sizeDelta = new Vector2(panelWidth, panelHeight);
+    }
+
+    public void updateZoom(float zoomPercent)
+    {
+        Debug.Log("zoom precent:" + zoomPercent);
+        currentZoomPercent = zoomPercent;
+        float ZoomCurrent = Mathf.Lerp(1f, MAX_ZOOM, zoomPercent);
+        MyPanel.sizeDelta = new Vector2(standardWidth * ZoomCurrent, standardHeight * ZoomCurrent);
     }
 }
