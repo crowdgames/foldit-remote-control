@@ -253,4 +253,14 @@ Debug.Log("Requesting screen size " + screenwidth + "x" + screenheight);
     int bytesSent = socket.Send(new byte[] { MAGIC_CHARACTER, (byte)type, (byte)info, (byte)(x / 128), (byte)(x % 128), (byte)(y / 128), (byte)(y % 128) });
         Debug.Log("Sent " + bytesSent.ToString() + " bytes");
     }
+    public void SendText(string text) {
+        byte[] message = new byte[text.Length * 7];
+        for (int i = 0; i < text.Length; i++) {
+            message[i * 7] = MAGIC_CHARACTER;
+            message[i * 7 + 1] = (byte)(events.CharSend);
+            message[i * 7 + 2] = (byte)(text[i]);
+        }
+        int bytesSent = socket.Send(message);
+        Debug.Log("Sent " + bytesSent.ToString() + " bytes");
+    }
 }

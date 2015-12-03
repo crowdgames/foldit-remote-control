@@ -11,6 +11,18 @@ public class UIInput : MonoBehaviour {
 	public NetworkConScript connection;
 	public Toggle lowResToggle;
 	public TileRenderController tileController;
+	private TouchScreenKeyboard keyboard = null;
+
+	void Update() {
+		if (keyboard != null && (keyboard.done || keyboard.wasCanceled)) {
+			//don't send anything if the input was canceled
+			if (!keyboard.wasCanceled) {
+				Debug.Log("Said \"" + keyboard.text + "\"");
+				connection.SendText(keyboard.text);
+			}
+			keyboard = null;
+		}
+	}
 
 	public void toggleUI(GameObject uiContainer) {
 		uiContainer.SetActive (!uiContainer.activeSelf);
@@ -29,6 +41,9 @@ public class UIInput : MonoBehaviour {
 		tileController.setIfLowRes (lowResToggle.isOn);
 		connection.connect (ipAddress, requiredKey);
 		uiContainer.SetActive(false);
+	}
+	public void showKeyboard() {
+		keyboard = TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default, false);
 	}
 }
 
