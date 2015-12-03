@@ -50,7 +50,6 @@
      <Compile Include="Assets\Scripts\FolditView_Click.cs" />
      <Compile Include="Assets\Scripts\NetworkConScript.cs" />
      <Compile Include="Assets\Scripts\SplashScreenInput.cs" />
-     <Compile Include="Assets\Scripts\TileInfo.cs" />
      <Compile Include="Assets\Scripts\TileRenderController.cs" />
      <Compile Include="Assets\Scripts\UIInput.cs" />
      <Compile Include="Assets\Scripts\btnClick.cs" />
