@@ -64,21 +64,21 @@ public class FolditView_Click : MonoBehaviour, IPointerDownHandler, IPointerUpHa
 
     public void OnPointerDown(PointerEventData eventData)
     {
-		Vector2 adjusted = trc.factorOutZoom ((int)Input.mousePosition.x, (int)Input.mousePosition.y);
-		netConScript.Tap(true, adjusted.x, adjusted.y);
+		Vector2 adjusted = trc.factorOutZoom (new Vector2((int)Input.mousePosition.x, (int)Input.mousePosition.y));
+		netConScript.Tap(true, (int)adjusted.x, (int)adjusted.y);
 	}
 
     public void OnPointerUp(PointerEventData eventData)
     {
-		Vector2 adjusted = trc.factorOutZoom ((int)Input.mousePosition.x, (int)Input.mousePosition.y);
-        netConScript.Tap(false, adjusted.x, adjusted.y);
+		Vector2 adjusted = trc.factorOutZoom (new Vector2((int)Input.mousePosition.x, (int)Input.mousePosition.y));
+		netConScript.Tap(false, (int)adjusted.x, (int)adjusted.y);
     }
 
 
     public void OnDrag(PointerEventData eventData)
     {
-		Vector2 adjusted = trc.factorOutZoom ((int)Input.mousePosition.x, (int)Input.mousePosition.y);
-		netConScript.MouseMove(adjusted.x, adjusted.y);
+		Vector2 adjusted = trc.factorOutZoom (new Vector2((int)Input.mousePosition.x, (int)Input.mousePosition.y));
+		netConScript.MouseMove((int)adjusted.x, (int)adjusted.y);
 	}
 }
 
