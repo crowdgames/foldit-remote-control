@@ -264,7 +264,7 @@ RectTransform:
   m_RootOrder: 4
   m_AnchorMin: {x: .330000013, y: 0}
   m_AnchorMax: {x: 1, y: .300000012}
-  m_AnchoredPosition: {x: -.000122070312, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -.00012207, y: 0}
   m_Pivot: {x: .5, y: .5}
 --- !u!114 &159195199
@@ -3294,13 +3294,16 @@ GameObject:
   - 114: {fileID: 1304778613}
   - 114: {fileID: 1304778619}
   - 114: {fileID: 1304778618}
-  - 114: {fileID: 1304778617}
-  - 114: {fileID: 1304778616}
   - 114: {fileID: 1304778614}
-  - 114: {fileID: 1304778621}
-  - 114: {fileID: 1304778620}
   - 114: {fileID: 1304778623}
   - 114: {fileID: 1304778622}
+  - 114: {fileID: 1304778621}
+  - 114: {fileID: 1304778624}
+  - 114: {fileID: 1304778616}
+  - 114: {fileID: 1304778620}
+  - 114: {fileID: 1304778617}
+  - 61: {fileID: 1304778625}
+  - 114: {fileID: 1304778626}
   m_Layer: 5
   m_Name: Panel
   m_TagString: Untagged
@@ -3363,6 +3366,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   networkCon: {fileID: 2105590484}
+  tileRC: {fileID: 1253807540}
 --- !u!222 &1304778615
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3377,22 +3381,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1304778611}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1235405773, guid: 20c2a163775f09b4cafa29b19d0c9204, type: 3}
+  m_Script: {fileID: 645232165, guid: 20c2a163775f09b4cafa29b19d0c9204, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  advancedProps: 0
-  minTouches: 0
-  maxTouches: 0
-  combineTouches: 0
-  combineTouchesInterval: .300000012
-  useSendMessage: 0
-  sendStateChangeMessages: 0
-  sendMessageTarget: {fileID: 0}
-  requireGestureToFail: {fileID: 0}
-  friendlyGestures: []
-  numberOfTapsRequired: 1
-  timeLimit: Infinity
-  distanceLimit: Infinity
+  Speed: 10
+  PanMultiplier: 1
+  AllowChangingFromOutside: 1
 --- !u!114 &1304778617
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3401,11 +3395,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1304778611}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -1862395651, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+  m_Script: {fileID: -839872303, guid: 20c2a163775f09b4cafa29b19d0c9204, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Delegates: []
-  delegates: []
+  horizontalAxis: Horizontal
+  verticalAxis: Vertical
+  submitButton: Submit
+  cancelButton: Cancel
+  inputActionsPerSecond: 10
+  repeatDelay: .5
 --- !u!114 &1304778618
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3446,12 +3444,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1304778611}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 645232165, guid: 20c2a163775f09b4cafa29b19d0c9204, type: 3}
+  m_Script: {fileID: -619905303, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Speed: 10
-  PanMultiplier: 1
-  AllowChangingFromOutside: 1
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 1
+  m_DragThreshold: 5
 --- !u!114 &1304778621
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3460,7 +3458,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1304778611}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -1518784480, guid: 20c2a163775f09b4cafa29b19d0c9204, type: 3}
+  m_Script: {fileID: 2105402742, guid: 20c2a163775f09b4cafa29b19d0c9204, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   advancedProps: 0
@@ -3472,10 +3470,13 @@ MonoBehaviour:
   sendStateChangeMessages: 0
   sendMessageTarget: {fileID: 0}
   requireGestureToFail: {fileID: 0}
-  friendlyGestures: []
-  projection: 2
-  projectionNormal: {x: 0, y: 1, z: 0}
-  movementThreshold: .5
+  friendlyGestures:
+  - {fileID: 1304778622}
+  - {fileID: 1304778623}
+  projection: 1
+  projectionNormal: {x: 0, y: 0, z: 1}
+  minPointsDistance: .5
+  scalingThreshold: .200000003
 --- !u!114 &1304778622
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3496,7 +3497,8 @@ MonoBehaviour:
   sendStateChangeMessages: 0
   sendMessageTarget: {fileID: 0}
   requireGestureToFail: {fileID: 0}
-  friendlyGestures: []
+  friendlyGestures:
+  - {fileID: 1304778621}
   ignoreChildren: 0
 --- !u!114 &1304778623
 MonoBehaviour:
@@ -3518,8 +3520,61 @@ MonoBehaviour:
   sendStateChangeMessages: 0
   sendMessageTarget: {fileID: 0}
   requireGestureToFail: {fileID: 0}
-  friendlyGestures: []
+  friendlyGestures:
+  - {fileID: 1304778621}
   ignoreChildren: 0
+--- !u!114 &1304778624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1304778611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1423175855, guid: 20c2a163775f09b4cafa29b19d0c9204, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  advancedProps: 0
+  minTouches: 0
+  maxTouches: 0
+  combineTouches: 0
+  combineTouchesInterval: .300000012
+  useSendMessage: 0
+  sendStateChangeMessages: 0
+  sendMessageTarget: {fileID: 0}
+  requireGestureToFail: {fileID: 0}
+  friendlyGestures: []
+  projection: 0
+  projectionNormal: {x: 0, y: 0, z: 1}
+  movementThreshold: .5
+--- !u!61 &1304778625
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1304778611}
+  m_Enabled: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1}
+--- !u!114 &1304778626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1304778611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1298086939, guid: 20c2a163775f09b4cafa29b19d0c9204, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: Main Camera
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &1393888395
 GameObject:
   m_ObjectHideFlags: 0

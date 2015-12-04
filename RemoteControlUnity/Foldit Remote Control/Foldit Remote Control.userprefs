@@ -4,8 +4,8 @@
     <Files>
       <File FileName="Assets/Scripts/SplashScreenInput.cs" Line="16" Column="2" />
       <File FileName="Assets/Scripts/UIInput.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/FolditView_Click.cs" Line="81" Column="3" />
-      <File FileName="Assets/Scripts/TileRenderController.cs" Line="169" Column="5" />
+      <File FileName="Assets/Scripts/FolditView_Click.cs" Line="92" Column="36" />
+      <File FileName="Assets/Scripts/TileRenderController.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

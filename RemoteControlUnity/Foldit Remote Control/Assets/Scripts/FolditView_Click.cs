@@ -34,16 +34,36 @@ public class FolditView_Click : MonoBehaviour, IPointerDownHandler, IPointerUpHa
 
     // Update is called once per frame
     void Update () {
+		if (Input.touchCount == 2) {	// Store both touches.
+			Touch touchZero = Input.GetTouch (0);
+			Touch touchOne = Input.GetTouch (1);
+		
+			// Find the position in the previous frame of each touch.
+			Vector2 touchZeroPrevPos = touchZero.position - touchZero.deltaPosition;
+			Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
+		
+			// Find the magnitude of the vector (the distance) between the touches in each frame.
+			float prevTouchDeltaMag = (touchZeroPrevPos - touchOnePrevPos).magnitude;
+			float touchDeltaMag = (touchZero.position - touchOne.position).magnitude;
+		
+			// Find the difference in the distances between each frame.
+			float deltaMagnitudeDiff = prevTouchDeltaMag - touchDeltaMag;
 
+			netConScript.Zoom(deltaMagnitudeDiff > 0);
+
+		}
+		
 	}
-    private void releasedHandler(object sender, EventArgs e)
-
-    {
+	private void releasedHandler(object sender, EventArgs e)
+		
+	{
+		Debug.Log ("Release");
 		netConScript.Tap(false, (int)Input.mousePosition.x, (int)Input.mousePosition.y);
     }
 
     private void pressedHandler(object sender, EventArgs e)
     {
+		Debug.Log ("Press");
         netConScript.Tap(true, (int)Input.mousePosition.x, (int)Input.mousePosition.y);
     }
 
@@ -58,6 +78,7 @@ public class FolditView_Click : MonoBehaviour, IPointerDownHandler, IPointerUpHa
 	// This is the local panning of the panel.
 	private void panHandler(object sender, EventArgs e)
     {
+		Debug.Log ("Pan");
 		Vector3 delta = (sender as PanGesture).LocalDeltaPosition;
 		trc.dragPanel (new Vector2 (delta.x, delta.y));
     }
@@ -74,11 +95,21 @@ public class FolditView_Click : MonoBehaviour, IPointerDownHandler, IPointerUpHa
 		netConScript.Tap(false, (int)adjusted.x, (int)adjusted.y);
     }
 
+	//public void OnDrag(PointerEventData eventData) {
+	//		Vector3 delta = eventData.delta;
+	//		trc.dragPanel (new Vector2 (delta.x, delta.y));
+	//	}
+
 
     public void OnDrag(PointerEventData eventData)
     {
-		Vector2 adjusted = trc.factorOutZoom (new Vector2((int)Input.mousePosition.x, (int)Input.mousePosition.y));
-		netConScript.MouseMove((int)adjusted.x, (int)adjusted.y);
+		if (Input.touchCount < 2) { // Either mouse input or single drag
+			Vector2 adjusted = trc.factorOutZoom (new Vector2 ((int)Input.mousePosition.x, (int)Input.mousePosition.y));
+			netConScript.MouseMove ((int)adjusted.x, (int)adjusted.y);
+		} else {
+			Vector3 delta = eventData.delta;
+			trc.dragPanel (new Vector2 (delta.x, delta.y));
+		}
 	}
 }
 
