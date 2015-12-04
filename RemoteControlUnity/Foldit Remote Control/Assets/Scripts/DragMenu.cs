@@ -38,8 +38,6 @@ public class DragMenu : MonoBehaviour, IDragHandler, IEndDragHandler {
 		float percentage = (mousePosX - minAnchorXPulledOut) / (minAnchorXPulledIn - minAnchorXPulledOut);
 
 		trans.anchoredPosition = new Vector2 (Mathf.Lerp (minAnchorXPulledOut, minAnchorXPulledIn, percentage), anchoredYPosition);
-//		trans.anchorMin = new Vector2 (Mathf.Lerp (minAnchorXPulledOut, minAnchorXPulledIn, percentage), 0);
-//		trans.anchorMax = new Vector2 (Mathf.Lerp (minAnchorXPulledOut, minAnchorXPulledIn, percentage), 1);
 	}
 
 	#endregion
