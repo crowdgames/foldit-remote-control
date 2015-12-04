@@ -24,7 +24,10 @@ public class TileRenderController : MonoBehaviour {
     private float standardWidth;
     private float standardHeight;
     private const float MAX_ZOOM = 3f;
-    private float currentZoomPercent = 0f;
+    private float currentZoom = 1f;
+    private Vector3 centerLoc;
+    private float currentWidth;
+    private float currentHeight;
 
     public const int TILE_SIZE = 16;
     public const int TILE_SIZE_SQUARED = TILE_SIZE * TILE_SIZE;
@@ -40,7 +43,7 @@ public class TileRenderController : MonoBehaviour {
     public bool lowres { get; private set; }
 
     void Start () {
-Debug.Log("Canvas is " + MyCanvas.rect.width + "x" + MyCanvas.rect.height);
+        Debug.Log("Canvas is " + MyCanvas.rect.width + "x" + MyCanvas.rect.height);
         setPanelAndTextureSize();
 
         lowres = false;
@@ -122,15 +125,57 @@ Debug.Log("Canvas is " + MyCanvas.rect.width + "x" + MyCanvas.rect.height);
         //Base the panel size off of the canvas size
         float panelWidth = MyCanvas.rect.width * PanelWidthCovered;
         float panelHeight = MyCanvas.rect.height * PanelHeightCovered;
+        standardWidth = panelWidth;
+        standardHeight = panelHeight;
         Debug.Log("Panel size: " + panelWidth + "x" + panelHeight);
         MyPanel.sizeDelta = new Vector2(panelWidth, panelHeight);
+        centerLoc = MyPanel.localPosition;
     }
 
+    //zooms in based on a provided slider value
     public void updateZoom(float zoomPercent)
     {
-        Debug.Log("zoom precent:" + zoomPercent);
-        currentZoomPercent = zoomPercent;
-        float ZoomCurrent = Mathf.Lerp(1f, MAX_ZOOM, zoomPercent);
-        MyPanel.sizeDelta = new Vector2(standardWidth * ZoomCurrent, standardHeight * ZoomCurrent);
+        currentZoom = Mathf.Lerp(1f, MAX_ZOOM, zoomPercent);
+        currentHeight = standardHeight * currentZoom;
+        currentWidth = standardWidth * currentZoom;
+        MyPanel.sizeDelta = new Vector2(currentWidth, currentHeight);
+        dragPanel(new Vector2(0f, 0f));
+    }
+
+    //move the panel based on the given delta
+    public void dragPanel(Vector2 move)
+    {
+        //scale the move so it matches the zoomed texture
+        move = move * currentZoom;
+
+        //find the area that the center of the panel has to be in to avoid cutting off edges
+        float widthBound = (currentWidth / 2f) - (standardWidth / 2);
+        float heightBound = (currentHeight / 2f) - (standardHeight / 2);
+
+        //move and clamp (if we are zoomed out so much we can't move lock location to 0)
+        if((widthBound > 0) && (heightBound > 0))
+        {
+            centerLoc.x = Mathf.Clamp(centerLoc.x + move.x, -widthBound, widthBound);
+            centerLoc.y = Mathf.Clamp(centerLoc.y + move.y, -heightBound, heightBound);
+        } else {
+            centerLoc.x = 0;
+            centerLoc.y = 0;
+        }
+
+        MyPanel.localPosition = centerLoc;
+    }
+
+    //used to translate screen clicks to foldit clicks
+    public Vector2 factorOutZoom(Vector2 loc)
+    {
+        // the vector from foldit's center to the screen's center
+        Vector2 vec = new Vector2(-centerLoc.x, -centerLoc.y);
+        
+        // add the above vecter to loc which represents the vector from the screen's center to loc
+        // giving the vector which is from foldit's center to the location
+        vec = vec + loc;
+        
+        //remove the scale and return
+        return vec / currentZoom;
     }
 }

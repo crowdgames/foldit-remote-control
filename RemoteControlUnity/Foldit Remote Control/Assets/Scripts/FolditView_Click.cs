@@ -15,17 +15,19 @@ public class FolditView_Click : MonoBehaviour, IPointerClickHandler, IPointerDow
 {
 	// Drag to initialize
 	public GameObject networkCon;
+    private NetworkConScript netConScript;
+
 	// Use this for initialization
 	void Start () {
-		GetComponent<TapGesture>().Tapped += clickInFoldit;
-        GetComponent<PressGesture>().Pressed += pressedHandler;
+        netConScript = networkCon.GetComponent<NetworkConScript>();
+        GetComponent<TapGesture>().Tapped += clickInFoldit;
         GetComponent<SimplePanGesture>().Panned += panHandler;
         GetComponent<ReleaseGesture>().Released += releasedHandler;
-
+        GetComponent<PressGesture>().Pressed += pressedHandler;
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update () {
 	
 	}
 
@@ -45,32 +47,32 @@ public class FolditView_Click : MonoBehaviour, IPointerClickHandler, IPointerDow
 
     private void releasedHandler(object sender, EventArgs e)
     {
-        networkCon.GetComponent<NetworkConScript>().Tap(false, (int)Input.mousePosition.x, (int)Input.mousePosition.y);
+        netConScript.Tap(false, (int)Input.mousePosition.x, (int)Input.mousePosition.y);
     }
 
     private void pressedHandler(object sender, EventArgs e)
     {
-        networkCon.GetComponent<NetworkConScript>().Tap(true, (int)Input.mousePosition.x, (int)Input.mousePosition.y);
+        netConScript.Tap(true, (int)Input.mousePosition.x, (int)Input.mousePosition.y);
     }
 
     private void panHandler(object sender, EventArgs e)
     {
-        networkCon.GetComponent<NetworkConScript>().MouseMove((int)Input.mousePosition.x, (int)Input.mousePosition.y);
+        netConScript.MouseMove((int)Input.mousePosition.x, (int)Input.mousePosition.y);
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        networkCon.GetComponent<NetworkConScript>().Tap(true, (int)Input.mousePosition.x, (int)Input.mousePosition.y);
+        netConScript.Tap(true, (int)Input.mousePosition.x, (int)Input.mousePosition.y);
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        networkCon.GetComponent<NetworkConScript>().Tap(false, (int)Input.mousePosition.x, (int)Input.mousePosition.y);
+        netConScript.Tap(false, (int)Input.mousePosition.x, (int)Input.mousePosition.y);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        networkCon.GetComponent<NetworkConScript>().MouseMove((int)Input.mousePosition.x, (int)Input.mousePosition.y);
+        netConScript.MouseMove((int)Input.mousePosition.x, (int)Input.mousePosition.y);
     }
 }
 
