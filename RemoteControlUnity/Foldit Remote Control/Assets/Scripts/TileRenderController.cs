@@ -90,7 +90,16 @@ public class TileRenderController : MonoBehaviour {
         Texture.Apply();
         NewTiles.Clear();
     }
-
+    public void resetTexture()
+    {
+        Color32[] transparent = new Color32[Width * Height];
+        for(int x = 0; x < Width*Height; x++)
+        {
+            transparent[x] = Color.clear;
+        }
+        Texture.SetPixels32(0, 0, Width, Height, transparent);
+        Texture.Apply();
+    }
     // Draw a TileInfo to the texture
     private void drawTile(TileInfo tile)
     {

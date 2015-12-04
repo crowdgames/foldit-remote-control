@@ -90,48 +90,60 @@ public class NetworkConScript : MonoBehaviour
 
     void receiveToBytes() {
         //receive to the byte array, appending to existing bytes if there are any
-        int bytesReceived = socket.Receive(bytes, bytesSaved, BYTE_BUFFER_SIZE - bytesSaved, SocketFlags.None);
-        bytesReceived += bytesSaved;
-        bytesSaved = 0;
-        //Debug.Log("****Received " + bytesReceived + " bytes for the screen****");
-        //string s = "";
-        //int byteCount = bytesReceived < 256 ? bytesReceived : 256;
-        //for (int q = 0; q < byteCount; q++)
-        //    s += bytes[q].ToString() + ", ";
-        //Debug.Log(s);
 
-        //start parsing the bytes
-        for (int i = 0; i < bytesReceived;) {
-            if (bytes[i] != 'X')
-                throw new System.Exception("Bad network message");
+        try {
+            int bytesReceived = socket.Receive(bytes, bytesSaved, BYTE_BUFFER_SIZE - bytesSaved, SocketFlags.None);
+            bytesReceived += bytesSaved;
+            bytesSaved = 0;
+            //Debug.Log("****Received " + bytesReceived + " bytes for the screen****");
+            //string s = "";
+            //int byteCount = bytesReceived < 256 ? bytesReceived : 256;
+            //for (int q = 0; q < byteCount; q++)
+            //    s += bytes[q].ToString() + ", ";
+            //Debug.Log(s);
 
-            ServerMessageType type = (ServerMessageType)bytes[i + 1];
-            int len = (int)(bytes[i + 2]) * 128 + bytes[i + 3];
-            //either the message got cut off before the length could be determined or
-            //the message got cut off before the whole message was received
-            if (i + 4 > bytesReceived || i + len > bytesReceived) {
-                bytesSaved = bytesReceived - i;
-                for (int j = 0; j < bytesSaved; j++)
-                    bytes[j] = bytes[j + i];
-                break;
+            //start parsing the bytes
+            for (int i = 0; i < bytesReceived;)
+            {
+                if (bytes[i] != 'X')
+                    throw new System.Exception("Bad network message");
+
+                ServerMessageType type = (ServerMessageType)bytes[i + 1];
+                int len = (int)(bytes[i + 2]) * 128 + bytes[i + 3];
+                //either the message got cut off before the length could be determined or
+                //the message got cut off before the whole message was received
+                if (i + 4 > bytesReceived || i + len > bytesReceived)
+                {
+                    bytesSaved = bytesReceived - i;
+                    for (int j = 0; j < bytesSaved; j++)
+                        bytes[j] = bytes[j + i];
+                    break;
+                }
+
+                switch (type)
+                {
+                    //the server is done sending us image data, render the completed image
+                    case ServerMessageType.FLUSH:
+                        tileRenderController.Flush();
+                        break;
+                    //the server told us to terminate the connection
+                    case ServerMessageType.TERMINATE:
+                        Debug.Log("****Server said terminate connection for reason " + bytes[i + 4] + "****");
+                        OnApplicationQuit();
+                        break;
+                    //the server sent image data for a 16x16 square
+                    default:
+                        handleRenderMessage(type, i, len);
+                        break;
+                }
+                i += len;
             }
-
-            switch (type) {
-                //the server is done sending us image data, render the completed image
-                case ServerMessageType.FLUSH:
-                    tileRenderController.Flush();
-                    break;
-                //the server told us to terminate the connection
-                case ServerMessageType.TERMINATE:
-                    Debug.Log("****Server said terminate connection for reason " + bytes[i + 4] + "****");
-                    OnApplicationQuit();
-                    break;
-                //the server sent image data for a 16x16 square
-                default:
-                    handleRenderMessage(type, i, len);
-                    break;
-            }
-            i += len;
+        }
+        catch (SocketException e)
+        {
+            tileRenderController.resetTexture();
+            GameObject.Find("UIInput").GetComponent<UIInput>().toggleUI(GameObject.Find("Canvas").transform.FindChild("Connection Panel").gameObject);
+            this.gameObject.SetActive(false);
         }
     }
     void handleRenderMessage(ServerMessageType type, int i, int len) {
