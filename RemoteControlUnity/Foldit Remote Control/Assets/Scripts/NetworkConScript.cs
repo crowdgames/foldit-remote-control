@@ -105,6 +105,7 @@ Debug.Log("Requesting screen size " + screenwidth + "x" + screenheight);
             //Debug.Log(s);
 
             //start parsing the bytes
+            bool flush = false;
             for (int i = 0; i < bytesReceived;)
             {
                 if (bytes[i] != 'X')
@@ -126,7 +127,7 @@ Debug.Log("Requesting screen size " + screenwidth + "x" + screenheight);
                 {
                     //the server is done sending us image data, render the completed image
                     case ServerMessageType.FLUSH:
-                        tileRenderController.Flush();
+                        flush = true;
                         break;
                     //the server told us to terminate the connection
                     case ServerMessageType.TERMINATE:
@@ -140,6 +141,9 @@ Debug.Log("Requesting screen size " + screenwidth + "x" + screenheight);
                 }
                 i += len;
             }
+            //probably will happen every time
+            if (flush)
+                tileRenderController.Flush();
         }
         catch (SocketException e)
         {
@@ -147,9 +151,6 @@ Debug.Log("Requesting screen size " + screenwidth + "x" + screenheight);
             GameObject.Find("UIInput").GetComponent<UIInput>().toggleUI(GameObject.Find("Canvas").transform.FindChild("Connection Panel").gameObject);
             this.gameObject.SetActive(false);
         }
-        //probably will happen every time
-        if (flush)
-            tileRenderController.Flush();
     }
     void handleRenderMessage(ServerMessageType type, int i, int len) {
         int tileX = bytes[i + 4] * 128 + bytes[i + 5];
