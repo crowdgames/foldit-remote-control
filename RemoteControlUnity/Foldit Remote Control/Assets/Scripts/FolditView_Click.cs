@@ -11,43 +11,35 @@ using TouchScript.Gestures.Simple;
 
 // Clicking in the Foldit view window behavior.
 
-public class FolditView_Click : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler, IDragHandler
+public class FolditView_Click : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
 {
 	// Drag to initialize
 	public GameObject networkCon;
+	public GameObject tileRC;
     private NetworkConScript netConScript;
+	private TileRenderController trc;
+
+	
 
 	// Use this for initialization
 	void Start () {
         netConScript = networkCon.GetComponent<NetworkConScript>();
-        GetComponent<TapGesture>().Tapped += clickInFoldit;
-        GetComponent<SimplePanGesture>().Panned += panHandler;
+		trc = tileRC.GetComponent<TileRenderController> ();
+
+		GetComponent<ScaleGesture> ().Scaled += scaleHandler;
+		GetComponent<PanGesture> ().Panned += panHandler;
         GetComponent<ReleaseGesture>().Released += releasedHandler;
         GetComponent<PressGesture>().Pressed += pressedHandler;
     }
 
     // Update is called once per frame
     void Update () {
-	
+
 	}
-
-
-
-	/// <summary>
-	/// React to clicks.
-	/// </summary>
-	public virtual void OnPointerClick(PointerEventData eventData)
-	{
-	}
-
-	// Sends a click for the correct coordinates to Foldit
-	public void clickInFoldit(object sender, EventArgs e)
-	{
-	}
-
     private void releasedHandler(object sender, EventArgs e)
+
     {
-        netConScript.Tap(false, (int)Input.mousePosition.x, (int)Input.mousePosition.y);
+		netConScript.Tap(false, (int)Input.mousePosition.x, (int)Input.mousePosition.y);
     }
 
     private void pressedHandler(object sender, EventArgs e)
@@ -55,24 +47,38 @@ public class FolditView_Click : MonoBehaviour, IPointerClickHandler, IPointerDow
         netConScript.Tap(true, (int)Input.mousePosition.x, (int)Input.mousePosition.y);
     }
 
-    private void panHandler(object sender, EventArgs e)
+	// This is the pinch/nega-pinch to send to Foldit.
+	void scaleHandler (object sender, EventArgs e)
+	{
+		Debug.Log ("Zoom? " + (sender as ScaleGesture).LocalDeltaScale);
+		// If scale > 1, we zoomed in, otherwise we zoomed out.
+		netConScript.Zoom ((sender as ScaleGesture).LocalDeltaScale > 1);
+	}
+
+	// This is the local panning of the panel.
+	private void panHandler(object sender, EventArgs e)
     {
-        netConScript.MouseMove((int)Input.mousePosition.x, (int)Input.mousePosition.y);
+		Vector3 delta = (sender as PanGesture).LocalDeltaPosition;
+		trc.dragPanel (new Vector2 (delta.x, delta.y));
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        netConScript.Tap(true, (int)Input.mousePosition.x, (int)Input.mousePosition.y);
-    }
+		Vector2 adjusted = trc.factorOutZoom ((int)Input.mousePosition.x, (int)Input.mousePosition.y);
+		netConScript.Tap(true, adjusted.x, adjusted.y);
+	}
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        netConScript.Tap(false, (int)Input.mousePosition.x, (int)Input.mousePosition.y);
+		Vector2 adjusted = trc.factorOutZoom ((int)Input.mousePosition.x, (int)Input.mousePosition.y);
+        netConScript.Tap(false, adjusted.x, adjusted.y);
     }
+
 
     public void OnDrag(PointerEventData eventData)
     {
-        netConScript.MouseMove((int)Input.mousePosition.x, (int)Input.mousePosition.y);
-    }
+		Vector2 adjusted = trc.factorOutZoom ((int)Input.mousePosition.x, (int)Input.mousePosition.y);
+		netConScript.MouseMove(adjusted.x, adjusted.y);
+	}
 }
 
