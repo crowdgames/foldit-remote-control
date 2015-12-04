@@ -5,22 +5,39 @@ using UnityEngine.EventSystems;
 // Developed by Courtney Toder and Elizabeth Renn
 
 public class DragMenu : MonoBehaviour, IDragHandler, IEndDragHandler {
-	private const float minAnchorXPulledOut = .7f;
-	private const float minAnchorXPulledIn = .958f;
-	private const float maxAnchorXPulledOut = 1.0f;
-	private const float maxAnchorXPulledIn = 1.258f;
+	private const float dragMenuWidth = 460;
+	private const float dragMenuTabWidth = 73;
+	private RectTransform canvasRect;
+	// These values are subject to change based on screen size
+	private float minAnchorXPulledOut = 1245;
+	private float minAnchorXPulledIn = 1705;
+	private float anchoredYPosition = 0;
+
+	void Start () {
+		GameObject canvas = GameObject.FindGameObjectWithTag("Canvas");
+		canvasRect = canvas.GetComponent<RectTransform> ();
+		Debug.Log ("canvas rect is: " + canvasRect.rect.size);
+		minAnchorXPulledIn = canvasRect.rect.width - dragMenuTabWidth;
+		minAnchorXPulledOut = minAnchorXPulledIn - dragMenuWidth;
+		
+		RectTransform transMenu = (RectTransform)transform;
+		anchoredYPosition = transMenu.anchoredPosition.y;
+		transMenu.anchoredPosition = new Vector2 (minAnchorXPulledIn, anchoredYPosition);
+	}
 
 	#region IDragHandler implementation
 
 	public void OnDrag (PointerEventData eventData)
 	{
 		RectTransform trans = (RectTransform)transform;
-		float minX = minAnchorXPulledOut * Screen.width;
-		float maxX = minAnchorXPulledIn * Screen.width;
-		float percentage = (Input.mousePosition.x - minX) / (maxX - minX);
+		Vector2 localMouse = new Vector2();
+		RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, Input.mousePosition, null, out localMouse);
 
-		trans.anchorMin = new Vector2 (Mathf.Lerp (minAnchorXPulledOut, minAnchorXPulledIn, percentage), 0);
-		trans.anchorMax = new Vector2 (Mathf.Lerp (maxAnchorXPulledOut, maxAnchorXPulledIn, percentage), 1);
+		// canvas origin is in center so need to add half canvas size to get the origin at far left
+		float mousePosX = (localMouse.x + (canvasRect.rect.size.x / 2));
+		float percentage = (mousePosX - minAnchorXPulledOut) / (minAnchorXPulledIn - minAnchorXPulledOut);
+
+		trans.anchoredPosition = new Vector2 (Mathf.Lerp (minAnchorXPulledOut, minAnchorXPulledIn, percentage), anchoredYPosition);
 	}
 
 	#endregion
@@ -30,17 +47,18 @@ public class DragMenu : MonoBehaviour, IDragHandler, IEndDragHandler {
 	{
 		// Snap to the closest side if we aren't already there.
 		RectTransform trans = (RectTransform)transform;
-		float minX = minAnchorXPulledOut * Screen.width;
-		float maxX = minAnchorXPulledIn * Screen.width;
-		float percentage = (Input.mousePosition.x - minX) / (maxX - minX);
+		Vector2 localMouse = new Vector2();
+		RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, Input.mousePosition, null, out localMouse);
+		
+		// canvas origin is in center so need to add half canvas size to get the origin at far left
+		float mousePosX = (localMouse.x + (canvasRect.rect.size.x / 2));
+		float percentage = (mousePosX - minAnchorXPulledOut) / (minAnchorXPulledIn - minAnchorXPulledOut);
 
 		// if the percentage is within 50% snap to the left, otherwise snap to the right
 		if (percentage <= .5) {
-			trans.anchorMin = new Vector2 (minAnchorXPulledOut, 0);
-			trans.anchorMax = new Vector2 (maxAnchorXPulledOut, 1);
+			trans.anchoredPosition = new Vector2 (minAnchorXPulledOut, anchoredYPosition);
 		} else {
-			trans.anchorMin = new Vector2 (minAnchorXPulledIn, 0);
-			trans.anchorMax = new Vector2 (maxAnchorXPulledIn, 1);
+			trans.anchoredPosition = new Vector2 (minAnchorXPulledIn, anchoredYPosition);
 		}
 	}
 	#endregion

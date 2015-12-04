@@ -33,16 +33,19 @@ public class NetworkConScript : MonoBehaviour
     const double REFRESH_INTERVAL = 2.0;
 
     public TileRenderController tileRenderController;
+    public static Color32[] tileColors = new Color32[TileRenderController.TILE_SIZE_SQUARED];
 
     //open the connection to Foldit
     public void connect(string host, string requiredKey) {
         Debug.Log("Start");
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        Debug.Log("Connecting to host \"" + host + "\" port " + port);
         socket.Connect(host, port);
         Debug.Log("Connected");
         //get the screen width to send to Foldit
         int screenwidth = tileRenderController.Width;
         int screenheight = tileRenderController.Height;
+Debug.Log("Requesting screen size " + screenwidth + "x" + screenheight);
         //the key needs to be 5 characters, extend the string until it has enough
         while (requiredKey.Length < 5) {
             requiredKey += "\0";
@@ -90,7 +93,6 @@ public class NetworkConScript : MonoBehaviour
 
     void receiveToBytes() {
         //receive to the byte array, appending to existing bytes if there are any
-
         try {
             int bytesReceived = socket.Receive(bytes, bytesSaved, BYTE_BUFFER_SIZE - bytesSaved, SocketFlags.None);
             bytesReceived += bytesSaved;
@@ -145,6 +147,9 @@ public class NetworkConScript : MonoBehaviour
             GameObject.Find("UIInput").GetComponent<UIInput>().toggleUI(GameObject.Find("Canvas").transform.FindChild("Connection Panel").gameObject);
             this.gameObject.SetActive(false);
         }
+        //probably will happen every time
+        if (flush)
+            tileRenderController.Flush();
     }
     void handleRenderMessage(ServerMessageType type, int i, int len) {
         int tileX = bytes[i + 4] * 128 + bytes[i + 5];
@@ -156,17 +161,18 @@ public class NetworkConScript : MonoBehaviour
                 throw new System.Exception("Rendering uncompressed data not yet implemented");
             //solid color tile
             case ServerMessageType.SOLID_TILE:
-                tileRenderController.SetTile(tileX, tileY, new Color32(
+                Color32 solidColor = new Color32(
                     (byte)(bytes[i + 8] << 1),
                     (byte)(bytes[i + 9] << 1),
-                    (byte)(bytes[i + 10] << 1), 255));
+                    (byte)(bytes[i + 10] << 1), 255);
+                for (int j = 0; j < TileRenderController.TILE_SIZE_SQUARED; j++)
+                    tileColors[j] = solidColor;
                 break;
             //run-length encoding with color in 3 bytes
             case ServerMessageType.RLE24_TILE:
                 throw new System.Exception("Rendering 3-byte-run-length-encoded data not yet implemented");
             //run-length encoding with color in 2 bytes
             case ServerMessageType.RLE16_TILE:
-                Color32[] tileColors = new Color32[TileRenderController.TILE_SIZE_SQUARED];
                 int max = i + len;
                 int runindex = 0;
                 for (int j = i + 8; j < max; j += 3) {
@@ -176,7 +182,7 @@ public class NetworkConScript : MonoBehaviour
                     //build the color from the bit values
                     Color32 color = new Color32(
                         (byte)((byte1 >> 2 & 0x1F) << 3),
-                        (byte)((((byte1 & 3) << 3) | (byte1 >> 4 & 7)) << 3),
+                        (byte)((((byte1 & 3) << 3) | (byte2 >> 4 & 7)) << 3),
                         (byte)((byte2 & 0xF) << 4), 255);
                     //fill the colors that will be used in the texture
                     for (int runmax = runindex + runlength; runindex < runmax; runindex++) {
@@ -186,12 +192,12 @@ public class NetworkConScript : MonoBehaviour
                     }
                 }
                 //Debug.Log(runindex);
-                tileRenderController.SetTile(tileX, tileY, tileColors);
                 break;
             //run-length encoding with color in 1 byte
             case ServerMessageType.RLE8_TILE:
                 throw new System.Exception("Rendering 1-byte-run-length-encoded data not yet implemented");
         }
+        tileRenderController.SetTile(tileX, tileY, tileColors);
     }
     public void PtrMoved(int x, int y, ptr val)
     {
@@ -259,6 +265,16 @@ public class NetworkConScript : MonoBehaviour
         y = (int)(yf * tileRenderController.Height);
 
     int bytesSent = socket.Send(new byte[] { MAGIC_CHARACTER, (byte)type, (byte)info, (byte)(x / 128), (byte)(x % 128), (byte)(y / 128), (byte)(y % 128) });
+        Debug.Log("Sent " + bytesSent.ToString() + " bytes");
+    }
+    public void SendText(string text) {
+        byte[] message = new byte[text.Length * 7];
+        for (int i = 0; i < text.Length; i++) {
+            message[i * 7] = MAGIC_CHARACTER;
+            message[i * 7 + 1] = (byte)(events.CharSend);
+            message[i * 7 + 2] = (byte)(text[i]);
+        }
+        int bytesSent = socket.Send(message);
         Debug.Log("Sent " + bytesSent.ToString() + " bytes");
     }
 }
