@@ -85,7 +85,16 @@ public class TileRenderController : MonoBehaviour {
     {
         Texture.Apply();
     }
-
+    public void resetTexture()
+    {
+        Color32[] transparent = new Color32[Width * Height];
+        for(int x = 0; x < Width*Height; x++)
+        {
+            transparent[x] = Color.clear;
+        }
+        Texture.SetPixels32(0, 0, Width, Height, transparent);
+        Texture.Apply();
+    }
     // Set the size of the panel and the texture
     private void setPanelAndTextureSize()
     {
