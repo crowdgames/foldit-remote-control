@@ -18,11 +18,9 @@ import android.widget.EditText;
 */
 public class GameActivity extends Activity implements KeyEvent.Callback{
     //gets the invisible textbox we send keyboard activity to
-    EditText textInput = (EditText) findViewById(R.id.editText);
     //
-    StreamView view = (StreamView) findViewById(R.id.streamView);
-
-
+    EditText textInput;
+    StreamView sview;
     @Override
     /**
     * initializes based off of Bundle
@@ -31,6 +29,8 @@ public class GameActivity extends Activity implements KeyEvent.Callback{
     */
     protected void onCreate(Bundle savedInstanceState)
     {
+        sview = (StreamView) findViewById(R.id.streamView);
+        textInput = (EditText) findViewById(R.id.editText);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
     }
@@ -73,28 +73,31 @@ public class GameActivity extends Activity implements KeyEvent.Callback{
     }
 
     //sends CLEV_MODKEY_UP info 0,CLEV_MODKEY_UP info 2, this sets both control and shift up
-    public void onLeftClickButton()
+    public void onLeftClickButton(View v)
     {
-        view.OnViewEvent(Constants.CLEV_MODKEY_UP, '0');
-        view.OnViewEvent(Constants.CLEV_MODKEY_UP, '2');
+        //StreamView view = (StreamView) v;
+        sview.OnViewEvent(Constants.CLEV_MODKEY_UP, '0');
+        sview.OnViewEvent(Constants.CLEV_MODKEY_UP, '2');
     }
 
     //sends CLEV_MODKEY_DOWN info 0, CLEV_MODKEY_UP info 2, this sets control down, shift up
-    public void onRightClickButton()
+    public void onRightClickButton(View v)
     {
-        view.OnViewEvent(Constants.CLEV_MODKEY_DOWN, '0');
-        view.OnViewEvent(Constants.CLEV_MODKEY_UP, '2');
+        //StreamView view = (StreamView) v;
+        sview.OnViewEvent(Constants.CLEV_MODKEY_DOWN, '0');
+        sview.OnViewEvent(Constants.CLEV_MODKEY_UP, '2');
     }
 
     //sends CLEV_MODKEY_UP info 0, CLEV_MODKEY_DOWN info 2, this sets control up, shift down
-    public void onMiddleClickButton()
+    public void onMiddleClickButton(View v)
     {
-        view.OnViewEvent(Constants.CLEV_MODKEY_UP, '0');
-        view.OnViewEvent(Constants.CLEV_MODKEY_DOWN, '2');
+        //StreamView view = (StreamView) v;
+        sview.OnViewEvent(Constants.CLEV_MODKEY_UP, '0');
+        sview.OnViewEvent(Constants.CLEV_MODKEY_DOWN, '2');
     }
 
     //brings up the keyboard when pressed, records chars to et
-    public void bringUpKeyboard()
+    public void bringUpKeyboard(View v)
     {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(textInput, InputMethodManager.SHOW_IMPLICIT);
@@ -103,7 +106,7 @@ public class GameActivity extends Activity implements KeyEvent.Callback{
     //override the key listener to
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event){
-        view.OnViewEvent(Constants.CLEV_CHAR, (char) keyCode);
+        //view.OnViewEvent(Constants.CLEV_CHAR, (char) keyCode);
         return true;
     }
 
