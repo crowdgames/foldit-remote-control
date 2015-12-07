@@ -3,6 +3,8 @@ package it.fold.remotecontrolandroid;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.app.LoaderManager.LoaderCallbacks;
@@ -172,11 +174,8 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
                     return false;
                 }
             }
-            if ( IP.endsWith(".") ) {
-                return false;
-            }
+            return !IP.endsWith(".");
 
-            return true;
         } catch (NumberFormatException nfe) {
             return false;
         }
@@ -185,7 +184,7 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
     /**
      * Makes sure the entered password is within desired constraints
      *
-     * @param password
+     * @param password the password that the user inputs
      * @return whether the password is of valid length
      */
     private boolean isPasswordValid(String password) {
@@ -350,6 +349,40 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
         public String getIP() {
             return mIP;
         }
+    }
+
+
+    public void runTutorial(View view)
+    {
+        AlertDialog.Builder dlgAlert = new AlertDialog.Builder(this);
+        String tutorialText = createTutorialText();
+        dlgAlert.setMessage(tutorialText);
+        dlgAlert.setTitle("Tutorial");
+        dlgAlert.setPositiveButton("Close",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        //dismiss
+                    }
+                });
+        dlgAlert.setCancelable(true);
+        dlgAlert.create().show();
+    }
+
+    public String createTutorialText()
+    {
+        return "Visit https://fold.it \n\n" +
+                "Click the link 'Are you new to Foldit? Click here.' and follow " +
+                "the instructions on the next page. \n\n" +
+                "(Note: In order to use this Remote control, you must be playing " +
+                "on 'Science Puzzles'. \n\n" +
+                "On the Foldit game, select the 'Social' tab on the bottom left, " +
+                "and then select 'Remote Control'. \n\n" +
+                "Enter the displayed 'Local IP' into the 'IP Address' field on " +
+                "the Remote Control device. \n\n" +
+                "(If the 'Require Key' box was selected, enter the displayed " +
+                "'Unique Key' into the 'Password' field on the Remote Control " +
+                "device. \n\n" +
+                "Tap the 'Connect' button, and enjoy your game!";
     }
 }
 

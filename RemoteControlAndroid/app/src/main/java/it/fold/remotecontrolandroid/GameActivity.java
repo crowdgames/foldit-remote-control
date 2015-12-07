@@ -1,7 +1,10 @@
 package it.fold.remotecontrolandroid;
 
+import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +15,8 @@ import android.view.View;
 import android.view.inputmethod.InputMethod;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 /**
 * Class for activities using the action bar library
@@ -35,7 +40,6 @@ public class GameActivity extends Activity implements KeyEvent.Callback{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
     }
-
 
     @Override
     /**
@@ -101,10 +105,9 @@ public class GameActivity extends Activity implements KeyEvent.Callback{
     public void bringUpKeyboard(View v)
     {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(textInput, InputMethodManager.SHOW_IMPLICIT);
+        imm.toggleSoftInput(0,0);
+        //imm.showSoftInput(textInput, InputMethodManager.SHOW_IMPLICIT);
     }
-
-
 
 
 }

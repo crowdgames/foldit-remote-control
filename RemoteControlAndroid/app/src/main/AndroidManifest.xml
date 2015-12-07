@@ -12,14 +12,14 @@
     <application
         android:allowBackup="true"
         android:hardwareAccelerated="true"
-        android:icon="@drawable/icon"
-        android:label="@string/app_name"
+        android:icon="@drawable/folditicon"
+        android:label="Foldit Remote Control"
         android:screenOrientation="landscape"
         android:theme="@style/AppTheme" >
         >
         <activity
             android:name=".GameActivity"
-            android:label="@string/app_name"
+            android:label="Foldit Remote Control"
             android:parentActivityName=".LoginIPActivity"
             android:screenOrientation="landscape" >
 
@@ -40,10 +40,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
+        <!--<activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main" >
-        </activity>
+        </activity>-->
     </application>
 
 </manifest>

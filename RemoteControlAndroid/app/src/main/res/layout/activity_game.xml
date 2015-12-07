@@ -64,6 +64,7 @@
         android:layout_alignParentEnd="true"
         android:layout_marginBottom="89dp" />
 
+    <!-- A button to pull up the android keyboard -->
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -77,6 +78,7 @@
         android:layout_alignParentBottom="true"
         android:layout_toLeftOf="@+id/imageButton3"
         android:layout_toStartOf="@+id/imageButton3" />
+
 
     <EditText
         android:layout_width="wrap_content"

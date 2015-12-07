@@ -17,7 +17,7 @@
         android:layout_height="match_parent">
 
         <LinearLayout android:id="@+id/IP_login_form" android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:orientation="vertical">
+            android:layout_height="0dp" android:orientation="vertical">
 
             <!-- A numberDecimal field to enter an IP address into -->
             <AutoCompleteTextView android:id="@+id/ip" android:layout_width="match_parent"
@@ -47,6 +47,18 @@
                 android:textStyle="bold"
                 android:textColor="#ffffff"
                 android:background="#888888" />
+
+            <!-- A button to open a tutorial -->
+            <Button
+                android:id="@+id/tutorialText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Tutorial"
+                android:onClick="runTutorial"
+                android:textStyle="bold"
+                android:textColor="#ffffff"
+                android:background="#78AB46" />
 
         </LinearLayout>
     </ScrollView>
