@@ -200,6 +200,7 @@ public class NetworkConScript : MonoBehaviour
         }
         tileRenderController.SetTile(tileX, tileY, tileColors);
     }
+
     public void PtrMoved(int x, int y, ptr val)
     {
         string log = "Auxilary pointer moved";
@@ -207,6 +208,7 @@ public class NetworkConScript : MonoBehaviour
         SendPack(x, y, (int)val, 0);
         receiveToBytes();
     }
+
     public void ModKey(int x, int y, bool down, keys key)
     {
         events val = (down) ? events.ModKeyDown : events.ModKeyUp;
@@ -215,6 +217,7 @@ public class NetworkConScript : MonoBehaviour
         SendPack(x, y, (int)val, (int)key);
         receiveToBytes();
     }
+
     public void CharSend(int x, int y, char snt)
     {
         int val = (int)(events.CharSend);
@@ -223,6 +226,7 @@ public class NetworkConScript : MonoBehaviour
         SendPack(x, y, val, snt);
         receiveToBytes();
     }
+
     public void MouseMove(int x, int y)
     {
         int val = (int)events.MouseMove;
@@ -248,31 +252,18 @@ public class NetworkConScript : MonoBehaviour
         SendPack(129, 129, (int)val, 0);
         receiveToBytes();
     }
+
     public void SendPack(int x, int y, int type, int info)
     {
-        ////before we send the coordinates to Foldit, we need to readjust it to match the location in the Foldit window
-        ////convert the coorindates to a 0-1 range
-        //float xf = (float)(x) / (float)(Screen.width);
-        //float yf = (float)(y) / (float)(Screen.height);
+        Vector2 FoldCoord = tileRenderController.ScreenCoordToFoldit(new Vector2((float)x, (float)y));
 
-        ////in order to fit 32x32 multiples, we have black bars on one pair of sides
-        ////when you click, 0,0 on the Foldit image is not 0,0 on the game screen
-        ////scale the position based on how much of the panel covers the game window, then offset by the size of the black bars
-        //xf = xf / tileRenderController.PanelWidthCovered - (1.0f - tileRenderController.PanelWidthCovered) / 2;
-        //yf = yf / tileRenderController.PanelHeightCovered - (1.0f - tileRenderController.PanelHeightCovered) / 2;
-
-        ////finally, restore the coordinates to the Foldit window range
-        //x = (int)(xf * tileRenderController.Width);
-        //y = (int)(yf * tileRenderController.Height);
-
-        Vector2 FoldCord = tileRenderController.ScreenCoordToFoldit(new Vector2((float)x, (float)y));
-
-        x = (int) FoldCord.x;
-        y = (int) FoldCord.y;
+        x = (int) FoldCoord.x;
+        y = (int) FoldCoord.y;
 
         int bytesSent = socket.Send(new byte[] { MAGIC_CHARACTER, (byte)type, (byte)info, (byte)(x / 128), (byte)(x % 128), (byte)(y / 128), (byte)(y % 128) });
         Debug.Log("Sent " + bytesSent.ToString() + " bytes");
     }
+
     public void SendText(string text) {
         byte[] message = new byte[text.Length * 7];
         for (int i = 0; i < text.Length; i++) {
