@@ -124,7 +124,7 @@ public class StreamThread extends Thread {
                 mSendBuf[5] = 0;
                 mSendBuf[6] = 0;
                 if (event == Constants.CLEV_MODKEY_DOWN || event == Constants.CLEV_MODKEY_UP){
-                    mSendBuf[2] = (char) m.arg1;
+                    mSendBuf[2] = (char) m.obj;
                 }
                 else if(event == Constants.CLEV_SCROLL_DOWN || event == Constants.CLEV_SCROLL_UP) {
                     // nothing
