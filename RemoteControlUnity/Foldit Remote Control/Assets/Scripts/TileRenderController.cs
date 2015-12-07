@@ -136,6 +136,8 @@ public class TileRenderController : MonoBehaviour {
         float panelHeight = MyCanvas.rect.height * PanelHeightCovered;
         standardWidth = panelWidth;
         standardHeight = panelHeight;
+        currentWidth = standardWidth;
+        currentHeight = standardHeight;
         Debug.Log("Panel size: " + panelWidth + "x" + panelHeight);
         MyPanel.sizeDelta = new Vector2(panelWidth, panelHeight);
         centerLoc = MyPanel.localPosition;
@@ -175,16 +177,26 @@ public class TileRenderController : MonoBehaviour {
     }
 
     //used to translate screen clicks to foldit clicks
-    public Vector2 factorOutZoom(Vector2 loc)
+    public Vector2 ScreenCoordToFoldit(Vector2 loc)
     {
-        // the vector from foldit's center to the screen's center
-        Vector2 vec = new Vector2(-centerLoc.x, -centerLoc.y);
-        
-        // add the above vecter to loc which represents the vector from the screen's center to loc
-        // giving the vector which is from foldit's center to the location
-        vec = vec + loc;
-        
+        Vector2 locPoint = new Vector2();
+
+        //Translate the screen location to a point in the panel
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(MyPanel, loc, null, out locPoint);
+
+        //Shift so 0,0 is bottom left instead of middle
+        locPoint.x = locPoint.x + currentWidth / 2f;
+        locPoint.y = locPoint.y + currentHeight / 2f;
+
+        //Find the location as a percentage [0,1] in x and y
+        float XP = locPoint.x / currentWidth;
+        float YP = locPoint.y / currentHeight;
+
+        //Use percentage to find foldit click location
+        Vector2 FolditLoc = new Vector2(XP * Width, YP * Height);
+
         //remove the scale and return
-        return vec / currentZoom;
+        return FolditLoc;
     }
 }
+ 
