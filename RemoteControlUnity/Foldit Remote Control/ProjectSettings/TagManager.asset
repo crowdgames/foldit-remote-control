@@ -9,6 +9,7 @@ TagManager:
   - ConnectionModal
   - Canvas
   - Panel
+  - MenuArrow
   layers:
   - Default
   - TransparentFX

@@ -8,6 +8,8 @@ public class DragMenu : MonoBehaviour, IDragHandler, IEndDragHandler {
 	private const float dragMenuWidth = 460;
 	private const float dragMenuTabWidth = 73;
 	private RectTransform canvasRect;
+	private RectTransform arrowTrans;
+	private Quaternion arrowRot;
 	// These values are subject to change based on screen size
 	private float minAnchorXPulledOut = 1245;
 	private float minAnchorXPulledIn = 1705;
@@ -23,6 +25,11 @@ public class DragMenu : MonoBehaviour, IDragHandler, IEndDragHandler {
 		RectTransform transMenu = (RectTransform)transform;
 		anchoredYPosition = transMenu.anchoredPosition.y;
 		transMenu.anchoredPosition = new Vector2 (minAnchorXPulledIn, anchoredYPosition);
+
+		// get the arrow on the menu to flip the image if we need to
+		GameObject arrow = GameObject.FindGameObjectWithTag("MenuArrow");
+		arrowTrans = arrow.GetComponent<RectTransform> ();
+		arrowRot = arrowTrans.rotation;
 	}
 
 	#region IDragHandler implementation
@@ -57,9 +64,13 @@ public class DragMenu : MonoBehaviour, IDragHandler, IEndDragHandler {
 		// if the percentage is within 50% snap to the left, otherwise snap to the right
 		if (percentage <= .5) {
 			trans.anchoredPosition = new Vector2 (minAnchorXPulledOut, anchoredYPosition);
+			arrowRot.y = 180;
 		} else {
 			trans.anchoredPosition = new Vector2 (minAnchorXPulledIn, anchoredYPosition);
+			arrowRot.y = 0;
 		}
+		// flip the arrow rotation on the menu tab
+		arrowTrans.rotation = arrowRot;
 	}
 	#endregion
 }

@@ -36,11 +36,14 @@ public class UIInput : MonoBehaviour {
 	}
 
 	public void connectToFoldit(GameObject uiContainer) {
+		// enable images for objects that we don't want the user to see at first
 		if (isFirstConnection) {
 			GameObject closeButton = GameObject.FindGameObjectWithTag("CloseModal");
 			closeButton.GetComponentInChildren<Button> ().interactable = true;
 			GameObject optionsButton = GameObject.FindGameObjectWithTag("UIOptions");
 			optionsButton.GetComponentInChildren<Image> ().enabled = true;
+			GameObject menuArrow = GameObject.FindGameObjectWithTag("MenuArrow");
+			menuArrow.GetComponentInChildren<Image> ().enabled = true;
 			isFirstConnection = false;
 		}
 		string ipAddress = ipAddressInput.text;
