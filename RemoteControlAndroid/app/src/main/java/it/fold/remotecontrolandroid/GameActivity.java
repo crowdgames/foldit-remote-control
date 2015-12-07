@@ -29,6 +29,7 @@ public class GameActivity extends Activity implements KeyEvent.Callback{
     */
     protected void onCreate(Bundle savedInstanceState)
     {
+        setContentView(R.layout.activity_game);
         sview = (StreamView) findViewById(R.id.streamView);
         textInput = (EditText) findViewById(R.id.editText);
         super.onCreate(savedInstanceState);
@@ -101,13 +102,6 @@ public class GameActivity extends Activity implements KeyEvent.Callback{
     {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(textInput, InputMethodManager.SHOW_IMPLICIT);
-    }
-
-    //override the key listener to
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event){
-        //view.OnViewEvent(Constants.CLEV_CHAR, (char) keyCode);
-        return true;
     }
 
 

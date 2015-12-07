@@ -11,6 +11,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.ScaleGestureDetector.OnScaleGestureListener;
@@ -182,5 +183,12 @@ public class  StreamView extends SurfaceView implements SurfaceHolder.Callback {
     public boolean OnViewEvent(int cl_action, char character){
         mStreamThreadHandler.obtainMessage(cl_action, 0, 0, character).sendToTarget();
         return true;
+    }
+
+    //listen for key events, send them to the handler
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        mStreamThreadHandler.obtainMessage(Constants.CLEV_CHAR, event.getUnicodeChar()).sendToTarget();
+        return super.onKeyDown(keyCode, event);
     }
 }
