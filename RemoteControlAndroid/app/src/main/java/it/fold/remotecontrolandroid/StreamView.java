@@ -81,6 +81,9 @@ public class  StreamView extends SurfaceView implements SurfaceHolder.Callback {
         Log.d("surface height", Integer.toString(height));
         //Constants.CUR_IMG_HEIGHT = height - height % Constants.TILE_SIZE;
         //Constants.CUR_IMG_WIDTH = width - width % Constants.TILE_SIZE;
+        if (width / Constants.SCALE < 700) {
+            Constants.SCALE = 700 / width;
+        }
         Constants.CUR_IMG_HEIGHT = height / Constants.SCALE;
         Constants.CUR_IMG_WIDTH = width / Constants.SCALE;
         holder.setFixedSize(Constants.CUR_IMG_WIDTH, Constants.CUR_IMG_HEIGHT);
