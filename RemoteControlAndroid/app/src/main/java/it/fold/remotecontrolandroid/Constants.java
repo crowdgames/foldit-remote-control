@@ -8,7 +8,7 @@ public class Constants {
     public static       int CUR_IMG_HEIGHT       =  720;
     public static       int REAL_IMG_WIDTH       = 1280;
     public static       int REAL_IMG_HEIGHT      =  720;
-    public static       double SCALE = 2;
+    public static       int SCALE = 2;
     public static       String IP_ADDRESS        = "10.0.2.2";
     public static       String KEY               = "";
 
