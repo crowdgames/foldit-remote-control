@@ -81,8 +81,8 @@ public class GameActivity extends Activity implements KeyEvent.Callback{
     public void onLeftClickButton(View v)
     {
         //StreamView view = (StreamView) v;
-        sview.OnViewEvent(Constants.CLEV_MODKEY_UP, '0');
-        sview.OnViewEvent(Constants.CLEV_MODKEY_UP, '2');
+        sview.OnViewEvent(Constants.CLEV_MODKEY_UP, 0);
+        sview.OnViewEvent(Constants.CLEV_MODKEY_UP, 0);
     }
 
     //sends CLEV_MODKEY_DOWN info 0, CLEV_MODKEY_UP info 2, this sets control down, shift up
