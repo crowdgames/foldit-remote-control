@@ -28,7 +28,7 @@ public class  StreamView extends SurfaceView implements SurfaceHolder.Callback {
     /**
      * object to handle streaming
      */
-    private Handler mStreamThreadHandler;
+    public Handler mStreamThreadHandler;
 
     private ScaleGestureDetector mScaleGestureDetector;
     private GestureDetector mGestureDetector;
@@ -77,8 +77,6 @@ public class  StreamView extends SurfaceView implements SurfaceHolder.Callback {
         display.getSize(size);
         int width = size.x;
         int height = size.y;
-        Log.d("surface width", Integer.toString(width));
-        Log.d("surface height", Integer.toString(height));
         //Constants.CUR_IMG_HEIGHT = height - height % Constants.TILE_SIZE;
         //Constants.CUR_IMG_WIDTH = width - width % Constants.TILE_SIZE;
         Constants.CUR_IMG_HEIGHT = height / Constants.SCALE;
@@ -180,13 +178,14 @@ public class  StreamView extends SurfaceView implements SurfaceHolder.Callback {
         return true;
     }
 
+    /**
+     * Called when a button is pressed, to send a message to the server
+     * @param cl_action The action that was performed in the app
+     * @param character The modifying character needed by the server
+     * @return
+     */
     public boolean OnViewEvent(int cl_action, char character){
         mStreamThreadHandler.obtainMessage(cl_action, new Character(character)).sendToTarget();
-        return true;
-    }
-
-    public boolean OnViewEvent(int cl_action, int x){
-        mStreamThreadHandler.obtainMessage(cl_action, x).sendToTarget();
         return true;
     }
 

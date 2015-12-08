@@ -115,6 +115,11 @@ public class StreamThread extends Thread {
         mHandler = new Handler() {
             @Override
             public void handleMessage(Message m) {
+                Log.d("arg1", " " + m.arg1);
+                Log.d("arg2", " " + m.arg2);
+                Log.d("obj", " " + m.obj);
+                Log.d("replyto", " " + m.replyTo);
+                Log.d("what", " " + m.what);
                 int event = m.what;
 
                 mSendBuf[1] = (char) event;
@@ -205,18 +210,6 @@ public class StreamThread extends Thread {
         Log.d("streamdebug", "LOST CONNECTION: " + msg);
 
         setRunning(false);
-
-        /*
-        Intent broadcastIntent = new Intent();
-        if (msg != null) {
-            broadcastIntent.putExtra("msg", msg);
-        } else {
-            broadcastIntent.putExtra("msg", "Lost connection.");
-        }
-        broadcastIntent.setAction(GameActivity.ResponseReceiver.ACTION_RESP);
-        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        GameActivity.instance().sendBroadcast(broadcastIntent);
-        */
     }
 
     /**
@@ -251,12 +244,9 @@ public class StreamThread extends Thread {
     public void run() {
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY);
 
-        Log.d("streamdebug", "trying to create socket buffer");
         Thread socketThread = new Thread() {
             public void run() {
                 try {
-                    Log.d("streamdebug", mAddress);
-                    Log.d("streamdebug", "" + mPort);
                     mSocket = new SocketBuffer(mAddress, mPort);
                 } catch (Exception e) {
                     Log.d("streamdebug", e.getMessage());
