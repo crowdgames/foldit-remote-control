@@ -40,7 +40,6 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
 
     /**
      * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
      */
     private static final String[] DUMMY_CREDENTIALS = new String[]{
             "foo@example.com:hello", "bar@example.com:world"
@@ -304,8 +303,6 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
 
         @Override
         protected Boolean doInBackground(Void ... params) {
-            // TODO: attempt authentication against a network service.
-
             try {
                 // Simulate network access.
                 Thread.sleep(2000);
@@ -320,8 +317,6 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
                     return pieces[1].equals(mPassword);
                 }
             }
-
-            // TODO: register the new account here.
             return true;
         }
 
@@ -352,6 +347,10 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
     }
 
 
+    /**
+     * Shows users the tutorial once the tutorial button is pressed
+     * @param view the current screem view, unused variable
+     */
     public void runTutorial(View view)
     {
         AlertDialog.Builder dlgAlert = new AlertDialog.Builder(this);
@@ -368,6 +367,10 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
         dlgAlert.create().show();
     }
 
+    /**
+     * A method that creates the text to be displayed in the tutorial box
+     * @return An edited string to display in the tutorial box
+     */
     public String createTutorialText()
     {
         return "Visit https://fold.it \n\n" +

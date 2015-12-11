@@ -3,11 +3,11 @@
     android:layout_height="match_parent"
     tools:context=".GameActivity">
 
-    <view
+    <!-- The base view for the app, retrieved from the explorer -->
+    <it.fold.remotecontrolandroid.StreamView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        class="it.fold.remotecontrolandroid.StreamView"
-        android:id="@+id/streamView"
+        android:id="@+id/tempView"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
 
@@ -79,7 +79,7 @@
         android:layout_toLeftOf="@+id/imageButton3"
         android:layout_toStartOf="@+id/imageButton3" />
 
-
+    <!-- A hidden field to store keyboard input momentarily before it is pulled by the server -->
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
