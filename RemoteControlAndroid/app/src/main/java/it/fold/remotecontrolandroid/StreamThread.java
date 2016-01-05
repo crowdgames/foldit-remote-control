@@ -7,7 +7,9 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Display;
 import android.view.SurfaceHolder;
+import android.view.WindowManager;
 
 import java.util.Arrays;
 
@@ -98,6 +100,7 @@ public class StreamThread extends Thread {
 
         mRecvBuf = new char[4096];
         mRecvBufOffset = 0;
+
         mRecvBufMsgLen = Constants.SE_MSG_HDR;
 
         mSendBuf = new char[Constants.CL_MSG_SIZE];
@@ -112,6 +115,11 @@ public class StreamThread extends Thread {
         mHandler = new Handler() {
             @Override
             public void handleMessage(Message m) {
+                Log.d("arg1", " " + m.arg1);
+                Log.d("arg2", " " + m.arg2);
+                Log.d("obj", " " + m.obj);
+                Log.d("replyto", " " + m.replyTo);
+                Log.d("what", " " + m.what);
                 int event = m.what;
 
                 mSendBuf[1] = (char) event;
@@ -120,7 +128,10 @@ public class StreamThread extends Thread {
                 mSendBuf[4] = 0;
                 mSendBuf[5] = 0;
                 mSendBuf[6] = 0;
-                if (event == Constants.CLEV_MODKEY_DOWN || event == Constants.CLEV_MODKEY_UP || event == Constants.CLEV_SCROLL_DOWN || event == Constants.CLEV_SCROLL_UP) {
+                if (event == Constants.CLEV_MODKEY_DOWN || event == Constants.CLEV_MODKEY_UP){
+                    mSendBuf[2] = (char) m.obj;
+                }
+                else if(event == Constants.CLEV_SCROLL_DOWN || event == Constants.CLEV_SCROLL_UP) {
                     // nothing
                 } else if (event == Constants.CLEV_CHAR) {
                     // character
@@ -199,18 +210,6 @@ public class StreamThread extends Thread {
         Log.d("streamdebug", "LOST CONNECTION: " + msg);
 
         setRunning(false);
-
-        /*
-        Intent broadcastIntent = new Intent();
-        if (msg != null) {
-            broadcastIntent.putExtra("msg", msg);
-        } else {
-            broadcastIntent.putExtra("msg", "Lost connection.");
-        }
-        broadcastIntent.setAction(GameActivity.ResponseReceiver.ACTION_RESP);
-        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        GameActivity.instance().sendBroadcast(broadcastIntent);
-        */
     }
 
     /**
@@ -245,7 +244,6 @@ public class StreamThread extends Thread {
     public void run() {
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY);
 
-        Log.d("streamdebug", "trying to create socket buffer");
         Thread socketThread = new Thread() {
             public void run() {
                 try {
@@ -294,6 +292,8 @@ public class StreamThread extends Thread {
         }
 
         // Resolution
+
+        //get size from surfaceFrame
         first_buf[7] = (char) (Constants.REAL_IMG_WIDTH / 128);
         first_buf[8] = (char) (Constants.REAL_IMG_WIDTH % 128);
         first_buf[9] = (char) (Constants.REAL_IMG_HEIGHT / 128);

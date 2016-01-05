@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <option name="DEFAULT_COMPILER" value="Javac" />
-    <excludeFromCompile>
-      <directory url="file://$PROJECT_DIR$/Foldit/src/main/gen" includeSubdirectories="true" />
-      <directory url="file://$PROJECT_DIR$/Foldit/build/manifests/debug/gen" includeSubdirectories="true" />
-      <directory url="file://$PROJECT_DIR$/../ActionBarSherlock/gen" includeSubdirectories="true" />
-      <directory url="file://$PROJECT_DIR$/../ShowcaseView/library/gen" includeSubdirectories="true" />
-      <directory url="file://$PROJECT_DIR$/../ShowcaseView/sample/gen" includeSubdirectories="true" />
-    </excludeFromCompile>
     <resourceExtensions />
     <wildcardResourcePatterns>
       <entry name="!?*.java" />
@@ -19,6 +11,7 @@
       <entry name="!?*.flex" />
       <entry name="!?*.kt" />
       <entry name="!?*.clj" />
+      <entry name="!?*.aj" />
     </wildcardResourcePatterns>
     <annotationProcessing>
       <profile default="true" name="Default" enabled="false">
@@ -27,4 +20,3 @@
     </annotationProcessing>
   </component>
 </project>
-

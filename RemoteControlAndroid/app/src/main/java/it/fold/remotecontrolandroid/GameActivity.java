@@ -1,27 +1,38 @@
 package it.fold.remotecontrolandroid;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 /**
 * Class for activities using the action bar library
 */
-public class GameActivity extends ActionBarActivity {
-
+public class GameActivity extends Activity implements KeyEvent.Callback{
+    //gets the invisible textbox we send keyboard activity to
+    //
+    EditText textInput;
+    StreamView sview;
     @Override
     /**
     * initializes based off of Bundle
-    *
+    *B
     * @param Bundle savedInstanceState parseable strings used for init
     */
     protected void onCreate(Bundle savedInstanceState)
     {
+        setContentView(R.layout.activity_game);
+        sview = (StreamView) findViewById(R.id.tempView);
+        textInput = (EditText) findViewById(R.id.editText);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
     }
-
 
     @Override
     /**
@@ -58,4 +69,37 @@ public class GameActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    //sends CLEV_MODKEY_UP info 0,CLEV_MODKEY_UP info 2, this sets both control and shift up
+    public void onLeftClickButton(View v)
+    {
+        //StreamView view = (StreamView) v;
+        sview.OnViewEvent(Constants.CLEV_MODKEY_UP, '0');
+        sview.OnViewEvent(Constants.CLEV_MODKEY_UP, '2');
+    }
+
+    //sends CLEV_MODKEY_DOWN info 0, CLEV_MODKEY_UP info 2, this sets control down, shift up
+    public void onRightClickButton(View v)
+    {
+        //StreamView view = (StreamView) v;
+        sview.OnViewEvent(Constants.CLEV_MODKEY_DOWN, '0');
+        sview.OnViewEvent(Constants.CLEV_MODKEY_UP, '2');
+    }
+
+    //sends CLEV_MODKEY_UP info 0, CLEV_MODKEY_DOWN info 2, this sets control up, shift down
+    public void onMiddleClickButton(View v)
+    {
+        //StreamView view = (StreamView) v;
+        sview.OnViewEvent(Constants.CLEV_MODKEY_UP, '0');
+        sview.OnViewEvent(Constants.CLEV_MODKEY_DOWN, '2');
+    }
+
+    //brings up the keyboard when pressed, records chars to et
+    public void bringUpKeyboard(View v)
+    {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(0,0);
+    }
+
+
 }

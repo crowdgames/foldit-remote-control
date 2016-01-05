@@ -1,12 +1,17 @@
 package it.fold.remotecontrolandroid;
 
+/**
+ * Constants for the state of the game
+ */
 public class Constants {
-    public static       int CUR_IMG_WIDTH        = 1184; // defaults only...
-    public static       int CUR_IMG_HEIGHT       =  768;
-    public static       int REAL_IMG_WIDTH       = 1184;
-    public static       int REAL_IMG_HEIGHT      =  768;
+    public static       int CUR_IMG_WIDTH        = 1280; // defaults only...
+    public static       int CUR_IMG_HEIGHT       =  720;
+    public static       int REAL_IMG_WIDTH       = 1280;
+    public static       int REAL_IMG_HEIGHT      =  720;
+    public static       int SCALE = 2;
+    public static       String IP_ADDRESS        = "10.0.2.2";
+    public static       String KEY               = "";
 
-    public static final String IP_ADDRESS_LOCAL  = "10.0.2.2";
     public static final int PORT                 = 1230;
 
 

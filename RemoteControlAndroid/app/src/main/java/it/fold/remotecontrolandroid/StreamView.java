@@ -1,32 +1,34 @@
 package it.fold.remotecontrolandroid;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Display;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.ScaleGestureDetector.OnScaleGestureListener;
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-
-import java.util.HashMap;
-import java.util.Map;
+import android.view.WindowManager;
 
 /**
  * Handles events and imaging
  */
-public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
+public class  StreamView extends SurfaceView implements SurfaceHolder.Callback {
     private StreamThread mStreamThread;
     /**
      * object to handle streaming
      */
-    private Handler mStreamThreadHandler;
+    public Handler mStreamThreadHandler;
 
     private ScaleGestureDetector mScaleGestureDetector;
     private GestureDetector mGestureDetector;
@@ -70,6 +72,19 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceCreated(SurfaceHolder holder) {
         Log.d("StreamView", "creating surface");
 
+        Display display = ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
+        //Constants.CUR_IMG_HEIGHT = height - height % Constants.TILE_SIZE;
+        //Constants.CUR_IMG_WIDTH = width - width % Constants.TILE_SIZE;
+        Constants.CUR_IMG_HEIGHT = height / Constants.SCALE;
+        Constants.CUR_IMG_WIDTH = width / Constants.SCALE;
+        holder.setFixedSize(Constants.CUR_IMG_WIDTH, Constants.CUR_IMG_HEIGHT);
+        Constants.REAL_IMG_HEIGHT = Constants.CUR_IMG_HEIGHT;
+        Constants.REAL_IMG_WIDTH = Constants.CUR_IMG_WIDTH;
+
         Paint paint = new Paint();
         paint.setColor(0xFFFFFFFF);
 
@@ -78,7 +93,7 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
         canvas.drawLine(0, 0, 100, 100, paint);
         holder.unlockCanvasAndPost(canvas);
 
-        mStreamThread.initialize(Constants.IP_ADDRESS_LOCAL, Constants.PORT, "");
+        mStreamThread.initialize(Constants.IP_ADDRESS, Constants.PORT, "");
         mStreamThread.setRunning(true);
         mStreamThread.start();
         Log.d("StreamView", "successfully created surface");
@@ -118,8 +133,8 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
 
         mGestureDetector.onTouchEvent(e);
 
-        int x = (int) e.getX();
-        int y = (int) e.getY();
+        int x = (int) e.getX() / 2;
+        int y = (int) e.getY() / 2;
         int action = e.getAction();
 
         int cl_action = 0;
@@ -161,5 +176,23 @@ public class StreamView extends SurfaceView implements SurfaceHolder.Callback {
 
         mStreamThreadHandler.obtainMessage(cl_action, x, y, new Character((char)pointerId)).sendToTarget();
         return true;
+    }
+
+    /**
+     * Called when a button is pressed, to send a message to the server
+     * @param cl_action The action that was performed in the app
+     * @param character The modifying character needed by the server
+     * @return
+     */
+    public boolean OnViewEvent(int cl_action, char character){
+        mStreamThreadHandler.obtainMessage(cl_action, new Character(character)).sendToTarget();
+        return true;
+    }
+
+    //listen for key events, send them to the handler
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        mStreamThreadHandler.obtainMessage(Constants.CLEV_CHAR, event.getUnicodeChar()).sendToTarget();
+        return super.onKeyDown(keyCode, event);
     }
 }
