@@ -35,6 +35,14 @@ public class LoginIPActivityTest {
     }
 
     @Test
+    public void shouldShowErrorMessageWhenIPFieldIsInvalid() throws Exception {
+        when(view.getIPAddress()).thenReturn("");
+        presenter.attemptLogin();
+
+        verify(view).showIPError(R.string.error_field_required);
+    }
+
+    @Test
     public void shouldShowErrorMessageWhenOptionalKeyFieldIsInvalid() throws Exception {
 
     }

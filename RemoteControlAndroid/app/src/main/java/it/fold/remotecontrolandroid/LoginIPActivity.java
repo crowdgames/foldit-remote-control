@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * A login screen that offers login via IP/password.
  */
-public class LoginIPActivity extends ActionBarActivity implements LoaderCallbacks<Cursor> {
+public class LoginIPActivity extends ActionBarActivity implements LoaderCallbacks<Cursor>,LoginView {
 
     /**
      * A dummy authentication store containing known user names and passwords.
@@ -54,6 +54,9 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private View focusView;
+    boolean cancel;
+    private LoginIPPresenter presenter;
 
     @Override
     /**
@@ -90,6 +93,7 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+        presenter = new LoginIPPresenter(this);
     }
 
     private void populateAutoComplete() {
@@ -103,6 +107,8 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
+
+        presenter.attemptLogin();
         if (mAuthTask != null) {
             return;
         }
@@ -115,8 +121,8 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
         String IP = mIPView.getText().toString();
         String password = mPasswordView.getText().toString();
 
-        boolean cancel = false;
-        View focusView = null;
+        cancel = false;
+        focusView = null;
 
         // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
@@ -126,11 +132,7 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
         }
 
         // Check for a valid IP address.
-        if (TextUtils.isEmpty(IP)) {
-            mIPView.setError(getString(R.string.error_field_required));
-            focusView = mIPView;
-            cancel = true;
-        } else if (!isIPValid(IP)) {
+         else if (!isIPValid(IP)) {
             mIPView.setError(getString(R.string.error_invalid_IP));
             focusView = mIPView;
             cancel = true;
@@ -148,6 +150,19 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
             mAuthTask = new UserLoginTask(IP, password);
             mAuthTask.execute((Void) null);
         }
+    }
+
+
+    @Override
+    public String getIPAddress() {
+        return mIPView.getText().toString();
+    }
+
+    @Override
+    public void showIPError(int resId) {
+        mIPView.setError(getString(resId));
+        focusView = mIPView;
+        cancel = true;
     }
 
     /**
@@ -259,6 +274,8 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
 
     }
+
+
 
     private interface ProfileQuery {
         String[] PROJECTION = {
