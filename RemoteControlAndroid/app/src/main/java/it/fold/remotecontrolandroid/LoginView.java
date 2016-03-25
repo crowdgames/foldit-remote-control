@@ -7,5 +7,19 @@ public interface LoginView {
 
     String getIPAddress();
 
-    void showIPError(int resId);
+    void showIPEmptyError(int resId);
+
+    void showIpInvalidError(int resId);
+
+    void showPasswordInvalidError(int resId);
+
+    void resetErrors();
+
+    boolean isIPValid(String Ip);
+
+    String getPassword();
+
+    boolean isPasswordValid(String password);
+
+    void attemptLoginTask(String ip, String password);
 }
