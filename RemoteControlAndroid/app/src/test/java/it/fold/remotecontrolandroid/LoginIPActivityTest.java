@@ -6,7 +6,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,19 +30,47 @@ public class LoginIPActivityTest {
         when(view.getIPAddress()).thenReturn("");
         presenter.attemptLogin();
 
-        verify(view).showIPError(R.string.error_field_required);
+        verify(view).showIPEmptyError(R.string.error_field_required);
     }
 
     @Test
-    public void shouldShowErrorMessageWhenIPFieldIsInvalid() throws Exception {
-        when(view.getIPAddress()).thenReturn("");
+    public void shouldShowErrorMessageWhenIPFieldIsDoesNotHaveAllNumbers() throws Exception {
+        when(view.getIPAddress()).thenReturn("1233aa");
         presenter.attemptLogin();
 
-        verify(view).showIPError(R.string.error_field_required);
+        verify(view).showIpInvalidError(R.string.error_invalid_IP);
     }
+    @Test
+    public void shouldShowErrorMessageWhenIPFieldIsDoesNotHaveFourParts() throws Exception {
+        when(view.getIPAddress()).thenReturn("123.123.213.123.123");
+        presenter.attemptLogin();
+
+        verify(view).showIpInvalidError(R.string.error_invalid_IP);
+    }
+
+    @Test
+    public void shouldShowErrorMessageWhenIPFieldIsDoesNotHaveNumbersInCorrectRange() throws Exception {
+        when(view.getIPAddress()).thenReturn("123.267.213.123");
+        presenter.attemptLogin();
+
+        verify(view).showIpInvalidError(R.string.error_invalid_IP);
+    }
+
+    @Test
+    public void shouldShowErrorMessageWhenIPFieldIsEndsWithADot() throws Exception {
+        when(view.getIPAddress()).thenReturn("123.267.213.123.");
+        presenter.attemptLogin();
+
+        verify(view).showIpInvalidError(R.string.error_invalid_IP);
+    }
+
+
 
     @Test
     public void shouldShowErrorMessageWhenOptionalKeyFieldIsInvalid() throws Exception {
+        when(view.getPassword()).thenReturn("123");
+        presenter.attemptLogin();
 
+        verify(view).showPasswordInvalidError(R.string.error_invalid_password);
     }
 }
