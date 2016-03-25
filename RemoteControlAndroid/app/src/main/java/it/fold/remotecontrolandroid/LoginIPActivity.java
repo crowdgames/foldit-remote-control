@@ -217,8 +217,9 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
     /**
      * Shows the progress UI and hides the login form.
      */
+    @Override
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
+    public void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
@@ -307,6 +308,7 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
     }
 
     // Begin GameActivity
+
     public void sendMessage() {
         Intent intent = new Intent(this, GameActivity.class);
         this.startActivity(intent);

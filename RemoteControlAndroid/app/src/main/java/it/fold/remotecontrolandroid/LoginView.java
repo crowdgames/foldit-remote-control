@@ -22,4 +22,6 @@ public interface LoginView {
     boolean isPasswordValid(String password);
 
     void attemptLoginTask(String ip, String password);
+
+    void showProgress(boolean show);
 }

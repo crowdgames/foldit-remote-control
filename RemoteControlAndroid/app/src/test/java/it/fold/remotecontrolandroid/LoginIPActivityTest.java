@@ -1,11 +1,14 @@
 package it.fold.remotecontrolandroid;
 
+import android.widget.Button;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static junit.framework.TestCase.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -18,6 +21,8 @@ public class LoginIPActivityTest {
     private LoginIPPresenter presenter;
     @Mock
     private LoginView view;
+    @Mock
+    private Button mIPSignInButton;
 
     @Before
     public void setUp() throws Exception {
@@ -73,4 +78,19 @@ public class LoginIPActivityTest {
 
         verify(view).showPasswordInvalidError(R.string.error_invalid_password);
     }
+    @Test
+    public void shouldStartGameActivityOnSuccessfulLogin() throws Exception {
+        when(view.getIPAddress()).thenReturn("192.168.0.18");
+        when(view.getPassword()).thenReturn("");
+        presenter.attemptLogin();
+
+        verify(view).attemptLoginTask("192.168.0.18", "");
+    }
+
+    @Test
+    public void testPassword_rainyDay(){
+        assertEquals("Password length should be greater than 4",false,view.isPasswordValid("fol"));
+    }
+
+
 }
