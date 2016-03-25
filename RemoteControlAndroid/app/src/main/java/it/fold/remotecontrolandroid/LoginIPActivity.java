@@ -107,49 +107,10 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-
-        presenter.attemptLogin();
         if (mAuthTask != null) {
             return;
         }
-
-        // Reset errors.
-        mIPView.setError(null);
-        mPasswordView.setError(null);
-
-        // Store values at the time of the login attempt.
-        String IP = mIPView.getText().toString();
-        String password = mPasswordView.getText().toString();
-
-        cancel = false;
-        focusView = null;
-
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        // Check for a valid IP address.
-         else if (!isIPValid(IP)) {
-            mIPView.setError(getString(R.string.error_invalid_IP));
-            focusView = mIPView;
-            cancel = true;
-        }
-
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            showProgress(true);
-
-            mAuthTask = new UserLoginTask(IP, password);
-            mAuthTask.execute((Void) null);
-        }
+        presenter.attemptLogin();
     }
 
 
@@ -159,10 +120,39 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
     }
 
     @Override
-    public void showIPError(int resId) {
+    public String getPassword() {
+        return mPasswordView.getText().toString();
+    }
+
+    @Override
+    public void showIPEmptyError(int resId) {
         mIPView.setError(getString(resId));
         focusView = mIPView;
         cancel = true;
+    }
+
+
+    @Override
+    public void showIpInvalidError(int resId) {
+        mIPView.setError(getString(resId));
+        focusView = mIPView;
+        cancel = true;
+    }
+
+    @Override
+    public void showPasswordInvalidError(int resId) {
+        mPasswordView.setError(getString(resId));
+        focusView = mPasswordView;
+        cancel = true;
+    }
+
+    @Override
+    public void resetErrors() {
+        // Reset errors.
+        mIPView.setError(null);
+        mPasswordView.setError(null);
+        cancel = false;
+        focusView = null;
     }
 
     /**
@@ -171,7 +161,8 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
      * @param IP The value input to the IP input in the login menu
      * @return If the IP string input actually contains a valid IPV4 IP String
      */
-    private boolean isIPValid(String IP) {
+    @Override
+    public boolean isIPValid(String IP) {
         try {
             if ( IP == null || IP.isEmpty() ) {
                 return false;
@@ -201,8 +192,26 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
      * @param password the password that the user inputs
      * @return whether the password is of valid length
      */
-    private boolean isPasswordValid(String password) {
+    @Override
+    public boolean isPasswordValid(String password) {
         return password.length() > 4;
+    }
+
+    @Override
+    public void attemptLoginTask(String IP, String password) {
+        if (cancel) {
+            // There was an error; don't attempt login and focus the first
+            // form field with an error.
+            focusView.requestFocus();
+        } else {
+            // Show a progress spinner, and kick off a background task to
+            // perform the user login attempt.
+            showProgress(true);
+
+            mAuthTask = new LoginIPActivity.UserLoginTask(IP, password);
+            mAuthTask.execute((Void) null);
+        }
+
     }
 
     /**
