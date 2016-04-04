@@ -3,8 +3,6 @@ package it.fold.remotecontrolandroid;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
-import android.view.View;
-import android.widget.EditText;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,19 +13,14 @@ import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
-
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 /**
- * @author - Ruta
+ * Created by rutagadgil on 3/24/16.
  */
 @RunWith(AndroidJUnit4.class)
-  public class LoginIPActivityActivityTest {
-    public final String TAG = "LoginIPActivityActivityTest";
+  public class LoginIPActivityTest {
+    public final String TAG = LoginIPActivityTest.class.getCanonicalName();
     @Rule
     public ActivityTestRule<LoginIPActivity> loginIPActivityActivityTestRule = new ActivityTestRule(LoginIPActivity.class);
 
@@ -44,6 +37,7 @@ import org.hamcrest.TypeSafeMatcher;
         onView(withId(R.id.ip))
                 .perform(typeText("123"), closeSoftKeyboard());
         onView(withId(R.id.IP_sign_in_button)).perform(click());
+
         onView(withId(R.id.ip)).check(matches(withText("123")));
         Log.d(TAG, "test - LoginIPActivity accepts IP as numeric values");
     }

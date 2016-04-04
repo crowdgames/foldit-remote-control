@@ -4,21 +4,19 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.LoaderManager.LoaderCallbacks;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
-import android.app.LoaderManager.LoaderCallbacks;
-
-import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.text.TextUtils;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -49,6 +47,7 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
      */
     private UserLoginTask mAuthTask = null;
 
+    final String TAG = this.getClass().getCanonicalName();
     // UI references.
     private AutoCompleteTextView mIPView;
     private EditText mPasswordView;
@@ -94,6 +93,19 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
         presenter = new LoginIPPresenter(this);
+
+        /*
+         * Adding an activity for tutorials on 'TUTORIAL' Button click
+         */
+        Button mTutorial = (Button) findViewById(R.id.tutorialButton);
+        mTutorial.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "creating Tutorial Activity");
+                Intent intent = new Intent(LoginIPActivity.this, TutorialActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void populateAutoComplete() {
