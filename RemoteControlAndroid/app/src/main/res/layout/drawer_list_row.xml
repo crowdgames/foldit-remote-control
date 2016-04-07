@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/lisr_row_layout">
+
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/left_click"
+        android:id="@+id/imageButton"
+        android:background="#111111"
+        android:alpha=".8"
+        android:cropToPadding="false"
+        android:adjustViewBounds="false"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp" />
+
+    <!-- A button to change user input into middle mouse clicks -->
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/middle_click"
+        android:id="@+id/imageButton2"
+        android:background="#111111"
+        android:alpha=".8"
+        android:layout_toRightOf="@id/imageButton"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp" />
+
+    <!-- A button to change user input into right mouse clicks -->
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/right_click"
+        android:id="@+id/imageButton3"
+        android:background="#111111"
+        android:alpha=".8"
+        android:layout_toRightOf="@id/imageButton2"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"/>
+
+    <!-- A button to pull up the android keyboard -->
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/keyboard"
+        android:id="@+id/imageButton4"
+        android:background="#111111"
+        android:alpha=".8"
+        android:layout_marginTop="40dp"
+        android:layout_below="@id/imageButton2"
+        android:layout_toLeftOf="@+id/imageButton3"
+        android:layout_toStartOf="@+id/imageButton3"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"/>
+
+    <!-- A hidden field to store keyboard input momentarily before it is pulled by the server -->
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/imageButton2"
+        android:layout_alignEnd="@+id/imageButton2"
+        android:visibility="invisible" />
+
+
+
+</RelativeLayout>
