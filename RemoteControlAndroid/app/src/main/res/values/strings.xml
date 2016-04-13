@@ -8,6 +8,8 @@
     <string name="title_activity_login_ip">IP Login</string>
     <string name="title_activity_tutorial">Tutorial</string>
 
+    <!-- Strings related to Splash Screen -->
+    <string name="welcome_message">Foldit Remote Control</string>
     <!-- Strings related to login -->
     <string name="prompt_IP">IP</string>
     <string name="prompt_password">Password (optional)</string>
