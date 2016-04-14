@@ -1,10 +1,14 @@
 package it.fold.remotecontrolandroid;
 
+import android.content.Context;
+
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.Display;
@@ -12,6 +16,8 @@ import android.view.SurfaceHolder;
 import android.view.WindowManager;
 
 import java.util.Arrays;
+
+
 
 /**
  * Handles connection between mobile device and game by initializing stream
@@ -70,7 +76,8 @@ public class StreamThread extends Thread {
     /**
      * keep running?
      */
-    private long mLastReceiveTime; /** last time */
+    private long mLastReceiveTime;
+    private Context mContext; /** last time */
 
     /**
      * Constructs a new StreamThread
@@ -176,13 +183,14 @@ public class StreamThread extends Thread {
      * @param key key unclear maybe used for passing with arguments
      * @throws IllegalArgumentException if address or key is null or port = 0
      */
-    public void initialize(String address, int port, String key) {
+    public void initialize(String address, int port, String key, Context context) {
         if (address == null || port == 0 || key == null) {
             throw new IllegalArgumentException();
         }
         mAddress = address;
         mPort = port;
         mKey = key;
+        mContext = context;
     }
 
     /**
@@ -208,8 +216,23 @@ public class StreamThread extends Thread {
      */
     public void lostConnection(String msg) {
         Log.d("streamdebug", "LOST CONNECTION: " + msg);
-
         setRunning(false);
+
+//        Intent intent = new Intent(mContext,LoginIPActivity.class);
+        startLoginIPActivity();
+    }
+
+    private void startLoginIPActivity() {
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent (mContext, LoginIPActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                mContext.startActivity(intent);
+
+            }
+        });
     }
 
     /**

@@ -21,7 +21,8 @@
             android:name=".GameActivity"
             android:label="Foldit Remote Control"
             android:parentActivityName=".LoginIPActivity"
-            android:screenOrientation="landscape" >
+            android:screenOrientation="landscape"
+            android:noHistory="true">
 
             <!-- <intent-filter> -->
             <!-- <action android:name="android.intent.action.MAIN" /> -->

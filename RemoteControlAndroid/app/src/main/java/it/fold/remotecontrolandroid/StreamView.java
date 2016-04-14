@@ -24,6 +24,7 @@ import android.view.WindowManager;
  * Handles events and imaging
  */
 public class  StreamView extends SurfaceView implements SurfaceHolder.Callback {
+    private final Context mContext;
     private StreamThread mStreamThread;
     /**
      * object to handle streaming
@@ -50,7 +51,7 @@ public class  StreamView extends SurfaceView implements SurfaceHolder.Callback {
      */
     public StreamView(Context context, AttributeSet attrs) {
         super(context, attrs);
-
+        this.mContext = context;
         SurfaceHolder surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
 
@@ -93,9 +94,11 @@ public class  StreamView extends SurfaceView implements SurfaceHolder.Callback {
         canvas.drawLine(0, 0, 100, 100, paint);
         holder.unlockCanvasAndPost(canvas);
 
-        mStreamThread.initialize(Constants.IP_ADDRESS, Constants.PORT, "");
+        mStreamThread.initialize(Constants.IP_ADDRESS, Constants.PORT, "",mContext);
         mStreamThread.setRunning(true);
-        mStreamThread.start();
+        if(mStreamThread.getState() == Thread.State.NEW) {
+            mStreamThread.start();
+        }
         Log.d("StreamView", "successfully created surface");
     }
 
