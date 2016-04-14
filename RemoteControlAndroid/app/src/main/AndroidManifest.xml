@@ -12,7 +12,7 @@
     <application
         android:allowBackup="true"
         android:hardwareAccelerated="true"
-        android:icon="@drawable/folditicon"
+        android:icon="@drawable/foldit_icon_only"
         android:label="Foldit Remote Control"
         android:screenOrientation="landscape"
         android:theme="@style/AppTheme" >
@@ -31,20 +31,34 @@
             <!-- </intent-filter> -->
 
         </activity>
+
         <activity
-            android:name=".LoginIPActivity"
-            android:label="@string/title_activity_login_ip" >
+            android:name=".SplashScreenActivity"
+            android:label="@string/app_name">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+        </activity>
+
+        <activity
+            android:name=".LoginIPActivity"
+            android:label="@string/title_activity_login_ip" >
+           <!-- <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter> -->
         </activity>
 
         <activity
             android:name=".TutorialActivity"
             android:label="@string/title_activity_tutorial">
         </activity>
+
     </application>
 
 </manifest>
