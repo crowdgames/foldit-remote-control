@@ -9,6 +9,7 @@ import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -56,6 +57,7 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
     private View focusView;
     boolean cancel;
     private LoginIPPresenter presenter;
+    private String FRC_SHARED_PREFS = "FRCSharedPreferences";
 
     @Override
     /**
@@ -106,6 +108,19 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences prefs = getSharedPreferences(FRC_SHARED_PREFS, MODE_PRIVATE);
+        String ip = prefs.getString("ip", null);
+
+        if (ip != null) {
+            String password  = prefs.getString("key", "");//"No name defined" is the default value.
+            mIPView.setText(ip);
+            mPasswordView.setText(password);
+        }
     }
 
     private void populateAutoComplete() {
@@ -322,6 +337,10 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
     // Begin GameActivity
 
     public void sendMessage() {
+        SharedPreferences.Editor editor = getSharedPreferences(FRC_SHARED_PREFS, MODE_PRIVATE).edit();
+        editor.putString("ip", getIPAddress());
+        editor.putString("key", getPassword());
+        editor.commit();
         Intent intent = new Intent(this, GameActivity.class);
         this.startActivity(intent);
     }
