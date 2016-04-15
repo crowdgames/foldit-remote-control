@@ -16,6 +16,7 @@
         android:adjustViewBounds="false"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
+        android:layout_marginTop="30dp"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp" />
 
@@ -29,7 +30,8 @@
         android:alpha=".8"
         android:layout_toRightOf="@id/imageButton"
         android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp" />
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="30dp"/>
 
     <!-- A button to change user input into right mouse clicks -->
     <ImageButton
@@ -41,7 +43,8 @@
         android:alpha=".8"
         android:layout_toRightOf="@id/imageButton2"
         android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"/>
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="30dp"/>
 
     <!-- A button to pull up the android keyboard -->
     <ImageButton
