@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">RemoteControlAndroid</string>
+    <string name="app_name">Foldit RC</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_connect">ConnectActivity</string>
-    <string name="title_activity_login_ip">IPLogin</string>
+    <string name="title_activity_login_ip">Foldit RC</string>
+    <string name="title_activity_tutorial">Tutorial</string>
 
+    <!-- Strings related to Splash Screen -->
+    <string name="welcome_message">Foldit Remote Control</string>
     <!-- Strings related to login -->
     <string name="prompt_IP">IP</string>
-    <string name="prompt_password">Password (optional)</string>
+    <string name="prompt_password">Key (optional)</string>
     <string name="action_sign_in">Sign in or register</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="error_invalid_IP">This IP address is invalid</string>
@@ -21,4 +24,17 @@
     </string>
     <string name="title_activity_main">MainActivity</string>
 
+    <!-- Strings related to the tutorial activity -->
+    <string name="download_desktop_version">Download Desktop Version</string>
+    <string name="desktop_version_settings">Settings for the Desktop Version</string>
+    <string name="foldit_remote_control_settings">Connect to the Desktop Version</string>
+    <string name="tutorial_step1">Select the menu option on the lower left corner and
+        Select Puzzle Menu</string>
+    <string name="tutorial_step2">Select Science Puzzle</string>
+    <string name="tutorial_step3">Select Puzzle of your choice and click Play</string>
+    <string name="tutorial_step4">Click on the Social tab option</string>
+    <string name="tutorial_step5">Click on Remote Control</string>
+    <string name="tutorial_step6a">Enter the Local IP on your Android device</string>
+    <string name="tutorial_step6b">You can also generate an optional key by selecting the require key
+        option and enter the Local IP and the key on your android device to connect to a server</string>
 </resources>

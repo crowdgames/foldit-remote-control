@@ -4,21 +4,20 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.LoaderManager.LoaderCallbacks;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
-import android.app.LoaderManager.LoaderCallbacks;
-
-import android.content.CursorLoader;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.text.TextUtils;
+import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -36,7 +35,7 @@ import java.util.List;
 /**
  * A login screen that offers login via IP/password.
  */
-public class LoginIPActivity extends ActionBarActivity implements LoaderCallbacks<Cursor> {
+public class LoginIPActivity extends ActionBarActivity implements LoaderCallbacks<Cursor>,LoginView {
 
     /**
      * A dummy authentication store containing known user names and passwords.
@@ -49,11 +48,16 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
      */
     private UserLoginTask mAuthTask = null;
 
+    final String TAG = this.getClass().getCanonicalName();
     // UI references.
     private AutoCompleteTextView mIPView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private View focusView;
+    boolean cancel;
+    private LoginIPPresenter presenter;
+    private String FRC_SHARED_PREFS = "FRCSharedPreferences";
 
     @Override
     /**
@@ -90,6 +94,33 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+        presenter = new LoginIPPresenter(this);
+
+        /*
+         * Adding an activity for tutorials on 'TUTORIAL' Button click
+         */
+        Button mTutorial = (Button) findViewById(R.id.tutorialButton);
+        mTutorial.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "creating Tutorial Activity");
+                Intent intent = new Intent(LoginIPActivity.this, TutorialActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences prefs = getSharedPreferences(FRC_SHARED_PREFS, MODE_PRIVATE);
+        String ip = prefs.getString("ip", null);
+
+        if (ip != null) {
+            String password  = prefs.getString("key", "");//"No name defined" is the default value.
+            mIPView.setText(ip);
+            mPasswordView.setText(password);
+        }
     }
 
     private void populateAutoComplete() {
@@ -106,48 +137,49 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
         if (mAuthTask != null) {
             return;
         }
+        presenter.attemptLogin();
+    }
 
+
+    @Override
+    public String getIPAddress() {
+        return mIPView.getText().toString();
+    }
+
+    @Override
+    public String getPassword() {
+        return mPasswordView.getText().toString();
+    }
+
+    @Override
+    public void showIPEmptyError(int resId) {
+        mIPView.setError(getString(resId));
+        focusView = mIPView;
+        cancel = true;
+    }
+
+
+    @Override
+    public void showIpInvalidError(int resId) {
+        mIPView.setError(getString(resId));
+        focusView = mIPView;
+        cancel = true;
+    }
+
+    @Override
+    public void showPasswordInvalidError(int resId) {
+        mPasswordView.setError(getString(resId));
+        focusView = mPasswordView;
+        cancel = true;
+    }
+
+    @Override
+    public void resetErrors() {
         // Reset errors.
         mIPView.setError(null);
         mPasswordView.setError(null);
-
-        // Store values at the time of the login attempt.
-        String IP = mIPView.getText().toString();
-        String password = mPasswordView.getText().toString();
-
-        boolean cancel = false;
-        View focusView = null;
-
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        // Check for a valid IP address.
-        if (TextUtils.isEmpty(IP)) {
-            mIPView.setError(getString(R.string.error_field_required));
-            focusView = mIPView;
-            cancel = true;
-        } else if (!isIPValid(IP)) {
-            mIPView.setError(getString(R.string.error_invalid_IP));
-            focusView = mIPView;
-            cancel = true;
-        }
-
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            showProgress(true);
-
-            mAuthTask = new UserLoginTask(IP, password);
-            mAuthTask.execute((Void) null);
-        }
+        cancel = false;
+        focusView = null;
     }
 
     /**
@@ -156,7 +188,8 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
      * @param IP The value input to the IP input in the login menu
      * @return If the IP string input actually contains a valid IPV4 IP String
      */
-    private boolean isIPValid(String IP) {
+    @Override
+    public boolean isIPValid(String IP) {
         try {
             if ( IP == null || IP.isEmpty() ) {
                 return false;
@@ -186,15 +219,34 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
      * @param password the password that the user inputs
      * @return whether the password is of valid length
      */
-    private boolean isPasswordValid(String password) {
+    @Override
+    public boolean isPasswordValid(String password) {
         return password.length() > 4;
+    }
+
+    @Override
+    public void attemptLoginTask(String IP, String password) {
+        if (cancel) {
+            // There was an error; don't attempt login and focus the first
+            // form field with an error.
+            focusView.requestFocus();
+        } else {
+            // Show a progress spinner, and kick off a background task to
+            // perform the user login attempt.
+            showProgress(true);
+
+            mAuthTask = new LoginIPActivity.UserLoginTask(IP, password);
+            mAuthTask.execute((Void) null);
+        }
+
     }
 
     /**
      * Shows the progress UI and hides the login form.
      */
+    @Override
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
+    public void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
@@ -260,6 +312,8 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
 
     }
 
+
+
     private interface ProfileQuery {
         String[] PROJECTION = {
                 ContactsContract.CommonDataKinds.Email.ADDRESS,
@@ -281,7 +335,12 @@ public class LoginIPActivity extends ActionBarActivity implements LoaderCallback
     }
 
     // Begin GameActivity
+
     public void sendMessage() {
+        SharedPreferences.Editor editor = getSharedPreferences(FRC_SHARED_PREFS, MODE_PRIVATE).edit();
+        editor.putString("ip", getIPAddress());
+        editor.putString("key", getPassword());
+        editor.commit();
         Intent intent = new Intent(this, GameActivity.class);
         this.startActivity(intent);
     }

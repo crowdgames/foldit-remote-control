@@ -1,0 +1,185 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="it.fold.remotecontrolandroid.TutorialActivity"
+    android:background="#222222">
+
+    <ScrollView android:id="@+id/login_form" android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout android:id="@+id/tutorial_form" android:layout_width="match_parent"
+            android:layout_height="0dp" android:orientation="vertical">
+
+            <!-- A button to display download instructions -->
+            <Button
+                android:id="@+id/downloadDesktopVersionButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/download_desktop_version"
+                android:textStyle="bold"
+                android:textColor="#ffffff"
+                android:background="#78AB46" />
+
+            <!-- TextView shows the instructions for downloading the desktop version -->
+            <TextView
+                android:id="@+id/download_desktop_version_textview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#ffffff"
+                android:background="#888888"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:visibility="gone"
+                android:padding="10dp"/>
+
+
+            <!-- A button to display desktop setup instructions -->
+            <Button
+                android:id="@+id/desktopVersionSettingsButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/desktop_version_settings"
+                android:textStyle="bold"
+                android:textColor="#ffffff"
+                android:background="#78AB46" />
+
+            <!-- LinearLayout shows the instructions to setup the desktop to support FRC -->
+            <LinearLayout
+                android:id="@+id/desktop_setup_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:background="#888888">
+
+                <TextView
+                    android:id="@+id/setup_tutorial_step1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tutorial_step1"
+                    android:textColor="#ffffff"/>
+                <ImageView
+                    android:id="@+id/step1"
+                    android:src="@drawable/step1"
+                    android:layout_width="250dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center_horizontal"/>
+
+                <TextView
+                    android:id="@+id/setup_tutorial_step2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tutorial_step2"
+                    android:textColor="#ffffff"/>
+                <ImageView
+                    android:id="@+id/step2"
+                    android:src="@drawable/step2"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:layout_gravity="center_horizontal"/>
+
+                <TextView
+                    android:id="@+id/setup_tutorial_step3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tutorial_step3"
+                    android:textColor="#ffffff"/>
+                <ImageView
+                    android:id="@+id/step3"
+                    android:src="@drawable/step3"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:layout_gravity="center_horizontal"/>
+
+                <TextView
+                    android:id="@+id/setup_tutorial_step4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tutorial_step4"
+                    android:textColor="#ffffff"/>
+                <ImageView
+                    android:id="@+id/step4"
+                    android:src="@drawable/step4"
+                    android:layout_width="200dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center_horizontal"/>
+
+                <TextView
+                    android:id="@+id/setup_tutorial_step5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tutorial_step5"
+                    android:textColor="#ffffff"/>
+                <ImageView
+                    android:id="@+id/step5"
+                    android:src="@drawable/step5"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center_horizontal"/>
+
+
+            </LinearLayout>
+
+
+            <!-- A button to display connection instructions -->
+            <Button
+                android:id="@+id/connectionSettingsButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/foldit_remote_control_settings"
+                android:textStyle="bold"
+                android:textColor="#ffffff"
+                android:background="#78AB46" />
+
+            <LinearLayout
+                android:id="@+id/connect_FRC_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:background="#888888">
+                <TextView
+                    android:id="@+id/setup_tutorial_step6a"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tutorial_step6a"
+                    android:textColor="#ffffff"/>
+                <ImageView
+                    android:id="@+id/step6a"
+                    android:src="@drawable/step6a"
+                    android:layout_width="150dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center_horizontal"/>
+
+                <TextView
+                    android:id="@+id/setup_tutorial_step6b"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tutorial_step6b"
+                    android:textColor="#ffffff"/>
+                <ImageView
+                    android:id="@+id/step6b"
+                    android:src="@drawable/step6b"
+                    android:layout_width="150dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center_horizontal"/>
+
+            </LinearLayout>
+        </LinearLayout>
+
+    </ScrollView>
+</LinearLayout>
