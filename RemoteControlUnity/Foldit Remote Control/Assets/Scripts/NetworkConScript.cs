@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Net.Sockets;
+using UnityEngine.SceneManagement;
 
 // Sean Moss
 // Gregory Loden
@@ -67,7 +68,7 @@ public class NetworkConScript : MonoBehaviour
         if (isConnected) {
             if (timeWaited >= REFRESH_INTERVAL) {
                 //Debug.Log ("Sending refresh");
-                int bytesSent = socket.Send(new byte[] { MAGIC_CHARACTER, 1, 0, 0, 0, 0, 0 });
+                socket.Send(new byte[] { MAGIC_CHARACTER, 1, 0, 0, 0, 0, 0 });
                 //Debug.Log ("Sent " + bytesSent.ToString() + " bytes");
                 timeWaited -= REFRESH_INTERVAL;
             }
@@ -78,79 +79,80 @@ public class NetworkConScript : MonoBehaviour
 
     void OnApplicationQuit() {
         if (isConnected) {
-            Debug.Log("Sending terminate");
-            int bytesSent = socket.Send(new byte[] { MAGIC_CHARACTER, 2, 0, 0, 0, 0, 0 });
-            Debug.Log("Sent " + bytesSent.ToString() + " bytes");
-            int bytesReceived;
-            do {
-                bytesReceived = socket.Receive(bytes);
-                Debug.Log("****Received " + bytesReceived + " bytes for the screen****");
-            } while (bytesReceived > 0);
+			try {
+	            Debug.Log("Sending terminate");
+	            int bytesSent = socket.Send(new byte[] { MAGIC_CHARACTER, 2, 0, 0, 0, 0, 0 });
+	            Debug.Log("Sent " + bytesSent.ToString() + " bytes");
+	            int bytesReceived;
+	            do {
+	                bytesReceived = socket.Receive(bytes);
+	                Debug.Log("****Received " + bytesReceived + " bytes for the screen****");
+	            } while (bytesReceived > 0);
+			} catch (SocketException e) {
+				Debug.Log (e.Message);
+			}
+
             socket.Close();
             isConnected = false;
         }
+		SceneManager.LoadScene("SplashScreen", LoadSceneMode.Single);
     }
 
     void receiveToBytes() {
         //receive to the byte array, appending to existing bytes if there are any
-        try {
-            int bytesReceived = socket.Receive(bytes, bytesSaved, BYTE_BUFFER_SIZE - bytesSaved, SocketFlags.None);
-            bytesReceived += bytesSaved;
-            bytesSaved = 0;
-            //Debug.Log("****Received " + bytesReceived + " bytes for the screen****");
-            //string s = "";
-            //int byteCount = bytesReceived < 256 ? bytesReceived : 256;
-            //for (int q = 0; q < byteCount; q++)
-            //    s += bytes[q].ToString() + ", ";
-            //Debug.Log(s);
+		if (isConnected) {
+			try {
+				int bytesReceived = socket.Receive (bytes, bytesSaved, BYTE_BUFFER_SIZE - bytesSaved, SocketFlags.None);
+				bytesReceived += bytesSaved;
+				bytesSaved = 0;
+				//Debug.Log("****Received " + bytesReceived + " bytes for the screen****");
+				//string s = "";
+				//int byteCount = bytesReceived < 256 ? bytesReceived : 256;
+				//for (int q = 0; q < byteCount; q++)
+				//    s += bytes[q].ToString() + ", ";
+				//Debug.Log(s);
 
-            //start parsing the bytes
-            bool flush = false;
-            for (int i = 0; i < bytesReceived;)
-            {
-                if (bytes[i] != 'X')
-                    throw new System.Exception("Bad network message");
+				//start parsing the bytes
+				bool flush = false;
+				for (int i = 0; i < bytesReceived;) {
+					if (bytes [i] != 'X')
+						throw new System.Exception ("Bad network message");
 
-                ServerMessageType type = (ServerMessageType)bytes[i + 1];
-                int len = (int)(bytes[i + 2]) * 128 + bytes[i + 3];
-                //either the message got cut off before the length could be determined or
-                //the message got cut off before the whole message was received
-                if (i + 4 > bytesReceived || i + len > bytesReceived)
-                {
-                    bytesSaved = bytesReceived - i;
-                    for (int j = 0; j < bytesSaved; j++)
-                        bytes[j] = bytes[j + i];
-                    break;
-                }
+					ServerMessageType type = (ServerMessageType)bytes [i + 1];
+					int len = (int)(bytes [i + 2]) * 128 + bytes [i + 3];
+					//either the message got cut off before the length could be determined or
+					//the message got cut off before the whole message was received
+					if (i + 4 > bytesReceived || i + len > bytesReceived) {
+						bytesSaved = bytesReceived - i;
+						for (int j = 0; j < bytesSaved; j++)
+							bytes [j] = bytes [j + i];
+						break;
+					}
 
-                switch (type)
-                {
-                    //the server is done sending us image data, render the completed image
-                    case ServerMessageType.FLUSH:
-                        flush = true;
-                        break;
-                    //the server told us to terminate the connection
-                    case ServerMessageType.TERMINATE:
-                        Debug.Log("****Server said terminate connection for reason " + bytes[i + 4] + "****");
-                        OnApplicationQuit();
-                        break;
-                    //the server sent image data for a 16x16 square
-                    default:
-                        handleRenderMessage(type, i, len);
-                        break;
-                }
-                i += len;
-            }
-            //probably will happen every time
-            if (flush)
-                tileRenderController.Flush();
-        }
-        catch (SocketException e)
-        {
-            tileRenderController.resetTexture();
-            GameObject.Find("UIInput").GetComponent<UIInput>().toggleUI(GameObject.Find("Canvas").transform.FindChild("Connection Panel").gameObject);
-            this.gameObject.SetActive(false);
-        }
+					switch (type) {
+					//the server is done sending us image data, render the completed image
+					case ServerMessageType.FLUSH:
+						flush = true;
+						break;
+					//the server told us to terminate the connection
+					case ServerMessageType.TERMINATE:
+						Debug.Log ("****Server said terminate connection for reason " + bytes [i + 4] + "****");
+						OnApplicationQuit ();
+						break;
+					//the server sent image data for a 16x16 square
+					default:
+						handleRenderMessage (type, i, len);
+						break;
+					}
+					i += len;
+				}
+				//probably will happen every time
+				if (flush)
+					tileRenderController.Flush ();
+			} catch (SocketException e) {
+				Debug.Log (e.Message);
+			}
+		}
     }
     void handleRenderMessage(ServerMessageType type, int i, int len) {
         int tileX = bytes[i + 4] * 128 + bytes[i + 5];
@@ -253,6 +255,14 @@ public class NetworkConScript : MonoBehaviour
         receiveToBytes();
     }
 
+	public void Touch(TouchPhase phase, int id, int x, int y)
+	{
+		string log = "Touch " + phase.ToString() + " of finger " + id + " at " + x + " : " + y; 
+		Debug.Log(log);
+		SendPack (x, y, (int)phase + 20, id);
+		receiveToBytes();
+	}
+
     public void SendPack(int x, int y, int type, int info)
     {
         Vector2 FoldCoord = tileRenderController.ScreenCoordToFoldit(new Vector2((float)x, (float)y));
@@ -260,8 +270,18 @@ public class NetworkConScript : MonoBehaviour
         x = (int) FoldCoord.x;
         y = (int) FoldCoord.y;
 
-        int bytesSent = socket.Send(new byte[] { MAGIC_CHARACTER, (byte)type, (byte)info, (byte)(x / 128), (byte)(x % 128), (byte)(y / 128), (byte)(y % 128) });
-        Debug.Log("Sent " + bytesSent.ToString() + " bytes");
+		if (isConnected) {
+			int bytesSent = socket.Send (new byte[] {
+				MAGIC_CHARACTER,
+				(byte)type,
+				(byte)info,
+				(byte)(x / 128),
+				(byte)(x % 128),
+				(byte)(y / 128),
+				(byte)(y % 128)
+			});
+			Debug.Log ("Sent " + bytesSent.ToString () + " bytes");
+		}
     }
 
     public void SendText(string text) {
@@ -271,7 +291,10 @@ public class NetworkConScript : MonoBehaviour
             message[i * 7 + 1] = (byte)(events.CharSend);
             message[i * 7 + 2] = (byte)(text[i]);
         }
-        int bytesSent = socket.Send(message);
-        Debug.Log("Sent " + bytesSent.ToString() + " bytes");
+
+		if (isConnected) {
+			int bytesSent = socket.Send (message);
+			Debug.Log ("Sent " + bytesSent.ToString () + " bytes");
+		}
     }
 }

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 
 // Written by Elizabeth
@@ -7,7 +8,7 @@ public class SplashScreenInput : MonoBehaviour {
 	public GameObject helpWindow;
 
 	public void startRemoteControl() {
-		Application.LoadLevel ("FolditRemoteControl"); 
+		SceneManager.LoadScene("FolditRemoteControl", LoadSceneMode.Single);
 	}
 
 	public void showHelpWindow() {
